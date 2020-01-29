@@ -31,7 +31,7 @@ fn retrieve_entries(path: &PathBuf) -> Result<Vec<PathBuf>, io::Error> {
                 }
                 path
             }).ok()
-        ).collect::<Vec<_>>();
+        ).collect::<Vec<PathBuf>>();
 
     Ok([entries,child_entries].concat())
 }
