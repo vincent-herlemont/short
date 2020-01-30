@@ -30,13 +30,24 @@ pub fn retrieve(path: &PathBuf) -> Result<Vec<PathBuf>, io::Error> {
     Ok([entries,child_entries].concat())
 }
 
+/// Return [`Vec<PathBuf>`] who contain the [`extensions`].
+pub fn filter_extensions(paths:&[PathBuf],extensions:&[&str]) -> Vec<PathBuf> {
+    paths.iter().filter(|path| {
+        if let Some(extension) = path.extension() {
+            if let Some(extension) = extension.to_str() {
+                return extensions.contains(&extension)
+            }
+        }
+        false
+    }).cloned().collect::<Vec<PathBuf>>()
+}
 
 #[cfg(test)]
 mod tests {
     use tempdir::TempDir;
     use crate::resource;
     use std::path::PathBuf;
-    use crate::path::retrieve;
+    use crate::path::{retrieve, filter_extensions};
 
     /// Return [`InspectorConfig`], create temporary directory and copy resource on it.
     ///
@@ -58,5 +69,19 @@ mod tests {
         entries.sort();
         assert!(entries.len() >= 3);
         assert_eq!(&entries[0].strip_prefix(&path).unwrap(),&PathBuf::from("certificate.yaml"));
+    }
+
+    #[test]
+    fn filter_extensions_test() {
+        let paths = [
+            PathBuf::from("/test/test"),
+            PathBuf::from("/test/test.yaml"),
+            PathBuf::from("/test/test.txt"),
+            PathBuf::from("/test/test.js"),
+        ];
+
+        let filtered_extensions = filter_extensions(&paths,&["js","html"]);
+        assert_eq!(&filtered_extensions, &vec![PathBuf::from("/test/test.js")]);
+        assert_eq!((&filtered_extensions.clone()).len(), 1 as usize);
     }
 }
