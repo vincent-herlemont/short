@@ -36,4 +36,12 @@ mod tests {
         let contents = lib::io::read_to_string_finds(cursor, |s| s.contains("test")).unwrap();
         assert_eq!(contents.into_bytes(), data);
     }
+
+    #[test]
+    fn read_to_string_finds_test_fail() {
+        let data = b"line1\nline2\n\ntest";
+        let cursor = Cursor::new(data);
+        let result = lib::io::read_to_string_finds(cursor, |s| s.contains("notfouned"));
+        assert!(result.is_err());
+    }
 }
