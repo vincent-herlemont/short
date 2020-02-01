@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use super::d4d_error;
+use crate::lib::error::D4dError;
 
 #[derive(Debug)]
 pub struct Resource {
@@ -23,7 +23,10 @@ impl Resource {
 /// Copy all [`Resource`] in target directory [`path`].
 pub fn to_dir(path: &PathBuf) -> Result<(), Box<dyn Error>> {
     if !path.exists() {
-        return Err(Box::new(d4d_error::new("can not find directory"))); // TODO: make error abstraction
+        return Err(D4dError::new_box(format!(
+            "directory {:?} not exists",
+            path
+        )));
     }
     for resource in get() {
         let resource_path = Path::new(resource.path.as_str());

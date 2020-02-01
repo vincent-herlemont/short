@@ -1,5 +1,5 @@
 //! Input/Ouput manipulation operations related of d4d domain.
-use crate::d4d_error;
+use super::error::D4dError;
 
 use std::error::Error;
 use std::io::BufRead;
@@ -20,7 +20,7 @@ where
     }
     match matched {
         true => Ok(buf),
-        false => Err(Box::new(d4d_error::new("fail to match"))),
+        false => Err(D4dError::new_box(format!("fail to satisfy predicate"))),
     }
 }
 
