@@ -1,7 +1,7 @@
 mod resource;
 mod d4d_error;
 mod cloudformation;
-mod path;
+mod lib;
 
 fn main() {
     let res = resource::get();
