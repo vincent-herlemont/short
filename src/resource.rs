@@ -53,6 +53,7 @@ mod tests {
     use tempdir::TempDir;
 
     use super::*;
+    use crate::lib::test::after;
 
     #[test]
     fn get_all_resources() {
@@ -79,6 +80,7 @@ mod tests {
             &files[1].strip_prefix(&tempdir).unwrap(),
             &Path::new("test")
         );
+        after(tempdir)
     }
 }
 
