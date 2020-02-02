@@ -1,12 +1,10 @@
 //! Input/Ouput manipulation operations related of d4d domain.
-use super::error::D4dError;
-
-use std::error::Error;
+use std::io;
 use std::io::BufRead;
 
 /// Search for a buffer a line that satisfies a predicate
 /// Return [`String`] that hold the contain of buffer.
-pub fn read_to_string_finds<B, F>(mut buf_read: B, f: F) -> Result<String, Box<dyn Error>>
+pub fn read_to_string_finds<B, F>(mut buf_read: B, f: F) -> Result<String, io::Error>
 where
     B: BufRead,
     F: Fn(&str) -> bool,
@@ -20,7 +18,10 @@ where
     }
     match matched {
         true => Ok(buf),
-        false => Err(D4dError::new_box(format!("fail to satisfy predicate"))),
+        false => Err(io::Error::new(
+            io::ErrorKind::Other,
+            "fail to satisfy predicate",
+        )),
     }
 }
 
