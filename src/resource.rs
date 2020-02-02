@@ -7,16 +7,20 @@ use crate::lib::error::D4dError;
 
 #[derive(Debug)]
 pub struct Resource {
-    pub path: String, // TODO : change to `PathBuf`
+    path: PathBuf,
     pub data: String,
 }
 
 impl Resource {
     fn new(path: &str, data: &str) -> Resource {
         Resource {
-            path: path.to_string(),
+            path: PathBuf::from(path),
             data: data.to_string(),
         }
+    }
+
+    fn path(&self) -> &Path {
+        return &self.path.as_path();
     }
 }
 
@@ -29,7 +33,7 @@ pub fn to_dir(path: &PathBuf) -> Result<(), Box<dyn Error>> {
         )));
     }
     for resource in get() {
-        let resource_path = Path::new(resource.path.as_str());
+        let resource_path = resource.path();
         let path = path.join(resource_path.strip_prefix(RESOURCE_DIRECTORY)?);
         let contents = resource.data.as_str();
         if let Some(parent) = path.parent() {
@@ -53,7 +57,7 @@ mod tests {
     #[test]
     fn get_all_resources() {
         let resources = get();
-        assert!(resources.first().unwrap().path.len() > 0);
+        assert!(resources.first().unwrap().path.to_str().unwrap().len() > 0);
         assert!(resources.first().unwrap().data.len() > 0);
     }
 
