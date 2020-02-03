@@ -1,9 +1,9 @@
 //! Embedding and shifting of resources
-use std::error::Error;
+use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::lib::error::D4dError;
+use crate::lib::error::Error;
 
 #[derive(Debug)]
 pub struct Resource {
@@ -25,12 +25,9 @@ impl Resource {
 }
 
 /// Copy all [`Resource`] in target directory [`path`].
-pub fn to_dir(path: &PathBuf) -> Result<(), Box<dyn Error>> {
+pub fn to_dir(path: &PathBuf) -> Result<(), Box<dyn stdError>> {
     if !path.exists() {
-        return Err(D4dError::new_box(format!(
-            "directory {:?} not exists",
-            path
-        )));
+        return Err(Error::new_box(format!("directory {:?} not exists", path)));
     }
     for resource in get() {
         let resource_path = resource.path();

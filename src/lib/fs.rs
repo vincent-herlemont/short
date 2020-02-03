@@ -1,7 +1,7 @@
 //! File manipulation operations related of d4d domain.
 use super::io;
+use crate::lib::error::Error;
 use std::fs::File;
-use std::io as sio;
 use std::io::BufReader;
 use std::path::PathBuf;
 
@@ -12,7 +12,7 @@ struct ContentFile {
     contents: String,
 }
 
-fn read_to_string_finds<F>(paths: &[PathBuf], f: F) -> (Vec<ContentFile>, Vec<sio::Error>)
+fn read_to_string_finds<F>(paths: &[PathBuf], f: F) -> (Vec<ContentFile>, Vec<Error>)
 where
     F: Fn(&str) -> bool,
 {
@@ -21,7 +21,7 @@ where
         .map(|path| {
             let contents = match File::open(path).map(|file| BufReader::new(file)) {
                 Ok(buffer) => io::read_to_string_finds(buffer, &f),
-                Err(error) => Err(error),
+                Err(error) => Err(Error::from(error)),
             };
 
             match contents {
@@ -42,6 +42,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use crate::lib::error::Error;
     use crate::lib::fs::read_to_string_finds;
     use crate::lib::path::retrieve;
     use crate::lib::test::{after, before};
@@ -63,6 +64,15 @@ mod tests {
 
         // Errors
         assert_eq!((&errors).len(), 2);
+        match &errors[0] {
+            Error::Io(_) => assert!(true),
+            _ => assert!(false),
+        }
+        match &errors[1] {
+            Error::Other(_) => assert!(true),
+            _ => assert!(false),
+        }
+
         after(tmpath);
     }
 }
