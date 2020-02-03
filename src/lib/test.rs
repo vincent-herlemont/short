@@ -10,7 +10,6 @@ use crate::resource;
 /// Return [`InspectorConfig`], create temporary directory and copy resource on it.
 ///
 /// The temporary directory is owned by [`InspectorConfig.path`].
-/// And will be deleted when [`InspectorConfig.path`] will be dropped.
 ///
 /// # Recommendation
 ///
@@ -30,10 +29,12 @@ pub fn before(test_name: &str) -> PathBuf {
 }
 
 /// Clean test
+/// TODO : Remove and implement drop method for clean tmpdir.
 ///
 /// # Recommendation
 ///
 /// Need to be call at the end of the test who use [`before`].
+#[deprecated]
 pub fn after(path: PathBuf) {
     // Clean tmp directory
     fs::remove_dir_all(path).expect("can not clean tmp directory");
