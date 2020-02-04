@@ -1,10 +1,9 @@
 //! Inspection and manipulation of cloudformation templates.
+use serde::export::fmt::Debug;
+use serde::Deserialize;
 use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
-
-use serde::export::fmt::Debug;
-use serde::Deserialize;
 
 use crate::lib;
 
@@ -73,18 +72,17 @@ fn from_paths(paths: &[PathBuf]) -> Vec<Result<File, Box<dyn Error>>> {
 mod tests {
     use crate::cloudformation::from_paths;
     use crate::lib;
-    use crate::lib::test::{after, before};
+    use crate::lib::test::before;
 
     #[test]
     fn from_path_test() {
-        let test_path = before("from_path_test");
-        let paths = lib::path::retrieve(&test_path).expect("fail to get paths");
+        let config = before("from_path_test");
+        let paths = lib::path::retrieve(&config.tmp_dir).expect("fail to get paths");
         let results = from_paths(&paths);
         let result = results[0].as_ref().ok().unwrap();
         assert_eq!(
             result.template.aws_template_format_version,
             String::from("2010-09-09")
         );
-        after(test_path);
     }
 }

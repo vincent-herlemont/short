@@ -25,7 +25,7 @@ impl Resource {
 }
 
 /// Copy all [`Resource`] in target directory [`path`].
-pub fn to_dir(path: &PathBuf) -> Result<(), Box<dyn stdError>> {
+pub fn to_dir(path: &Path) -> Result<(), Box<dyn stdError>> {
     if !path.exists() {
         return Err(Error::new_box(format!("directory {:?} not exists", path)));
     }
@@ -45,12 +45,9 @@ pub fn to_dir(path: &PathBuf) -> Result<(), Box<dyn stdError>> {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::read_dir;
-
-    use tempdir::TempDir;
-
     use super::*;
-    use crate::lib::test::after;
+    use std::fs::read_dir;
+    use tempdir::TempDir;
 
     #[test]
     fn get_all_resources() {
@@ -62,7 +59,7 @@ mod tests {
     #[test]
     fn copy_all_resources_to_target_directory() {
         let tempdir = TempDir::new("copy_all_resources_to_target_directory").unwrap();
-        let tempdir = tempdir.into_path();
+        let tempdir = tempdir.path();
         to_dir(&tempdir).unwrap();
         let mut files: Vec<_> = read_dir(&tempdir)
             .unwrap()
@@ -77,7 +74,6 @@ mod tests {
             &files[1].strip_prefix(&tempdir).unwrap(),
             &Path::new("test")
         );
-        after(tempdir)
     }
 }
 

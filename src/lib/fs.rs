@@ -54,12 +54,12 @@ mod tests {
     use crate::lib::error::Error;
     use crate::lib::fs::ContentFile;
     use crate::lib::path::retrieve;
-    use crate::lib::test::{after, before};
+    use crate::lib::test::before;
 
     #[test]
     fn read_contain_multi_test() {
-        let tmpath = before("search_test");
-        let paths = retrieve(&tmpath).unwrap();
+        let config = before("search_test");
+        let paths = retrieve(&config.tmp_dir).unwrap();
         let (content_files, errors) =
             ContentFile::read_contain_multi(&paths, |line| line.contains("test"));
 
@@ -82,7 +82,5 @@ mod tests {
             Error::Other(_) => assert!(true),
             _ => assert!(false),
         }
-
-        after(tmpath);
     }
 }

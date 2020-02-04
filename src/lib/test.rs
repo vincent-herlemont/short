@@ -7,6 +7,16 @@ use tempdir::TempDir;
 
 use crate::resource;
 
+pub struct Config {
+    pub tmp_dir: PathBuf,
+}
+
+impl Drop for Config {
+    fn drop(&mut self) {
+        fs::remove_dir_all(self.tmp_dir.clone()).expect("can not clean tmp directory");
+    }
+}
+
 /// Return [`InspectorConfig`], create temporary directory and copy resource on it.
 ///
 /// The temporary directory is owned by [`InspectorConfig.path`].
@@ -14,7 +24,7 @@ use crate::resource;
 /// # Recommendation
 ///
 /// Need to call [`after`] at the end of test.
-pub fn before(test_name: &str) -> PathBuf {
+pub fn before(test_name: &str) -> Config {
     let test_name = format!("{}.{}", "d4d", test_name);
 
     // Create temporary directory.
@@ -25,17 +35,5 @@ pub fn before(test_name: &str) -> PathBuf {
     // Copy resources to it.
     resource::to_dir(&path).expect("fail to copy resources");
 
-    path
-}
-
-/// Clean test
-/// TODO : Remove and implement drop method for clean tmpdir.
-///
-/// # Recommendation
-///
-/// Need to be call at the end of the test who use [`before`].
-#[deprecated]
-pub fn after(path: PathBuf) {
-    // Clean tmp directory
-    fs::remove_dir_all(path).expect("can not clean tmp directory");
+    Config { tmp_dir: path }
 }

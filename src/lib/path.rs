@@ -48,22 +48,20 @@ pub fn filter_extensions(paths: &[PathBuf], extensions: &[&str]) -> Vec<PathBuf>
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
-
     use crate::lib;
-    use crate::lib::test::{after, before};
+    use crate::lib::test::before;
+    use std::path::PathBuf;
 
     #[test]
     fn retrieve_entries_test() {
-        let path = before("before_test");
-        let mut entries = lib::path::retrieve(&path).unwrap();
+        let config = before("before_test");
+        let mut entries = lib::path::retrieve(&config.tmp_dir).unwrap();
         entries.sort();
         assert!(entries.len() >= 3);
         assert_eq!(
-            &entries[0].strip_prefix(&path).unwrap(),
+            &entries[0].strip_prefix(&config.tmp_dir).unwrap(),
             &PathBuf::from("certificate.yaml")
         );
-        after(path);
     }
 
     #[test]
