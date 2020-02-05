@@ -7,6 +7,7 @@ use std::fmt::Result as FmtResult;
 use std::fmt::{Display, Formatter};
 use std::io;
 
+// TODO: Add PartialEq to Error type.
 #[derive(Debug)]
 pub enum Error {
     Other(String),

@@ -60,7 +60,7 @@ mod tests {
         assert!(entries.len() >= 3);
         assert_eq!(
             &entries[0].strip_prefix(&config.tmp_dir).unwrap(),
-            &PathBuf::from("certificate.yaml")
+            &PathBuf::from("1_certificate.yaml")
         );
     }
 

@@ -68,11 +68,15 @@ mod tests {
         files.sort();
         assert_eq!(
             &files[0].strip_prefix(&tempdir).unwrap(),
-            &Path::new("certificate.yaml")
+            &Path::new("1_certificate.yaml")
         );
         assert_eq!(
             &files[1].strip_prefix(&tempdir).unwrap(),
-            &Path::new("test")
+            &Path::new("1_certificate_altered.yaml")
+        );
+        assert_eq!(
+            &files[2].strip_prefix(&tempdir).unwrap(),
+            &Path::new("3_test")
         );
     }
 }
@@ -83,12 +87,20 @@ const RESOURCE_DIRECTORY: &'static str = "./init_tpl";
 pub fn get() -> Vec<Resource> {
     vec![
         Resource::new(
-            "./init_tpl/certificate.yaml",
-            include_str!("./init_tpl/certificate.yaml"),
+            "./init_tpl/other_conf.yaml",
+            include_str!("./init_tpl/0_other_conf.yaml"),
         ),
         Resource::new(
-            "./init_tpl/test/test.js",
-            include_str!("./init_tpl/test/test.js"),
+            "./init_tpl/1_certificate.yaml",
+            include_str!("./init_tpl/1_certificate.yaml"),
+        ),
+        Resource::new(
+            "./init_tpl/1_certificate_altered.yaml",
+            include_str!("./init_tpl/2_certificate_altered.yaml"),
+        ),
+        Resource::new(
+            "./init_tpl/3_test/0_test.js",
+            include_str!("./init_tpl/3_test/0_test.js"),
         ),
     ]
 }

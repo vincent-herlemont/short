@@ -1,13 +1,13 @@
 //! Inspection and manipulation of cloudformation templates.
+use crate::lib::error::Error;
+use crate::lib::fs::ContentFile;
+use crate::lib::path;
 use serde::export::fmt::Debug;
 use serde::Deserialize;
-use std::error::Error;
-use std::fs;
+use std::cmp::Ordering;
 use std::path::PathBuf;
 
-use crate::lib;
-
-static _TEMPLATE_VERSION: &str = "2010-09-09";
+static TEMPLATE_VERSION: &str = "2010-09-09";
 static YAML_EXTENSIONS: [&str; 2] = ["yaml", "yml"];
 
 /// The configuration of the cloudformation inspector.
@@ -18,15 +18,26 @@ struct InspectorConfig {
 
 /// File system information
 /// TODO: move to another module
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 struct File {
-    path: PathBuf,
-    contents: String,
+    content: ContentFile,
     template: Template,
 }
 
+impl Ord for File {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.content.cmp(&other.content)
+    }
+}
+
+impl PartialOrd for File {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.content.cmp(&other.content))
+    }
+}
+
 /// Template aws file
-#[derive(Debug, PartialEq, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize)]
 struct Template {
     #[serde(rename(deserialize = "AWSTemplateFormatVersion"))]
     aws_template_format_version: String,
@@ -36,41 +47,48 @@ struct Template {
 ///
 /// # Errors
 ///
-/// Throw [`yaml_serde::Error`] on [`Result`] items.
-///
-/// TODO: - move read contents logic to another module.
-///       - detect aws template as row file before parse with [`yaml_serde`]
-///         it will be useful for detect throw [`yaml_serde::Error`] only on
-///         AWS cloudformation template.
-fn from_paths(paths: &[PathBuf]) -> Vec<Result<File, Box<dyn Error>>> {
-    // Filter extensions
-    let paths = lib::path::filter_extensions(&paths, &YAML_EXTENSIONS);
+/// Throw to error [`Error::Other`] error kind TODO: implement domain specific error
+fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
+    let paths = path::filter_extensions(&paths, &YAML_EXTENSIONS);
+    let (content_files, mut errors) =
+        ContentFile::read_contain_multi(&paths, |line| line.contains(TEMPLATE_VERSION));
 
-    // Read contents
-    paths
+    let (files, errors_files): (Vec<_>, Vec<_>) = content_files
         .into_iter()
-        .filter_map(|path| {
-            if let Ok(contents) = fs::read_to_string(&path) {
-                return match serde_yaml::from_str(contents.as_str()) {
-                    Ok(template) => {
-                        let file = File {
-                            path,
-                            contents,
-                            template,
-                        };
-                        Some(Ok(file))
-                    }
-                    Err(error) => Some(Err(Box::new(error) as _)),
-                };
-            }
-            None
-        })
-        .collect::<Vec<Result<File, Box<_>>>>()
+        .map(
+            |content_file| match serde_yaml::from_str::<Template>(&content_file.contents) {
+                Ok(template) => Ok(File {
+                    content: content_file,
+                    template: template,
+                }),
+                Err(_) => Err(Error::new(format!(
+                    // TODO : Embed serde_yaml::Error to lib::Error.
+                    "fail to parse file {}",
+                    content_file.path.to_string_lossy()
+                ))),
+            },
+        )
+        .partition(Result::is_ok);
+
+    // TODO : Try to abstract this vectored, unwrap and unrap_err.
+    let files = files
+        .into_iter()
+        .map(|file| file.unwrap())
+        .collect::<Vec<_>>();
+
+    let mut errors_files = errors_files
+        .into_iter()
+        .map(|error| error.unwrap_err())
+        .collect::<Vec<_>>();
+
+    errors.append(&mut errors_files);
+
+    (files, errors)
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::cloudformation::from_paths;
+    use crate::cloudformation::{from_paths, Template};
     use crate::lib;
     use crate::lib::test::before;
 
@@ -78,11 +96,15 @@ mod tests {
     fn from_path_test() {
         let config = before("from_path_test");
         let paths = lib::path::retrieve(&config.tmp_dir).expect("fail to get paths");
-        let results = from_paths(&paths);
-        let result = results[0].as_ref().ok().unwrap();
+        let (mut files, errors) = from_paths(&paths);
+        files.sort();
+
         assert_eq!(
-            result.template.aws_template_format_version,
-            String::from("2010-09-09")
+            files[0].template,
+            Template {
+                aws_template_format_version: String::from("2010-09-09")
+            }
         );
+        assert_eq!(errors.len(), 2);
     }
 }

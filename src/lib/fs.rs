@@ -2,15 +2,28 @@
 use super::io;
 use crate::lib::error::Error;
 use crate::lib::result::Result;
+use std::cmp::Ordering;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
 
 /// SuperStructure including [`PathBuf`] of files and his content.
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct ContentFile {
-    path: PathBuf,
-    contents: String,
+    pub path: PathBuf,
+    pub contents: String,
+}
+
+impl Ord for ContentFile {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.path.cmp(&other.path)
+    }
+}
+
+impl PartialOrd for ContentFile {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.path.cmp(&other.path))
+    }
 }
 
 impl ContentFile {
@@ -60,11 +73,12 @@ mod tests {
     fn read_contain_multi_test() {
         let config = before("search_test");
         let paths = retrieve(&config.tmp_dir).unwrap();
-        let (content_files, errors) =
+        let (mut content_files, errors) =
             ContentFile::read_contain_multi(&paths, |line| line.contains("test"));
 
+        content_files.sort();
         // ContentFiles
-        assert_eq!((&content_files).len(), 1);
+        assert_eq!((&content_files).len(), 2);
         assert_eq!((&content_files)[0].contents, "console.log(\'test.js\');");
         assert!((&content_files)[0]
             .path
@@ -73,7 +87,7 @@ mod tests {
             .contains("test.js"));
 
         // Errors
-        assert_eq!((&errors).len(), 2);
+        assert_eq!((&errors).len(), 3);
         match &errors[0] {
             Error::Io(_) => assert!(true),
             _ => assert!(false),
