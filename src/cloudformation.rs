@@ -81,10 +81,11 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
 
 #[cfg(test)]
 mod tests {
-    use crate::cloudformation::{from_paths, Template};
+    use crate::cloudformation::{from_paths, File, Template};
     use crate::lib;
     use crate::lib::test::before;
 
+    #[allow(unreachable_patterns)]
     #[test]
     fn from_path_test() {
         let config = before("from_path_test");
@@ -92,12 +93,10 @@ mod tests {
         let (mut files, errors) = from_paths(&paths);
         files.sort();
 
-        assert_eq!(
-            files[0].template,
-            Template {
-                aws_template_format_version: String::from("2010-09-09")
-            }
-        );
+        assert_find!(files,File{template,..},
+            template == &Template {
+            aws_template_format_version: String::from("2010-09-09")
+        });
         assert_eq!(errors.len(), 2);
     }
 }

@@ -1,5 +1,7 @@
-mod cloudformation;
+#[macro_use]
 mod lib;
+
+mod cloudformation;
 mod resource;
 
 fn main() {

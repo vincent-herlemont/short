@@ -52,15 +52,17 @@ mod tests {
     use crate::lib::test::before;
     use std::path::PathBuf;
 
+    #[allow(unreachable_patterns)]
     #[test]
     fn retrieve_entries_test() {
         let config = before("before_test");
         let mut entries = lib::path::retrieve(&config.tmp_dir).unwrap();
         entries.sort();
         assert!(entries.len() >= 3);
-        assert_eq!(
-            &entries[0].strip_prefix(&config.tmp_dir).unwrap(),
-            &PathBuf::from("1_certificate.yaml")
+        assert_find!(
+            entries,
+            entry,
+            entry.strip_prefix(&config.tmp_dir).unwrap() == &PathBuf::from("1_certificate.yaml")
         );
     }
 

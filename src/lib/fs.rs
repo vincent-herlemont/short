@@ -66,6 +66,7 @@ mod tests {
     use crate::lib::path::retrieve;
     use crate::lib::test::before;
 
+    #[allow(unreachable_patterns)]
     #[test]
     fn read_contain_multi_test() {
         let config = before("search_test");
@@ -75,23 +76,17 @@ mod tests {
 
         content_files.sort();
         // ContentFiles
-        assert_eq!((&content_files).len(), 2);
-        assert_eq!((&content_files)[0].contents, "console.log(\'test.js\');");
-        assert!((&content_files)[0]
-            .path
-            .to_str()
-            .unwrap()
-            .contains("test.js"));
+        assert!((&content_files).len() >= 2);
+        assert_find!(
+            content_files,
+            ContentFile { contents, path },
+            contents == &String::from("console.log(\'test.js\');")
+                && path.to_string_lossy().contains("test.js")
+        );
 
         // Errors
-        assert_eq!((&errors).len(), 3);
-        match &errors[0] {
-            Error::Io(_) => assert!(true),
-            _ => assert!(false),
-        }
-        match &errors[1] {
-            Error::Other(_) => assert!(true),
-            _ => assert!(false),
-        }
+        assert!((&errors).len() > 3);
+        assert_find!(errors, Error::Io(_));
+        assert_find!(errors, Error::Other(_));
     }
 }

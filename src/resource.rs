@@ -56,6 +56,7 @@ mod tests {
         assert!(resources.first().unwrap().data.len() > 0);
     }
 
+    #[allow(unreachable_patterns)]
     #[test]
     fn copy_all_resources_to_target_directory() {
         let tempdir = TempDir::new("copy_all_resources_to_target_directory").unwrap();
@@ -66,17 +67,20 @@ mod tests {
             .map(|o| o.unwrap().path())
             .collect();
         files.sort();
-        assert_eq!(
-            &files[0].strip_prefix(&tempdir).unwrap(),
-            &Path::new("1_certificate.yaml")
+        assert_find!(
+            files,
+            dir_entry,
+            dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("1_certificate.yaml")
         );
-        assert_eq!(
-            &files[1].strip_prefix(&tempdir).unwrap(),
-            &Path::new("1_certificate_altered.yaml")
+        assert_find!(
+            files,
+            dir_entry,
+            dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("1_certificate_altered.yaml")
         );
-        assert_eq!(
-            &files[2].strip_prefix(&tempdir).unwrap(),
-            &Path::new("3_test")
+        assert_find!(
+            files,
+            dir_entry,
+            dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("3_test")
         );
     }
 }
@@ -101,6 +105,10 @@ pub fn get() -> Vec<Resource> {
         Resource::new(
             "./init_tpl/3_test/0_test.js",
             include_str!("./init_tpl/3_test/0_test.js"),
+        ),
+        Resource::new(
+            "./init_tpl/4_tpl_certificate/certificate.yaml",
+            include_str!("./init_tpl/4_tpl_certificate/certificate.yaml"),
         ),
     ]
 }
