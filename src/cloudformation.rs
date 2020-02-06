@@ -2,6 +2,8 @@
 use crate::lib::error::Error;
 use crate::lib::fs::ContentFile;
 use crate::lib::path;
+use crate::lib::result;
+use crate::lib::result::Result;
 use serde::export::fmt::Debug;
 use serde::Deserialize;
 use std::cmp::Ordering;
@@ -50,10 +52,11 @@ struct Template {
 /// Throw to error [`Error::Other`] error kind TODO: implement domain specific error
 fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
     let paths = path::filter_extensions(&paths, &YAML_EXTENSIONS);
+
     let (content_files, mut errors) =
         ContentFile::read_contain_multi(&paths, |line| line.contains(TEMPLATE_VERSION));
 
-    let (files, errors_files): (Vec<_>, Vec<_>) = content_files
+    let results: (Vec<_>, Vec<_>) = content_files
         .into_iter()
         .map(
             |content_file| match serde_yaml::from_str::<Template>(&content_file.contents) {
@@ -70,18 +73,9 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
         )
         .partition(Result::is_ok);
 
-    // TODO : Try to abstract this vectored, unwrap and unrap_err.
-    let files = files
-        .into_iter()
-        .map(|file| file.unwrap())
-        .collect::<Vec<_>>();
+    let (files, mut error_files) = result::unwrap_partition(results);
 
-    let mut errors_files = errors_files
-        .into_iter()
-        .map(|error| error.unwrap_err())
-        .collect::<Vec<_>>();
-
-    errors.append(&mut errors_files);
+    errors.append(&mut error_files);
 
     (files, errors)
 }

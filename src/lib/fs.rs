@@ -1,7 +1,7 @@
 //! File manipulation operations related of d4d domain.
 use super::io;
 use crate::lib::error::Error;
-use crate::lib::result::Result;
+use crate::lib::result::{unwrap_partition, Result};
 use std::cmp::Ordering;
 use std::fs::File;
 use std::io::BufReader;
@@ -51,14 +51,11 @@ impl ContentFile {
     where
         F: Fn(&str) -> bool,
     {
-        let (content_files, errors): (Vec<_>, Vec<_>) = paths
+        let results: (Vec<_>, Vec<_>) = paths
             .into_iter()
             .map(|path| ContentFile::read_contain(path, &next_line))
             .partition(Result::is_ok);
-        (
-            content_files.into_iter().map(Result::unwrap).collect(),
-            errors.into_iter().map(Result::unwrap_err).collect(),
-        )
+        unwrap_partition(results)
     }
 }
 
