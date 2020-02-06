@@ -19,7 +19,6 @@ struct InspectorConfig {
 }
 
 /// File system information
-/// TODO: move to another module
 #[derive(Debug, PartialEq, Eq)]
 struct File {
     content: ContentFile,
