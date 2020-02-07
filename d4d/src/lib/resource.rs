@@ -1,10 +1,10 @@
 //! Embedding and shifting of resources
 //! TODO: add and create an abstraction on lib crate.
+use crate::lib::error::Error;
+use crate::lib::test::{get_resource, TEST_RESOURCE_DIRECTORY};
 use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
-
-use crate::lib::error::Error;
 
 #[derive(Debug)]
 pub struct Resource {
@@ -13,14 +13,14 @@ pub struct Resource {
 }
 
 impl Resource {
-    fn new(path: &str, data: &str) -> Resource {
+    pub fn new(path: &str, data: &str) -> Resource {
         Resource {
             path: PathBuf::from(path),
             data: data.to_string(),
         }
     }
 
-    fn path(&self) -> &Path {
+    pub fn path(&self) -> &Path {
         return &self.path.as_path();
     }
 }
@@ -30,9 +30,9 @@ pub fn to_dir(path: &Path) -> Result<(), Box<dyn stdError>> {
     if !path.exists() {
         return Err(Error::new_box(format!("directory {:?} not exists", path)));
     }
-    for resource in get() {
+    for resource in get_resource() {
         let resource_path = resource.path();
-        let path = path.join(resource_path.strip_prefix(RESOURCE_DIRECTORY)?);
+        let path = path.join(resource_path.strip_prefix(TEST_RESOURCE_DIRECTORY)?);
         let contents = resource.data.as_str();
         if let Some(parent) = path.parent() {
             if !parent.exists() {
@@ -47,12 +47,13 @@ pub fn to_dir(path: &Path) -> Result<(), Box<dyn stdError>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::lib::test;
     use std::fs::read_dir;
     use tempdir::TempDir;
 
     #[test]
     fn get_all_resources() {
-        let resources = get();
+        let resources = test::get_resource();
         assert!(resources.first().unwrap().path.to_str().unwrap().len() > 0);
         assert!(resources.first().unwrap().data.len() > 0);
     }
@@ -84,32 +85,4 @@ mod tests {
             dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("3_test")
         );
     }
-}
-
-const RESOURCE_DIRECTORY: &'static str = "./init_tpl";
-
-/// Get all [`Resource`]
-pub fn get() -> Vec<Resource> {
-    vec![
-        Resource::new(
-            "./init_tpl/other_conf.yaml",
-            include_str!("./init_tpl/0_other_conf.yaml"),
-        ),
-        Resource::new(
-            "./init_tpl/1_certificate.yaml",
-            include_str!("./init_tpl/1_certificate.yaml"),
-        ),
-        Resource::new(
-            "./init_tpl/1_certificate_altered.yaml",
-            include_str!("./init_tpl/2_certificate_altered.yaml"),
-        ),
-        Resource::new(
-            "./init_tpl/3_test/0_test.js",
-            include_str!("./init_tpl/3_test/0_test.js"),
-        ),
-        Resource::new(
-            "./init_tpl/4_tpl_certificate/certificate.yaml",
-            include_str!("./init_tpl/4_tpl_certificate/certificate.yaml"),
-        ),
-    ]
 }

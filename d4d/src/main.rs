@@ -1,9 +1,8 @@
 #[macro_use]
 mod lib;
 mod cloudformation;
-mod resource;
 
 fn main() {
-    let res = resource::get();
+    let res = lib::test::get_resource();
     println!("hello world ! {:?}", res);
 }

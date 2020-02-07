@@ -1,5 +1,6 @@
 //! Helper for test related of d4d domain.
-use crate::resource;
+use crate::lib::resource;
+use crate::lib::resource::Resource;
 use std::fs;
 use std::path::PathBuf;
 use tempdir::TempDir;
@@ -133,4 +134,32 @@ mod tests {
         assert_not_find!(v, el, el > &&5);
         //assert_not_find!(v, el, el < &&5); // assertion failed: found {el} with expresion {el < &&5} in {v}
     }
+}
+
+pub const TEST_RESOURCE_DIRECTORY: &'static str = "./init_tpl";
+
+/// Get all [`Resource`]
+pub fn get_resource() -> Vec<Resource> {
+    vec![
+        Resource::new(
+            "./init_tpl/other_conf.yaml",
+            include_str!("./init_tpl/0_other_conf.yaml"),
+        ),
+        Resource::new(
+            "./init_tpl/1_certificate.yaml",
+            include_str!("./init_tpl/1_certificate.yaml"),
+        ),
+        Resource::new(
+            "./init_tpl/1_certificate_altered.yaml",
+            include_str!("./init_tpl/2_certificate_altered.yaml"),
+        ),
+        Resource::new(
+            "./init_tpl/3_test/0_test.js",
+            include_str!("./init_tpl/3_test/0_test.js"),
+        ),
+        Resource::new(
+            "./init_tpl/4_tpl_certificate/certificate.yaml",
+            include_str!("./init_tpl/4_tpl_certificate/certificate.yaml"),
+        ),
+    ]
 }
