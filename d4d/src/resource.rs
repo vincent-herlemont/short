@@ -1,4 +1,5 @@
 //! Embedding and shifting of resources
+//! TODO: add and create an abstraction on lib crate.
 use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
