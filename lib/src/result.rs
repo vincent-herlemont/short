@@ -1,6 +1,6 @@
 //! D4d specific Result type
 /// Inspiration from : https://github.com/brson/basic-http-server/blob/1ab052719a88e41822b2955d7d72bf161457d47c/src/main.rs#L447
-use crate::lib::error::Error;
+use super::error::Error;
 use serde::export::fmt::Debug;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -15,9 +15,12 @@ pub type Result<T> = std::result::Result<T, Error>;
 ///
 /// # Example
 /// ```
-/// let results = vec![
-///     Result::from(Ok("oui"),
-///     Result::from(Err("non"),
+/// use lib::result::unwrap_partition;
+/// use lib::result::Result;
+/// use lib::error::Error;
+/// let results:Vec<Result<String>> = vec![
+///     Ok("oui".to_string()),
+///     Err(Error::Other("fail".to_string())),
 /// ];
 /// let results = results.into_iter().partition(Result::is_ok);
 /// let results = unwrap_partition(results);

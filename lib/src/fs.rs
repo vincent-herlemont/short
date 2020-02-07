@@ -1,7 +1,7 @@
 //! File manipulation operations related of d4d domain.
 use super::io;
-use crate::lib::error::Error;
-use crate::lib::result::{unwrap_partition, Result};
+use crate::error::Error;
+use crate::result::{unwrap_partition, Result};
 use std::cmp::Ordering;
 use std::fs::File;
 use std::io::BufReader;
@@ -61,10 +61,10 @@ impl ContentFile {
 
 #[cfg(test)]
 mod tests {
-    use crate::lib::error::Error;
-    use crate::lib::fs::ContentFile;
-    use crate::lib::path::retrieve;
-    use crate::lib::test::before;
+    use crate::error::Error;
+    use crate::fs::ContentFile;
+    use crate::path::retrieve;
+    use crate::test::before;
 
     #[allow(unreachable_patterns)]
     #[test]

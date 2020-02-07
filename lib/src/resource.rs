@@ -1,7 +1,7 @@
 //! Embedding and shifting of resources
 //! TODO: add and create an abstraction on lib crate.
-use crate::lib::error::Error;
-use crate::lib::test::{get_resource, TEST_RESOURCE_DIRECTORY};
+use super::error::Error;
+use crate::test::{get_resource, TEST_RESOURCE_DIRECTORY};
 use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -47,13 +47,12 @@ pub fn to_dir(path: &Path) -> Result<(), Box<dyn stdError>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lib::test;
     use std::fs::read_dir;
     use tempdir::TempDir;
 
     #[test]
     fn get_all_resources() {
-        let resources = test::get_resource();
+        let resources = get_resource();
         assert!(resources.first().unwrap().path.to_str().unwrap().len() > 0);
         assert!(resources.first().unwrap().data.len() > 0);
     }

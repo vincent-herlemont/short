@@ -1,9 +1,8 @@
 //! Inspection and manipulation of cloudformation templates.
-use crate::lib::error::Error;
-use crate::lib::fs::ContentFile;
-use crate::lib::path;
-use crate::lib::result;
-use crate::lib::result::Result;
+use lib::error::Error;
+use lib::fs::ContentFile;
+use lib::path::filter_extensions;
+use lib::result::unwrap_partition;
 use serde::export::fmt::Debug;
 use serde::Deserialize;
 use std::cmp::Ordering;
@@ -50,7 +49,7 @@ struct Template {
 ///
 /// Throw to error [`Error::Other`] error kind TODO: implement domain specific error
 fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
-    let paths = path::filter_extensions(&paths, &YAML_EXTENSIONS);
+    let paths = filter_extensions(&paths, &YAML_EXTENSIONS);
 
     let (content_files, mut errors) =
         ContentFile::read_contain_multi(&paths, |line| line.contains(TEMPLATE_VERSION));
@@ -72,7 +71,7 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
         )
         .partition(Result::is_ok);
 
-    let (files, mut error_files) = result::unwrap_partition(results);
+    let (files, mut error_files) = unwrap_partition(results);
 
     errors.append(&mut error_files);
 
@@ -82,8 +81,8 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
 #[cfg(test)]
 mod tests {
     use crate::cloudformation::{from_paths, File, Template};
-    use crate::lib;
-    use crate::lib::test::before;
+    use lib::assert_find;
+    use lib::test::before;
 
     #[allow(unreachable_patterns)]
     #[test]

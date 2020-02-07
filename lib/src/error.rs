@@ -20,8 +20,9 @@ impl Error {
     /// Usually use [`format!`] as string parameter for pass context information.
     ///
     /// ```
+    /// use lib::error::Error;
     /// let url = "http://.....";
-    /// D4dError::new(format!("fail to get url",url);
+    /// Error::new(format!("fail to get url {}",url));
     /// ```
     pub fn new(msg: String) -> Error {
         Error::Other(msg)
@@ -58,8 +59,8 @@ impl From<io::Error> for Error {
 
 #[cfg(test)]
 mod tests {
-    use crate::lib::error::Error;
-    use crate::lib::result::Result;
+    use super::Error;
+    use crate::result::Result;
     use std::io;
 
     #[test]

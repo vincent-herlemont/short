@@ -7,7 +7,6 @@ dependencies = [
  "lib",
  "serde",
  "serde_yaml",
- "tempdir",
 ]
 
 [[package]]
@@ -25,6 +24,11 @@ checksum = "a06f77d526c1a601b7c4cdd98f54b5eaabffc14d5f2f0296febdc7f357c6d3ba"
 [[package]]
 name = "lib"
 version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_yaml",
+ "tempdir",
+]
 
 [[package]]
 name = "libc"

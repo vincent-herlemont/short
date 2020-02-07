@@ -48,15 +48,15 @@ pub fn filter_extensions(paths: &[PathBuf], extensions: &[&str]) -> Vec<PathBuf>
 
 #[cfg(test)]
 mod tests {
-    use crate::lib;
-    use crate::lib::test::before;
+    use crate::path::{filter_extensions, retrieve};
+    use crate::test::before;
     use std::path::PathBuf;
 
     #[allow(unreachable_patterns)]
     #[test]
     fn retrieve_entries_test() {
         let config = before("before_test");
-        let mut entries = lib::path::retrieve(&config.tmp_dir).unwrap();
+        let mut entries = retrieve(&config.tmp_dir).unwrap();
         entries.sort();
         assert!(entries.len() >= 3);
         assert_find!(
@@ -75,7 +75,7 @@ mod tests {
             PathBuf::from("/test/test.js"),
         ];
 
-        let filtered_extensions = lib::path::filter_extensions(&paths, &["js", "html"]);
+        let filtered_extensions = filter_extensions(&paths, &["js", "html"]);
         assert_eq!(&filtered_extensions, &vec![PathBuf::from("/test/test.js")]);
         assert_eq!((&filtered_extensions.clone()).len(), 1 as usize);
     }

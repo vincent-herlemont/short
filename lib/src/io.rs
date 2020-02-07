@@ -1,6 +1,6 @@
 //! Input/Ouput manipulation operations related of d4d domain.
-use crate::lib::error::Error;
-use crate::lib::result::Result;
+use crate::error::Error;
+use crate::result::Result;
 use std::io::BufRead;
 
 /// TODO: make monade of [`ContainStr`] function.
@@ -28,14 +28,14 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::lib;
+    use crate::io::read_to_string_contain;
     use std::io::Cursor;
 
     #[test]
     fn read_to_string_finds_test() {
         let data = b"line1\nline2\n\ntest";
         let cursor = Cursor::new(data);
-        let contents = lib::io::read_to_string_contain(cursor, |s| s.contains("test")).unwrap();
+        let contents = read_to_string_contain(cursor, |s| s.contains("test")).unwrap();
         assert_eq!(contents.into_bytes(), data);
     }
 
@@ -43,7 +43,7 @@ mod tests {
     fn read_to_string_finds_test_fail() {
         let data = b"line1\nline2\n\ntest";
         let cursor = Cursor::new(data);
-        let result = lib::io::read_to_string_contain(cursor, |s| s.contains("notfouned"));
+        let result = read_to_string_contain(cursor, |s| s.contains("notfouned"));
         assert!(result.is_err());
     }
 }
