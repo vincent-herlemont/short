@@ -62,25 +62,24 @@ mod tests {
         let tempdir = TempDir::new("copy_all_assets_to_target_directory").unwrap();
         let tempdir = tempdir.path();
         to_dir(&tempdir).unwrap();
-        let mut files: Vec<_> = read_dir(&tempdir)
+        let files: Vec<_> = read_dir(&tempdir)
             .unwrap()
             .map(|o| o.unwrap().path())
             .collect();
-        files.sort();
         assert_find!(
             files,
             dir_entry,
-            dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("1_certificate.yaml")
+            dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("valid_aws_template.yaml")
         );
         assert_find!(
             files,
             dir_entry,
-            dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("1_certificate_altered.yaml")
+            dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("altered_aws_template.yaml")
         );
         assert_find!(
             files,
             dir_entry,
-            dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("3_test")
+            dir_entry.strip_prefix(&tempdir).unwrap() == Path::new("test")
         );
     }
 }

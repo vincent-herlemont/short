@@ -157,23 +157,23 @@ pub fn get_assets() -> Vec<Asset> {
     vec![
         Asset::new(
             "./assets/other_conf.yaml",
-            include_str!("./assets/0_other_conf.yaml"),
+            include_str!("./assets/other_conf.yaml"),
         ),
         Asset::new(
-            "./assets/1_certificate.yaml",
-            include_str!("./assets/1_certificate.yaml"),
+            "./assets/valid_aws_template.yaml",
+            include_str!("./assets/valid_aws_template.yaml"),
         ),
         Asset::new(
-            "./assets/1_certificate_altered.yaml",
-            include_str!("./assets/2_certificate_altered.yaml"),
+            "./assets/altered_aws_template.yaml",
+            include_str!("./assets/altered_aws_template.yaml"),
         ),
         Asset::new(
-            "./assets/3_test/0_test.js",
-            include_str!("./assets/3_test/0_test.js"),
+            "./assets/test/test.js",
+            include_str!("./assets/test/test.js"),
         ),
         Asset::new(
-            "./assets/4_tpl_certificate/certificate.yaml",
-            include_str!("./assets/4_tpl_certificate/certificate.yaml"),
+            "./assets/tpl_certificate/certificate.yaml",
+            include_str!("./assets/tpl_certificate/certificate.yaml"),
         ),
     ]
 }

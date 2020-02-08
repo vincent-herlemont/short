@@ -62,7 +62,8 @@ mod tests {
         assert_find!(
             entries,
             entry,
-            entry.strip_prefix(&config.tmp_dir).unwrap() == &PathBuf::from("1_certificate.yaml")
+            entry.strip_prefix(&config.tmp_dir).unwrap()
+                == &PathBuf::from("valid_aws_template.yaml")
         );
     }
 
