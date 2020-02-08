@@ -1,12 +1,12 @@
 //! Inspection and manipulation of cloudformation templates.
-use lib::error::Error;
-use lib::fs::ContentFile;
-use lib::path::filter_extensions;
-use lib::result::unwrap_partition;
 use serde::export::fmt::Debug;
 use serde::Deserialize;
 use std::cmp::Ordering;
 use std::path::PathBuf;
+use utils::error::Error;
+use utils::fs::ContentFile;
+use utils::path::filter_extensions;
+use utils::result::unwrap_partition;
 
 static TEMPLATE_VERSION: &str = "2010-09-09";
 static YAML_EXTENSIONS: [&str; 2] = ["yaml", "yml"];
@@ -63,7 +63,7 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
                     template: template,
                 }),
                 Err(_) => Err(Error::new(format!(
-                    // TODO : Embed serde_yaml::Error to lib::Error.
+                    // TODO : Embed serde_yaml::Error to utils::Error.
                     "fail to parse file {}",
                     content_file.path.to_string_lossy()
                 ))),
@@ -81,14 +81,15 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
 #[cfg(test)]
 mod tests {
     use crate::cloudformation::{from_paths, File, Template};
-    use lib::assert_find;
-    use lib::test::before;
+    use utils::assert_find;
+    use utils::path::retrieve;
+    use utils::test::before;
 
     #[allow(unreachable_patterns)]
     #[test]
     fn from_path_test() {
         let config = before("from_path_test");
-        let paths = lib::path::retrieve(&config.tmp_dir).expect("fail to get paths");
+        let paths = retrieve(&config.tmp_dir).expect("fail to get paths");
         let (mut files, errors) = from_paths(&paths);
         files.sort();
 

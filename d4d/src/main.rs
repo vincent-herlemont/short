@@ -1,4 +1,4 @@
-use lib::test::get_resource;
+use utils::test::get_resource;
 mod cloudformation;
 
 fn main() {

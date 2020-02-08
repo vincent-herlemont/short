@@ -15,9 +15,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 ///
 /// # Example
 /// ```
-/// use lib::result::unwrap_partition;
-/// use lib::result::Result;
-/// use lib::error::Error;
+/// use utils::result::unwrap_partition;
+/// use utils::result::Result;
+/// use utils::error::Error;
 /// let results:Vec<Result<String>> = vec![
 ///     Ok("oui".to_string()),
 ///     Err(Error::Other("fail".to_string())),

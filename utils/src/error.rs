@@ -20,7 +20,7 @@ impl Error {
     /// Usually use [`format!`] as string parameter for pass context information.
     ///
     /// ```
-    /// use lib::error::Error;
+    /// use utils::error::Error;
     /// let url = "http://.....";
     /// Error::new(format!("fail to get url {}",url));
     /// ```

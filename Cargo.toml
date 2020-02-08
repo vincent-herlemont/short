@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "lib",
+    "utils",
     "d4d",
 ]

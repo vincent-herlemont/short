@@ -1,5 +1,5 @@
 [package]
-name = "lib"
+name = "utils"
 version = "0.1.0"
 authors = ["Vincent Herlemont <vincentherl@leszeros.com>"]
 edition = "2018"

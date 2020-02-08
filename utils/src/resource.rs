@@ -1,5 +1,5 @@
 //! Embedding and shifting of resources
-//! TODO: add and create an abstraction on lib crate.
+//! TODO: add and create an abstraction on utils crate.
 use super::error::Error;
 use crate::test::{get_resource, TEST_RESOURCE_DIRECTORY};
 use std::error::Error as stdError;

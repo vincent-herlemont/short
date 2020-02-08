@@ -44,7 +44,7 @@ pub fn before(test_name: &str) -> Config {
 ///
 /// # Example
 /// ```
-/// use lib::assert_find;
+/// use utils::assert_find;
 /// use std::panic::catch_unwind;
 /// let v = vec![1,2,3,4];
 ///
@@ -108,8 +108,8 @@ macro_rules! assert_find {
 /// # Example
 /// ```
 /// use std::panic::catch_unwind;
-/// use crate::lib::assert_not_find;
-/// use crate::lib::assert_find;// TODO : found a way to not have to import assert_find macro.
+/// use crate::utils::assert_not_find;
+/// use crate::utils::assert_find;// TODO : found a way to not have to import assert_find macro.
 /// let v = vec![1,2,3,4];
 ///
 /// assert_not_find!(v, 8);
