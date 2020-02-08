@@ -150,30 +150,30 @@ mod tests {
     }
 }
 
-pub const TEST_RESOURCE_DIRECTORY: &'static str = "./init_tpl";
+pub const TEST_RESOURCE_DIRECTORY: &'static str = "./assets";
 
 /// Get all [`Resource`]
 pub fn get_resource() -> Vec<Resource> {
     vec![
         Resource::new(
-            "./init_tpl/other_conf.yaml",
-            include_str!("./init_tpl/0_other_conf.yaml"),
+            "./assets/other_conf.yaml",
+            include_str!("./assets/0_other_conf.yaml"),
         ),
         Resource::new(
-            "./init_tpl/1_certificate.yaml",
-            include_str!("./init_tpl/1_certificate.yaml"),
+            "./assets/1_certificate.yaml",
+            include_str!("./assets/1_certificate.yaml"),
         ),
         Resource::new(
-            "./init_tpl/1_certificate_altered.yaml",
-            include_str!("./init_tpl/2_certificate_altered.yaml"),
+            "./assets/1_certificate_altered.yaml",
+            include_str!("./assets/2_certificate_altered.yaml"),
         ),
         Resource::new(
-            "./init_tpl/3_test/0_test.js",
-            include_str!("./init_tpl/3_test/0_test.js"),
+            "./assets/3_test/0_test.js",
+            include_str!("./assets/3_test/0_test.js"),
         ),
         Resource::new(
-            "./init_tpl/4_tpl_certificate/certificate.yaml",
-            include_str!("./init_tpl/4_tpl_certificate/certificate.yaml"),
+            "./assets/4_tpl_certificate/certificate.yaml",
+            include_str!("./assets/4_tpl_certificate/certificate.yaml"),
         ),
     ]
 }
