@@ -21,7 +21,7 @@ impl Drop for Config {
 /// # Recommendation
 ///
 /// Need to call [`after`] at the end of test.
-pub fn before(test_name: &str) -> Config {
+pub fn before(test_name: &str, assets: &[Asset]) -> Config {
     let test_name = format!("{}.{}", "d4d", test_name);
 
     // Create temporary directory.
@@ -30,7 +30,7 @@ pub fn before(test_name: &str) -> Config {
         .into_path();
 
     // Copy assets to it.
-    to_dir(&path).expect("fail to copy assets");
+    to_dir(&path, assets).expect("fail to copy assets");
 
     Config { tmp_dir: path }
 }

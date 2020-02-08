@@ -1,6 +1,6 @@
 //! Embedding and shifting of asset
 use super::error::Error;
-use crate::test::{get_assets, TEST_ASSETS_DIRECTORY};
+use crate::test::TEST_ASSETS_DIRECTORY;
 use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -25,11 +25,11 @@ impl Asset {
 }
 
 /// Copy all [`Asset`] in target directory [`path`].
-pub fn to_dir(path: &Path) -> Result<(), Box<dyn stdError>> {
+pub fn to_dir(path: &Path, assets: &[Asset]) -> Result<(), Box<dyn stdError>> {
     if !path.exists() {
         return Err(Error::new_box(format!("directory {:?} not exists", path)));
     }
-    for asset in get_assets() {
+    for asset in assets {
         let asset_path = asset.path();
         let path = path.join(asset_path.strip_prefix(TEST_ASSETS_DIRECTORY)?);
         let contents = asset.data.as_str();
@@ -46,6 +46,7 @@ pub fn to_dir(path: &Path) -> Result<(), Box<dyn stdError>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test::get_assets;
     use std::fs::read_dir;
     use tempdir::TempDir;
 
@@ -61,7 +62,7 @@ mod tests {
     fn copy_all_assets_to_target_directory() {
         let tempdir = TempDir::new("copy_all_assets_to_target_directory").unwrap();
         let tempdir = tempdir.path();
-        to_dir(&tempdir).unwrap();
+        to_dir(&tempdir, &get_assets()).unwrap();
         let files: Vec<_> = read_dir(&tempdir)
             .unwrap()
             .map(|o| o.unwrap().path())

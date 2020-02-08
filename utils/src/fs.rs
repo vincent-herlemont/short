@@ -64,12 +64,12 @@ mod tests {
     use crate::error::Error;
     use crate::fs::ContentFile;
     use crate::path::retrieve;
-    use crate::test::before;
+    use crate::test::{before, get_assets};
 
     #[allow(unreachable_patterns)]
     #[test]
     fn read_contain_multi_test() {
-        let config = before("search_test");
+        let config = before("search_test", &get_assets());
         let paths = retrieve(&config.tmp_dir).unwrap();
         let (mut content_files, errors) =
             ContentFile::read_contain_multi(&paths, |line| line.contains("test"));

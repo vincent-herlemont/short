@@ -1,4 +1,5 @@
 use utils::test::get_assets;
+mod assets;
 mod cloudformation;
 
 fn main() {

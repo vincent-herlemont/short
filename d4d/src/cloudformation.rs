@@ -80,6 +80,7 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
 
 #[cfg(test)]
 mod tests {
+    use crate::assets::get_assets;
     use crate::cloudformation::{from_paths, File, Template};
     use utils::assert_find;
     use utils::path::retrieve;
@@ -88,7 +89,7 @@ mod tests {
     #[allow(unreachable_patterns)]
     #[test]
     fn from_path_test() {
-        let config = before("from_path_test");
+        let config = before("from_path_test", &get_assets());
         let paths = retrieve(&config.tmp_dir).expect("fail to get paths");
         let (mut files, errors) = from_paths(&paths);
         files.sort();

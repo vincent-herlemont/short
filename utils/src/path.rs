@@ -49,13 +49,13 @@ pub fn filter_extensions(paths: &[PathBuf], extensions: &[&str]) -> Vec<PathBuf>
 #[cfg(test)]
 mod tests {
     use crate::path::{filter_extensions, retrieve};
-    use crate::test::before;
+    use crate::test::{before, get_assets};
     use std::path::PathBuf;
 
     #[allow(unreachable_patterns)]
     #[test]
     fn retrieve_entries_test() {
-        let config = before("before_test");
+        let config = before("before_test", &get_assets());
         let mut entries = retrieve(&config.tmp_dir).unwrap();
         entries.sort();
         assert!(entries.len() >= 3);
