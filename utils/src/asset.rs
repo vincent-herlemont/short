@@ -1,20 +1,19 @@
-//! Embedding and shifting of resources
-//! TODO: add and create an abstraction on utils crate.
+//! Embedding and shifting of asset
 use super::error::Error;
-use crate::test::{get_resource, TEST_RESOURCE_DIRECTORY};
+use crate::test::{get_assets, TEST_ASSETS_DIRECTORY};
 use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
-pub struct Resource {
+pub struct Asset {
     path: PathBuf,
     pub data: String,
 }
 
-impl Resource {
-    pub fn new(path: &str, data: &str) -> Resource {
-        Resource {
+impl Asset {
+    pub fn new(path: &str, data: &str) -> Asset {
+        Asset {
             path: PathBuf::from(path),
             data: data.to_string(),
         }
@@ -25,15 +24,15 @@ impl Resource {
     }
 }
 
-/// Copy all [`Resource`] in target directory [`path`].
+/// Copy all [`Asset`] in target directory [`path`].
 pub fn to_dir(path: &Path) -> Result<(), Box<dyn stdError>> {
     if !path.exists() {
         return Err(Error::new_box(format!("directory {:?} not exists", path)));
     }
-    for resource in get_resource() {
-        let resource_path = resource.path();
-        let path = path.join(resource_path.strip_prefix(TEST_RESOURCE_DIRECTORY)?);
-        let contents = resource.data.as_str();
+    for asset in get_assets() {
+        let asset_path = asset.path();
+        let path = path.join(asset_path.strip_prefix(TEST_ASSETS_DIRECTORY)?);
+        let contents = asset.data.as_str();
         if let Some(parent) = path.parent() {
             if !parent.exists() {
                 fs::create_dir_all(parent)?;
@@ -51,16 +50,16 @@ mod tests {
     use tempdir::TempDir;
 
     #[test]
-    fn get_all_resources() {
-        let resources = get_resource();
-        assert!(resources.first().unwrap().path.to_str().unwrap().len() > 0);
-        assert!(resources.first().unwrap().data.len() > 0);
+    fn get_assets_test() {
+        let assets = get_assets();
+        assert!(assets.first().unwrap().path.to_str().unwrap().len() > 0);
+        assert!(assets.first().unwrap().data.len() > 0);
     }
 
     #[allow(unreachable_patterns)]
     #[test]
-    fn copy_all_resources_to_target_directory() {
-        let tempdir = TempDir::new("copy_all_resources_to_target_directory").unwrap();
+    fn copy_all_assets_to_target_directory() {
+        let tempdir = TempDir::new("copy_all_assets_to_target_directory").unwrap();
         let tempdir = tempdir.path();
         to_dir(&tempdir).unwrap();
         let mut files: Vec<_> = read_dir(&tempdir)

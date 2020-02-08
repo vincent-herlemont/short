@@ -1,5 +1,5 @@
 //! Helper for test related of d4d domain.
-use crate::resource::{to_dir, Resource};
+use crate::asset::{to_dir, Asset};
 use std::fs;
 use std::path::PathBuf;
 use tempdir::TempDir;
@@ -14,7 +14,7 @@ impl Drop for Config {
     }
 }
 
-/// Return [`InspectorConfig`], create temporary directory and copy resource on it.
+/// Return [`InspectorConfig`], create temporary directory and copy asset on it.
 ///
 /// The temporary directory is owned by [`InspectorConfig.path`].
 ///
@@ -29,8 +29,8 @@ pub fn before(test_name: &str) -> Config {
         .expect("fail to create temporary directory")
         .into_path();
 
-    // Copy resources to it.
-    to_dir(&path).expect("fail to copy resources");
+    // Copy assets to it.
+    to_dir(&path).expect("fail to copy assets");
 
     Config { tmp_dir: path }
 }
@@ -150,28 +150,28 @@ mod tests {
     }
 }
 
-pub const TEST_RESOURCE_DIRECTORY: &'static str = "./assets";
+pub const TEST_ASSETS_DIRECTORY: &'static str = "./assets";
 
-/// Get all [`Resource`]
-pub fn get_resource() -> Vec<Resource> {
+/// Get all [`Asset`]
+pub fn get_assets() -> Vec<Asset> {
     vec![
-        Resource::new(
+        Asset::new(
             "./assets/other_conf.yaml",
             include_str!("./assets/0_other_conf.yaml"),
         ),
-        Resource::new(
+        Asset::new(
             "./assets/1_certificate.yaml",
             include_str!("./assets/1_certificate.yaml"),
         ),
-        Resource::new(
+        Asset::new(
             "./assets/1_certificate_altered.yaml",
             include_str!("./assets/2_certificate_altered.yaml"),
         ),
-        Resource::new(
+        Asset::new(
             "./assets/3_test/0_test.js",
             include_str!("./assets/3_test/0_test.js"),
         ),
-        Resource::new(
+        Asset::new(
             "./assets/4_tpl_certificate/certificate.yaml",
             include_str!("./assets/4_tpl_certificate/certificate.yaml"),
         ),

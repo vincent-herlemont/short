@@ -1,7 +1,7 @@
-use utils::test::get_resource;
+use utils::test::get_assets;
 mod cloudformation;
 
 fn main() {
-    let res = get_resource();
+    let res = get_assets();
     println!("hello world ! {:?}", res);
 }
