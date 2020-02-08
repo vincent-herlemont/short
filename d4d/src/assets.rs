@@ -1,6 +1,7 @@
 use utils::asset::Asset;
 
 /// Get all [`Asset`]
+#[allow(dead_code)]
 pub fn get_assets() -> Vec<Asset> {
     vec![
         Asset::new(

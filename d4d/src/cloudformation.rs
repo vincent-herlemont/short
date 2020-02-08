@@ -8,8 +8,10 @@ use utils::fs::ContentFile;
 use utils::path::filter_extensions;
 use utils::result::unwrap_partition;
 
-static TEMPLATE_VERSION: &str = "2010-09-09";
+#[allow(dead_code)]
 static YAML_EXTENSIONS: [&str; 2] = ["yaml", "yml"];
+#[allow(dead_code)]
+static TEMPLATE_VERSION: &str = "2010-09-09";
 
 /// The configuration of the cloudformation inspector.
 #[derive(Debug)]
@@ -48,6 +50,7 @@ struct Template {
 /// # Errors
 ///
 /// Throw to error [`Error::Other`] error kind TODO: implement domain specific error
+#[allow(dead_code)]
 fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
     let paths = filter_extensions(&paths, &YAML_EXTENSIONS);
 
