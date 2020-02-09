@@ -5,10 +5,6 @@ use utils::asset::Asset;
 pub fn get_assets() -> Vec<Asset> {
     vec![
         Asset::new(
-            "./assets/valid_aws_template.yaml",
-            include_str!("./assets/test/test.js"),
-        ),
-        Asset::new(
             "./assets/tpl_certificate/certificate.yaml",
             include_str!("./assets/tpl_certificate/certificate.yaml"),
         ),
@@ -21,8 +17,12 @@ pub fn get_assets() -> Vec<Asset> {
             include_str!("./assets/other_conf.yaml"),
         ),
         Asset::new(
-            "./assets/valid_aws_template.yaml",
-            include_str!("./assets/valid_aws_template.yaml"),
+            "./assets/validate_aws_template.yaml",
+            include_str!("./assets/validate_aws_template.yaml"),
+        ),
+        Asset::new(
+            "./assets/tpl_bucket_template/bucket_template.yaml",
+            include_str!("./assets/tpl_bucket_template/bucket_template.yaml"),
         ),
     ]
 }

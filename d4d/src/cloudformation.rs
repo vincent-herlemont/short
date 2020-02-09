@@ -94,9 +94,7 @@ mod tests {
     fn from_path_test() {
         let config = before("from_path_test", &get_assets());
         let paths = retrieve(&config.tmp_dir).expect("fail to get paths");
-        let (mut files, errors) = from_paths(&paths);
-        files.sort();
-
+        let (files, errors) = from_paths(&paths);
         assert_find!(files,File{template,..},
             template == &Template {
             aws_template_format_version: String::from("2010-09-09")
