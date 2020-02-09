@@ -1,9 +1,10 @@
 //! Embedding and shifting of asset
 use super::error::Error;
-use crate::test::TEST_ASSETS_DIRECTORY;
 use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
+
+pub const ASSETS_DIRECTORY: &'static str = "./assets";
 
 #[derive(Debug)]
 pub struct Asset {
@@ -31,7 +32,7 @@ pub fn to_dir(path: &Path, assets: &[Asset]) -> Result<(), Box<dyn stdError>> {
     }
     for asset in assets {
         let asset_path = asset.path();
-        let path = path.join(asset_path.strip_prefix(TEST_ASSETS_DIRECTORY)?);
+        let path = path.join(asset_path.strip_prefix(ASSETS_DIRECTORY)?);
         let contents = asset.data.as_str();
         if let Some(parent) = path.parent() {
             if !parent.exists() {
@@ -46,7 +47,7 @@ pub fn to_dir(path: &Path, assets: &[Asset]) -> Result<(), Box<dyn stdError>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test::get_assets;
+    use crate::assets::get_assets;
     use std::fs::read_dir;
     use tempdir::TempDir;
 

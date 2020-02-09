@@ -18,9 +18,6 @@ impl Drop for Config {
 ///
 /// The temporary directory is owned by [`InspectorConfig.path`].
 ///
-/// # Recommendation
-///
-/// Need to call [`after`] at the end of test.
 pub fn before(test_name: &str, assets: &[Asset]) -> Config {
     let test_name = format!("{}.{}", "d4d", test_name);
 
@@ -109,7 +106,7 @@ macro_rules! assert_find {
 /// ```
 /// use std::panic::catch_unwind;
 /// use crate::utils::assert_not_find;
-/// use crate::utils::assert_find;// TODO : found a way to not have to import assert_find macro.
+/// use crate::utils::assert_find; // TODO : found a way to not have to import assert_find macro.
 /// let v = vec![1,2,3,4];
 ///
 /// assert_not_find!(v, 8);
@@ -148,32 +145,4 @@ mod tests {
         assert_not_find!(v, el, el > &&5);
         //assert_not_find!(v, el, el < &&5); // assertion failed: found {el} with expresion {el < &&5} in {v}
     }
-}
-
-pub const TEST_ASSETS_DIRECTORY: &'static str = "./assets";
-
-/// Get all [`Asset`]
-pub fn get_assets() -> Vec<Asset> {
-    vec![
-        Asset::new(
-            "./assets/other_conf.yaml",
-            include_str!("./assets/other_conf.yaml"),
-        ),
-        Asset::new(
-            "./assets/valid_aws_template.yaml",
-            include_str!("./assets/valid_aws_template.yaml"),
-        ),
-        Asset::new(
-            "./assets/altered_aws_template.yaml",
-            include_str!("./assets/altered_aws_template.yaml"),
-        ),
-        Asset::new(
-            "./assets/test/test.js",
-            include_str!("./assets/test/test.js"),
-        ),
-        Asset::new(
-            "./assets/tpl_certificate/certificate.yaml",
-            include_str!("./assets/tpl_certificate/certificate.yaml"),
-        ),
-    ]
 }

@@ -61,10 +61,11 @@ impl ContentFile {
 
 #[cfg(test)]
 mod tests {
+    use crate::assets::get_assets;
     use crate::error::Error;
     use crate::fs::ContentFile;
     use crate::path::retrieve;
-    use crate::test::{before, get_assets};
+    use crate::test::before;
 
     #[allow(unreachable_patterns)]
     #[test]

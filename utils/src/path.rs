@@ -48,8 +48,9 @@ pub fn filter_extensions(paths: &[PathBuf], extensions: &[&str]) -> Vec<PathBuf>
 
 #[cfg(test)]
 mod tests {
+    use crate::assets::get_assets;
     use crate::path::{filter_extensions, retrieve};
-    use crate::test::{before, get_assets};
+    use crate::test::before;
     use std::path::PathBuf;
 
     #[allow(unreachable_patterns)]
