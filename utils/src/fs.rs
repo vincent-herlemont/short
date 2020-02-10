@@ -66,6 +66,7 @@ mod tests {
     use crate::fs::ContentFile;
     use crate::path::retrieve;
     use crate::test::before;
+    use std::io;
 
     #[allow(unreachable_patterns)]
     #[test]
@@ -85,9 +86,8 @@ mod tests {
                 && path.to_string_lossy().contains("test.js")
         );
 
-        // Errors
         assert!((&errors).len() > 3);
-        assert_find!(errors, Error::Io(_));
-        assert_find!(errors, Error::Other(_));
+        assert_find!(errors, Error::Io(e), e.kind() == io::ErrorKind::Other);
+        assert_find!(errors, Error::Io(e), e.kind() == io::ErrorKind::NotFound);
     }
 }

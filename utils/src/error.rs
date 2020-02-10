@@ -2,6 +2,7 @@
 //! Allow to embedded multiple error type.
 /// Inspiration from : https://github.com/brson/basic-http-server/blob/1ab052719a88e41822b2955d7d72bf161457d47c/src/main.rs#L468
 use serde::export::fmt::Debug;
+use serde_yaml;
 use std::error::Error as StdError;
 use std::fmt::Result as FmtResult;
 use std::fmt::{Display, Formatter};
@@ -12,6 +13,7 @@ use std::io;
 pub enum Error {
     Other(String),
     Io(io::Error),
+    SerdeYaml(serde_yaml::Error),
 }
 
 impl Error {
@@ -46,6 +48,7 @@ impl StdError for Error {
 
         match self {
             Io(e) => Some(e),
+            SerdeYaml(e) => Some(e),
             Other(_) => None,
         }
     }
@@ -54,6 +57,12 @@ impl StdError for Error {
 impl From<io::Error> for Error {
     fn from(error: io::Error) -> Error {
         Error::Io(error)
+    }
+}
+
+impl From<serde_yaml::Error> for Error {
+    fn from(error: serde_yaml::Error) -> Error {
+        Error::SerdeYaml(error)
     }
 }
 

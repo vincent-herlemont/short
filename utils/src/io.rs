@@ -1,6 +1,7 @@
 //! Input/Ouput manipulation operations related of d4d domain.
 use crate::error::Error;
 use crate::result::Result;
+use std::io;
 use std::io::BufRead;
 
 /// TODO: make monade of [`ContainStr`] function.
@@ -22,7 +23,10 @@ where
     }
     match matched {
         true => Ok(buf),
-        false => Err(Error::new(format!("fail to satisfy predicate"))),
+        false => Err(Error::from(io::Error::new(
+            io::ErrorKind::NotFound,
+            "fail to satisfy the contain predicate",
+        ))),
     }
 }
 

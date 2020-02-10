@@ -49,7 +49,7 @@ struct Template {
 ///
 /// # Errors
 ///
-/// Throw to error [`Error::Other`] error kind TODO: implement domain specific error
+/// Throw to error [`Error::Io`] and [`Error::SerdeYaml`]
 #[allow(dead_code)]
 fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
     let paths = filter_extensions(&paths, &YAML_EXTENSIONS);
@@ -65,11 +65,7 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
                     content: content_file,
                     template: template,
                 }),
-                Err(_) => Err(Error::new(format!(
-                    // TODO : Embed serde_yaml::Error to utils::Error.
-                    "fail to parse file {}",
-                    content_file.path.to_string_lossy()
-                ))),
+                Err(e) => Err(Error::from(e)),
             },
         )
         .partition(Result::is_ok);
@@ -86,6 +82,8 @@ mod tests {
     use crate::assets::get_assets;
     use crate::cloudformation::{from_paths, File, Template};
     use utils::assert_find;
+    use utils::assert_not_find;
+    use utils::error::Error;
     use utils::path::retrieve;
     use utils::test::before;
 
@@ -100,5 +98,8 @@ mod tests {
             aws_template_format_version: String::from("2010-09-09")
         });
         assert_eq!(errors.len(), 2);
+        assert_find!(errors, Error::Io(_));
+        assert_find!(errors, Error::SerdeYaml(_));
+        assert_not_find!(errors, Error::Other(_));
     }
 }
