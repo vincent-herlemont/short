@@ -1,0 +1,8 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: main stack
+Resources:
+  ParentStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.eu-west-3.amazonaws.com/test1-bucket-template/e53ae4b06161062a5a6718eba676d2d2.template
+      TimeoutInMinutes: 1

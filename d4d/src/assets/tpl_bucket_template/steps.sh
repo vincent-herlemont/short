@@ -1,6 +1,6 @@
 #!/bin/sh
-region=us-east-1
-stack_name=test2-bucket-template
+region=$1
+stack_name=test1-bucket-template
 
 aws --region $region cloudformation deploy \
                      --template-file ./bucket_template.yaml \

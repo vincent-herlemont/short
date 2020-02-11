@@ -49,7 +49,7 @@ struct Template {
 ///
 /// # Errors
 ///
-/// Throw to error [`Error::Io`] and [`Error::SerdeYaml`]
+/// Return [`Vec`] of [`Error::Io`] and/or [`Error::SerdeYaml`].
 #[allow(dead_code)]
 fn from_paths(paths: &[PathBuf]) -> (Vec<File>, Vec<Error>) {
     let paths = filter_extensions(&paths, &YAML_EXTENSIONS);

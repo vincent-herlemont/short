@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "parent stack"
+Resources:
+  ChildStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./child/child.yaml
+      TimeoutInMinutes: 1
+  ExampleLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+  ExampleLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: ./example_parent_lambda
+      Handler: handler.handler
+      Role: !GetAtt ExampleLambdaRole.Arn
+      Runtime: nodejs12.x
