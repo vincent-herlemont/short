@@ -1,5 +1,5 @@
 #!/bin/sh
-region=eu-west-3
+region=`eu-west-3`
 deploy_stack_name=test1-bucket-template
 template_name_file=main
 stack_name=$1
