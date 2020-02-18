@@ -8,9 +8,9 @@ use utils::path::filter_extensions;
 use utils::result::unwrap_partition;
 
 #[allow(dead_code)]
-static YAML_EXTENSIONS: [&str; 2] = ["yaml", "yml"];
+pub static YAML_EXTENSIONS: [&str; 2] = ["yaml", "yml"];
 #[allow(dead_code)]
-static TEMPLATE_VERSION: &str = "2010-09-09";
+pub static TEMPLATE_VERSION: &str = "2010-09-09";
 
 /// The configuration of the cloudformation inspector.
 #[derive(Debug)]
@@ -87,7 +87,9 @@ mod tests {
         let (files, errors) = from_paths(&paths);
         assert_find!(files,TemplateFile{template,..},
             template == &Template {
-            aws_template_format_version: String::from("2010-09-09")
+            aws_template_format_version: String::from("2010-09-09"),
+            nested: vec![],
+            description: Some(String::from("certificate example")),
         });
         assert_eq!(errors.len(), 2);
         assert_find!(errors, Error::Io(_));
