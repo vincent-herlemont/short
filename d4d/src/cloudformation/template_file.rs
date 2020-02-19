@@ -1,5 +1,5 @@
 //! Provide in the same struct [`ContentFile`] and Cloudformation [`Template`]
-use crate::cloudformation::template::Template;
+use crate::cloudformation::template::{ContentTemplate, Template};
 use std::cmp::Ordering;
 use std::path::PathBuf;
 use utils::error::Error;
@@ -51,10 +51,13 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<TemplateFile>, Vec<Error>) {
     let results: (Vec<_>, Vec<_>) = content_files
         .into_iter()
         .map(
-            |content_file| match serde_yaml::from_str::<Template>(&content_file.contents) {
-                Ok(template) => Ok(TemplateFile {
+            |content_file| match serde_yaml::from_str::<ContentTemplate>(&content_file.contents) {
+                Ok(content_template) => Ok(TemplateFile {
                     content_file,
-                    template,
+                    template: Template {
+                        nested: vec![],
+                        content_template: content_template,
+                    },
                 }),
                 Err(e) => Err(Error::from(e)),
             },
@@ -71,7 +74,7 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<TemplateFile>, Vec<Error>) {
 #[cfg(test)]
 mod tests {
     use crate::assets::get_assets;
-    use crate::cloudformation::template::Template;
+    use crate::cloudformation::template::{ContentTemplate, Template};
     use crate::cloudformation::template_file::{from_paths, TemplateFile};
     use utils::assert_find;
     use utils::assert_not_find;
@@ -87,9 +90,11 @@ mod tests {
         let (files, errors) = from_paths(&paths);
         assert_find!(files,TemplateFile{template,..},
             template == &Template {
-            aws_template_format_version: String::from("2010-09-09"),
+            content_template: ContentTemplate {
+                aws_template_format_version: String::from("2010-09-09"),
+                description: Some(String::from("certificate example")),
+            },
             nested: vec![],
-            description: Some(String::from("certificate example")),
         });
         assert_eq!(errors.len(), 2);
         assert_find!(errors, Error::Io(_));

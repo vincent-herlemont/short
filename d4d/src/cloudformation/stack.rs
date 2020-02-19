@@ -3,5 +3,8 @@
 use std::cell::RefCell;
 
 pub struct Stack {
-    nested: Vec<RefCell<Stack>>,
+    pub nested: Vec<RefCell<Stack>>,
+    pub content_stack: ContentStack,
 }
+
+pub struct ContentStack {}
