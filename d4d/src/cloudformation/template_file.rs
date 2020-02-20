@@ -73,9 +73,9 @@ fn from_paths(paths: &[PathBuf]) -> (Vec<TemplateFile>, Vec<Error>) {
 
 #[cfg(test)]
 mod tests {
-    use crate::assets::get_assets;
     use crate::cloudformation::template::{ContentTemplate, Template};
     use crate::cloudformation::template_file::{from_paths, TemplateFile};
+    use crate::gen_assets::get_assets;
     use utils::assert_find;
     use utils::assert_not_find;
     use utils::error::Error;

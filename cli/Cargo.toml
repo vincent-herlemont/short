@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 clap = "2.33.0"
+
+[build-dependencies]
+include_walk = { path="./../../include_walk" }

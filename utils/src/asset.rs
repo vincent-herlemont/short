@@ -4,7 +4,7 @@ use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub const ASSETS_DIRECTORY: &'static str = "./assets";
+pub const ASSETS_DIRECTORY: &'static str = "assets";
 
 #[derive(Debug)]
 pub struct Asset {

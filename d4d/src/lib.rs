@@ -1,2 +1,2 @@
-mod assets;
 mod cloudformation;
+mod gen_assets;
