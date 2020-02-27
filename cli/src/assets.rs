@@ -1,19 +1,8 @@
-use utils::asset::Asset;
+use std::collections::HashMap;
 
 #[allow(dead_code)]
-pub fn get_assets() -> Vec<Asset> {
-    vec![
-        Asset::new(
-            "./src/assets.rs",
-            include_str!("./src/assets.rs"),
-        ),
-        Asset::new(
-            "./src/assets/certificate.yaml",
-            include_str!("./src/assets/certificate.yaml"),
-        ),
-        Asset::new(
-            "./assets.rs",
-            include_str!("./assets.rs"),
-        ),
-    ]
+pub fn getAll() -> HashMap<&'static str, &'static str> {
+    let mut out = HashMap::new();
+    out.insert("assets/certificate.yaml", include_str!("assets/certificate.yaml"));
+    out
 }

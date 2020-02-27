@@ -1,5 +1,6 @@
 //! Embedding and shifting of asset
 use super::error::Error;
+use std::collections::HashMap;
 use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -26,14 +27,16 @@ impl Asset {
 }
 
 /// Copy all [`Asset`] in target directory [`path`].
-pub fn to_dir(path: &Path, assets: &[Asset]) -> Result<(), Box<dyn stdError>> {
+pub fn to_dir(
+    path: &Path,
+    assets: HashMap<&'static str, &'static str>,
+) -> Result<(), Box<dyn stdError>> {
     if !path.exists() {
         return Err(Error::new_box(format!("directory {:?} not exists", path)));
     }
-    for asset in assets {
-        let asset_path = asset.path();
+    for (asset_path, contents) in assets {
+        let asset_path = PathBuf::from(asset_path);
         let path = path.join(asset_path.strip_prefix(ASSETS_DIRECTORY)?);
-        let contents = asset.data.as_str();
         if let Some(parent) = path.parent() {
             if !parent.exists() {
                 fs::create_dir_all(parent)?;
@@ -47,23 +50,16 @@ pub fn to_dir(path: &Path, assets: &[Asset]) -> Result<(), Box<dyn stdError>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::assets::get_assets;
+    use crate::assets::getAll;
     use std::fs::read_dir;
     use tempdir::TempDir;
-
-    #[test]
-    fn get_assets_test() {
-        let assets = get_assets();
-        assert!(assets.first().unwrap().path.to_str().unwrap().len() > 0);
-        assert!(assets.first().unwrap().data.len() > 0);
-    }
 
     #[allow(unreachable_patterns)]
     #[test]
     fn copy_all_assets_to_target_directory() {
         let tempdir = TempDir::new("copy_all_assets_to_target_directory").unwrap();
         let tempdir = tempdir.path();
-        to_dir(&tempdir, &get_assets()).unwrap();
+        to_dir(&tempdir, getAll()).unwrap();
         let files: Vec<_> = read_dir(&tempdir)
             .unwrap()
             .map(|o| o.unwrap().path())

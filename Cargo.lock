@@ -50,9 +50,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "common-path"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2382f75942f4b3be3690fe4f86365e9c853c1587d6ee58212cebf6e2a9ccd101"
+
+[[package]]
 name = "d4d"
 version = "0.1.0"
 dependencies = [
+ "include_walk",
  "serde",
  "serde_yaml",
  "utils",
@@ -81,8 +88,11 @@ dependencies = [
 
 [[package]]
 name = "include_walk"
-version = "0.1.0"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57c996b9e07e6ed4a860d954819cc4dd86d0ec921dd27e9f7626c345fbdea12b"
 dependencies = [
+ "common-path",
  "walkdir",
 ]
 
@@ -255,6 +265,7 @@ checksum = "826e7639553986605ec5979c7dd957c7895e93eabed50ab2ffa7f6128a75097c"
 name = "utils"
 version = "0.1.0"
 dependencies = [
+ "include_walk",
  "serde",
  "serde_yaml",
  "tempdir",

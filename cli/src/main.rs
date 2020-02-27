@@ -1,5 +1,6 @@
 use clap::App;
 use clap::AppSettings::ArgRequiredElseHelp;
+mod assets;
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 const BIN_NAME: &'static str = "d4d";

@@ -4,10 +4,8 @@ version = "0.1.0"
 authors = ["Vincent Herlemont <vincentherl@leszeros.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 clap = "2.33.0"
 
 [build-dependencies]
-include_walk = { path="./../../include_walk" }
+include_walk = "0.2.2"
