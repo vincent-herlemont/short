@@ -1,5 +1,5 @@
 //! Helper for test related of d4d domain.
-use crate::asset::{to_dir, Asset};
+use crate::asset::to_dir;
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;

@@ -12,4 +12,4 @@ serde_yaml = "0.8.11"
 utils = { path = "../utils" }
 
 [build-dependencies]
-include_walk = "0.2.2"
+include_walk = "0.3.0"

@@ -48,7 +48,7 @@ pub fn filter_extensions(paths: &[PathBuf], extensions: &[&str]) -> Vec<PathBuf>
 
 #[cfg(test)]
 mod tests {
-    use crate::assets::getAll;
+    use crate::assets::get_all;
     use crate::path::{filter_extensions, retrieve};
     use crate::test::before;
     use std::path::PathBuf;
@@ -56,7 +56,7 @@ mod tests {
     #[allow(unreachable_patterns)]
     #[test]
     fn retrieve_entries_test() {
-        let config = before("before_test", getAll());
+        let config = before("before_test", get_all());
         let mut entries = retrieve(&config.tmp_dir).unwrap();
         entries.sort();
         assert!(entries.len() >= 3);

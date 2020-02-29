@@ -50,7 +50,7 @@ pub fn to_dir(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::assets::getAll;
+    use crate::assets::get_all;
     use std::fs::read_dir;
     use tempdir::TempDir;
 
@@ -59,7 +59,7 @@ mod tests {
     fn copy_all_assets_to_target_directory() {
         let tempdir = TempDir::new("copy_all_assets_to_target_directory").unwrap();
         let tempdir = tempdir.path();
-        to_dir(&tempdir, getAll()).unwrap();
+        to_dir(&tempdir, get_all()).unwrap();
         let files: Vec<_> = read_dir(&tempdir)
             .unwrap()
             .map(|o| o.unwrap().path())
