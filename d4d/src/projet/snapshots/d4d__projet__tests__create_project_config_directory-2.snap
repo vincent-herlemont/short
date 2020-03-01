@@ -1,0 +1,5 @@
+---
+source: d4d/src/projet/mod.rs
+expression: r.iter().count()
+---
+2

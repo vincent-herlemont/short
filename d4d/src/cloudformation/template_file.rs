@@ -18,6 +18,7 @@ struct InspectorConfig {
     path: PathBuf,
 }
 
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct TemplateFile {
     pub content_file: ContentFile,

@@ -1,4 +1,5 @@
 //! Cloudformation template description
+//! https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-resource-specification.html
 use serde::Deserialize;
 use std::cell::RefCell;
 use std::rc::Rc;

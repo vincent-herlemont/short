@@ -1,0 +1,7 @@
+---
+source: d4d/src/projet/mod.rs
+expression: r
+---
+Ok(
+    (),
+)

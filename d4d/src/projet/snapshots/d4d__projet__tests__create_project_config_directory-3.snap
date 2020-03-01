@@ -1,0 +1,13 @@
+---
+source: d4d/src/projet/mod.rs
+expression: r
+---
+Err(
+    Io(
+        Os {
+            code: 17,
+            kind: AlreadyExists,
+            message: "File exists",
+        },
+    ),
+)
