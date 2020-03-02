@@ -29,7 +29,7 @@ impl Asset {
 /// Copy all [`Asset`] in target directory [`path`].
 pub fn to_dir(
     path: &Path,
-    assets: HashMap<&'static str, &'static str>,
+    assets: &HashMap<&'static str, &'static str>,
 ) -> Result<(), Box<dyn stdError>> {
     if !path.exists() {
         return Err(Error::new_box(format!("directory {:?} not exists", path)));
@@ -59,7 +59,7 @@ mod tests {
     fn copy_all_assets_to_target_directory() {
         let tempdir = TempDir::new("copy_all_assets_to_target_directory").unwrap();
         let tempdir = tempdir.path();
-        to_dir(&tempdir, get_all()).unwrap();
+        to_dir(&tempdir, &get_all()).unwrap();
         let files: Vec<_> = read_dir(&tempdir)
             .unwrap()
             .map(|o| o.unwrap().path())

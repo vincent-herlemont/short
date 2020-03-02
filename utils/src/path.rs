@@ -56,7 +56,7 @@ mod tests {
     #[allow(unreachable_patterns)]
     #[test]
     fn retrieve_entries_test() {
-        let config = before("before_test", get_all());
+        let config = before("before_test", &get_all());
         let mut entries = retrieve(&config.tmp_dir).unwrap();
         entries.sort();
         assert!(entries.len() >= 3);

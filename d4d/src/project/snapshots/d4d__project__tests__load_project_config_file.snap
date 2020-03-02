@@ -1,0 +1,9 @@
+---
+source: d4d/src/project/mod.rs
+expression: projects
+---
+Ok(
+    Projects {
+        all: [],
+    },
+)

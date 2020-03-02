@@ -19,7 +19,7 @@ impl Drop for Config {
 ///
 /// The temporary directory is owned by [`InspectorConfig.path`].
 ///
-pub fn before(test_name: &str, assets: HashMap<&'static str, &'static str>) -> Config {
+pub fn before(test_name: &str, assets: &HashMap<&'static str, &'static str>) -> Config {
     let test_name = format!("{}.{}", "d4d", test_name);
 
     // Create temporary directory.

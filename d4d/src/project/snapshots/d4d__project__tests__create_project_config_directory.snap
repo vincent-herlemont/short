@@ -1,5 +1,5 @@
 ---
-source: d4d/src/projet/mod.rs
+source: d4d/src/project/mod.rs
 expression: r
 ---
 Ok(

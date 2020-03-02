@@ -71,7 +71,7 @@ mod tests {
     #[allow(unreachable_patterns)]
     #[test]
     fn read_contain_multi_test() {
-        let config = before("search_test", get_all());
+        let config = before("search_test", &get_all());
         let paths = retrieve(&config.tmp_dir).unwrap();
         let (mut content_files, errors) =
             ContentFile::read_contain_multi(&paths, |line| line.contains("test"));
