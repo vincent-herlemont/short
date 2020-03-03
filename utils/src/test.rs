@@ -1,6 +1,5 @@
 //! Helper for test related of d4d domain.
-use crate::asset::to_dir;
-use std::collections::HashMap;
+use crate::asset::{to_dir, Assets};
 use std::fs;
 use std::path::PathBuf;
 use tempdir::TempDir;
@@ -19,7 +18,7 @@ impl Drop for Config {
 ///
 /// The temporary directory is owned by [`InspectorConfig.path`].
 ///
-pub fn before(test_name: &str, assets: &HashMap<&'static str, &'static str>) -> Config {
+pub fn before(test_name: &str, assets: Assets) -> Config {
     let test_name = format!("{}.{}", "d4d", test_name);
 
     // Create temporary directory.

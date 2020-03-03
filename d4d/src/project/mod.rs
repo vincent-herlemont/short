@@ -53,6 +53,7 @@ mod tests {
     use insta::assert_debug_snapshot;
     use serde_yaml;
     use std::collections::HashMap;
+    use utils::asset::Assets;
     use utils::test::before;
     use walkdir::WalkDir;
 
@@ -60,19 +61,22 @@ mod tests {
     fn test_load_project_config_file() {
         let mut assets: HashMap<&str, &str> = HashMap::new();
         assets.insert(
-            "assets/.d4d/projects.yaml",
+            ".d4d/projects.yaml",
             r#"
 projects: []
 "#,
         );
-        let config = before("test_load_project_config_directory", &assets);
+        let config = before("test_load_project_config_directory", Assets::All(assets));
         let projects = load_project_config_file(&config.tmp_dir);
         assert_debug_snapshot!(projects);
     }
 
     #[test]
     fn test_create_project_config_directory() {
-        let config = before("create_project_config_directory", &HashMap::new());
+        let config = before(
+            "create_project_config_directory",
+            Assets::All(HashMap::new()),
+        );
         let r = create_project_config_directory(&config.tmp_dir);
         assert_debug_snapshot!(r);
         let r: Vec<_> = WalkDir::new(&config.tmp_dir).into_iter().collect();

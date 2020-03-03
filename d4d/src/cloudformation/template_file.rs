@@ -78,6 +78,7 @@ mod tests {
     use crate::cloudformation::template_file::{from_paths, TemplateFile};
     use utils::assert_find;
     use utils::assert_not_find;
+    use utils::asset::default_assets;
     use utils::error::Error;
     use utils::path::retrieve;
     use utils::test::before;
@@ -85,7 +86,7 @@ mod tests {
     #[allow(unreachable_patterns)]
     #[test]
     fn from_path_test() {
-        let config = before("from_path_test", &get_all());
+        let config = before("from_path_test", default_assets(get_all()));
         let paths = retrieve(&config.tmp_dir).expect("fail to get paths");
         let (files, errors) = from_paths(&paths);
         assert_find!(files,TemplateFile{template,..},
