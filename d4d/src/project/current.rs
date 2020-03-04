@@ -53,6 +53,23 @@ fn save_project_current_file<P: AsRef<Path>>(home: P, projects: Projects) -> Res
 #[derive(Serialize, Deserialize, Debug)]
 struct Project {
     name: String,
+
+    #[serde(skip_serializing)]
+    current_env: Option<String>,
+
+    #[serde(skip_serializing)]
+    git_secret_repo: Option<String>,
+}
+
+impl Project {
+    #[allow(dead_code)]
+    fn new<S: AsRef<str>>(name: S) -> Project {
+        Project {
+            name: String::from(name.as_ref()),
+            current_env: None,
+            git_secret_repo: None,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -64,12 +81,13 @@ pub struct Projects {
 #[cfg(test)]
 mod tests {
     use crate::project::current::{
-        create_project_config_directory, load_project_current_file, save_project_current_file,
-        Project, Projects,
+        create_project_config_directory, load_project_current_file, project_current_file_path,
+        save_project_current_file, Project, Projects,
     };
     use insta::assert_debug_snapshot;
     use serde_yaml;
     use std::collections::HashMap;
+    use std::fs::read_to_string;
     use utils::asset::Assets;
     use utils::test::before;
     use walkdir::WalkDir;
@@ -81,19 +99,21 @@ mod tests {
             Assets::All(HashMap::new()),
         );
         let projects = Projects {
-            all: vec![Project {
-                name: String::from("project_1"),
-            }],
+            all: vec![Project::new("project_1")],
         };
         let r = create_project_config_directory(&config.tmp_dir);
         assert!(r.is_ok());
         let r = save_project_current_file(&config.tmp_dir, projects);
         assert!(r.is_ok());
+        let r = read_to_string(project_current_file_path(&config.tmp_dir)).unwrap();
+        assert_eq!(r, String::from("---\nprojects:\n  - name: project_1"));
         let read_create_projects_file = load_project_current_file(&config.tmp_dir);
         assert_debug_snapshot!(read_create_projects_file);
         let projects = Projects { all: vec![] };
         let r = save_project_current_file(&config.tmp_dir, projects);
         assert!(r.is_ok());
+        let r = read_to_string(project_current_file_path(&config.tmp_dir)).unwrap();
+        assert_eq!(r, String::from("---\nprojects: []"));
         let read_overwrite_projects_file = load_project_current_file(&config.tmp_dir);
         assert_debug_snapshot!(read_overwrite_projects_file);
     }

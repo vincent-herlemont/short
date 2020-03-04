@@ -7,6 +7,8 @@ Ok(
         all: [
             Project {
                 name: "project_1",
+                current_env: None,
+                git_secret_repo: None,
             },
         ],
     },
