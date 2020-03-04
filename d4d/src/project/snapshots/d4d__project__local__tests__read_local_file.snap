@@ -1,0 +1,18 @@
+---
+source: d4d/src/project/local.rs
+expression: local_projects
+---
+LocalProjects {
+    all: [
+        LocalProject {
+            name: "test_1",
+            template_path: None,
+        },
+        LocalProject {
+            name: "test_2",
+            template_path: Some(
+                "./test_template.yaml",
+            ),
+        },
+    ],
+}
