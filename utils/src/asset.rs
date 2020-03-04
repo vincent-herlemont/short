@@ -34,13 +34,8 @@ pub fn to_dir<P: AsRef<Path>>(path: P, assets: Assets) -> Result<(), Box<dyn std
                     let p = PathBuf::from(asset_path);
                     let p = p.strip_prefix(sub_path.clone()).ok();
 
-                    // TODO: Try to refactor with .map Option
                     if let Some(p) = p {
-                        if let Some(p) = p.to_str() {
-                            Some((PathBuf::from(p), content))
-                        } else {
-                            None
-                        }
+                        p.to_str().map(|s| -> _ { (PathBuf::from(s), content) })
                     } else {
                         None
                     }
