@@ -1,5 +1,5 @@
 ---
-source: d4d/src/project/mod.rs
+source: d4d/src/project/current.rs
 expression: read_overwrite_projects_file
 ---
 Ok(
