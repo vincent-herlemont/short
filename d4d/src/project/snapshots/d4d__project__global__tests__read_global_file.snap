@@ -1,0 +1,31 @@
+---
+source: d4d/src/project/global.rs
+expression: projects
+---
+Ok(
+    Projects {
+        all: [
+            Project {
+                name: "project_1",
+                current_env: None,
+                git_secret_repo: None,
+            },
+            Project {
+                name: "project_2",
+                current_env: Some(
+                    "dev",
+                ),
+                git_secret_repo: None,
+            },
+            Project {
+                name: "project_3",
+                current_env: Some(
+                    "prod",
+                ),
+                git_secret_repo: Some(
+                    "git@privategit.com",
+                ),
+            },
+        ],
+    },
+)

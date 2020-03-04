@@ -1,5 +1,0 @@
----
-source: d4d/src/project/current.rs
-expression: r.iter().count()
----
-2

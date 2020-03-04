@@ -1,2 +1,2 @@
-mod current;
+mod global;
 mod local;
