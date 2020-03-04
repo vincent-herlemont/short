@@ -1,0 +1,13 @@
+---
+source: d4d/src/project/mod.rs
+expression: read_create_projects_file
+---
+Ok(
+    Projects {
+        all: [
+            Project {
+                name: "project_1",
+            },
+        ],
+    },
+)

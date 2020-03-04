@@ -1,7 +1,5 @@
 ---
 source: d4d/src/project/mod.rs
-expression: r
+expression: r.iter().count()
 ---
-Ok(
-    (),
-)
+2

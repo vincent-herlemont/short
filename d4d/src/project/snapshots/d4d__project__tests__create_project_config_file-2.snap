@@ -1,0 +1,9 @@
+---
+source: d4d/src/project/mod.rs
+expression: read_overwrite_projects_file
+---
+Ok(
+    Projects {
+        all: [],
+    },
+)
