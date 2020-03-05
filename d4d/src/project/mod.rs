@@ -1,2 +1,2 @@
-mod global;
-mod local;
+pub mod global;
+pub mod local;

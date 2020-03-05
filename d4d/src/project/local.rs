@@ -50,10 +50,37 @@ impl LocalProject {
     }
 }
 
+impl ToString for LocalProject {
+    fn to_string(&self) -> String {
+        self.name.to_owned()
+    }
+}
+
+// TODO: implement Display trait
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LocalProjects {
     #[serde(rename = "projects")]
     all: Vec<LocalProject>,
+}
+
+impl ToString for LocalProjects {
+    fn to_string(&self) -> String {
+        format!("{:?}", self.all)
+    }
+}
+
+impl LocalProjects {
+    pub fn new<P: AsRef<Path>>(root: P) -> Result<LocalProjects> {
+        match read_local_file(&root) {
+            Ok(local_projects) => Ok(local_projects),
+            Err(_) => {
+                // TODO: match only if file does not exist.
+                let local_projects = LocalProjects { all: vec![] };
+                save_local_file(&root, &local_projects)?;
+                Ok(local_projects)
+            }
+        }
+    }
 }
 
 #[cfg(test)]

@@ -87,7 +87,11 @@ name = "cli"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "d4d",
+ "dirs",
  "include_walk",
+ "utils",
+ "walkdir",
 ]
 
 [[package]]
