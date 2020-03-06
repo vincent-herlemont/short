@@ -43,7 +43,7 @@ impl ConfigCli {
 }
 
 impl Config {
-    pub fn cli(self) -> ConfigCli {
+    pub fn cli<S: AsRef<str>>(self, carte_name: S) -> ConfigCli {
         let mut assets = HashMap::new();
         assets.insert(HOME, "");
         assets.insert(PROJECT, "");
@@ -60,7 +60,7 @@ impl Config {
             .parent()
             .unwrap()
             .to_path_buf()
-            .join("cli");
+            .join(carte_name.as_ref());
 
         ConfigCli {
             config: self,
