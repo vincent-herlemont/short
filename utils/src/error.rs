@@ -26,8 +26,8 @@ impl Error {
     /// let url = "http://.....";
     /// Error::new(format!("fail to get url {}",url));
     /// ```
-    pub fn new(msg: String) -> Error {
-        Error::Other(msg)
+    pub fn new<S: AsRef<str>>(msg: S) -> Error {
+        Error::Other(String::from(msg.as_ref()))
     }
 
     /// Create new box error
@@ -51,6 +51,12 @@ impl StdError for Error {
             SerdeYaml(e) => Some(e),
             Other(_) => None,
         }
+    }
+}
+
+impl From<&'static str> for Error {
+    fn from(message: &'static str) -> Error {
+        Error::Other(String::from(message))
     }
 }
 
@@ -80,6 +86,9 @@ mod tests {
         fn create_other_error() -> Result<()> {
             Err(Error::new(format!("ho no !")))
         }
+        fn create_other_error_from() -> Result<()> {
+            Err(Error::from("ho no !"))
+        }
 
         let result = create_io_error();
         match result.err().unwrap() {
@@ -88,6 +97,12 @@ mod tests {
         };
 
         let result = create_other_error();
+        match result.err().unwrap() {
+            Error::Other(_) => assert!(true),
+            _ => assert!(false),
+        };
+
+        let result = create_other_error_from();
         match result.err().unwrap() {
             Error::Other(_) => assert!(true),
             _ => assert!(false),
