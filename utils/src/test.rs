@@ -1,9 +1,14 @@
 //! Helper for test related of d4d domain.
 use crate::asset::{to_dir, Assets};
+use std::collections::HashMap;
+use std::env::current_exe;
+use std::ffi::OsStr;
 use std::fs;
 use std::path::PathBuf;
+use std::process::Command;
 use tempdir::TempDir;
 
+#[derive(Debug)]
 pub struct Config {
     pub tmp_dir: PathBuf,
 }
@@ -11,6 +16,58 @@ pub struct Config {
 impl Drop for Config {
     fn drop(&mut self) {
         fs::remove_dir_all(self.tmp_dir.clone()).expect("can not clean tmp directory");
+    }
+}
+
+#[derive(Debug)]
+pub struct ConfigCli {
+    pub config: Config,
+    pub tmp_home_dir: PathBuf,
+    pub tmp_project_dir: PathBuf,
+    pub exec_path: PathBuf,
+}
+
+const HOME: &'static str = "home/.keep";
+const PROJECT: &'static str = "project/.keep";
+
+impl ConfigCli {
+    pub fn command(&self) -> Command {
+        self.other_command(&self.exec_path)
+    }
+    pub fn other_command<S: AsRef<OsStr>>(&self, program: S) -> Command {
+        let mut command = Command::new(program);
+        command.current_dir(&self.tmp_project_dir);
+        command.env("HOME", &self.tmp_home_dir);
+        command
+    }
+}
+
+impl Config {
+    pub fn cli(self) -> ConfigCli {
+        let mut assets = HashMap::new();
+        assets.insert(HOME, "");
+        assets.insert(PROJECT, "");
+
+        to_dir(&self.tmp_dir, Assets::All(assets)).expect("fail to copy cli assets");
+
+        let home_dir = self.tmp_dir.join(HOME).parent().unwrap().to_path_buf();
+        let project_dir = self.tmp_dir.join(PROJECT).parent().unwrap().to_path_buf();
+
+        let current_exec = current_exe()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .to_path_buf()
+            .join("cli");
+
+        ConfigCli {
+            config: self,
+            tmp_home_dir: home_dir,
+            tmp_project_dir: project_dir,
+            exec_path: current_exec,
+        }
     }
 }
 

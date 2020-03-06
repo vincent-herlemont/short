@@ -14,6 +14,7 @@ pub struct SubAssets {
 pub enum Assets {
     Sub(SubAssets),
     All(HashMap<&'static str, &'static str>),
+    None,
 }
 
 /// Copy all [`Asset`] in target directory [`path`].
@@ -46,6 +47,7 @@ pub fn to_dir<P: AsRef<Path>>(path: P, assets: Assets) -> Result<(), Box<dyn std
             .into_iter()
             .map(|(asset_path, content)| -> _ { (PathBuf::from(asset_path), content) })
             .collect(),
+        Assets::None => HashMap::new(),
     };
 
     for (asset_path, contents) in assets {
