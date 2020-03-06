@@ -3,7 +3,6 @@ use crate::asset::{to_dir, Assets};
 use std::collections::HashMap;
 use std::env::current_exe;
 use std::ffi::OsStr;
-use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 use tempdir::TempDir;
@@ -11,17 +10,15 @@ use tempdir::TempDir;
 #[derive(Debug)]
 pub struct Config {
     pub tmp_dir: PathBuf,
-}
-
-impl Drop for Config {
-    fn drop(&mut self) {
-        fs::remove_dir_all(self.tmp_dir.clone()).expect("can not clean tmp directory");
-    }
+    temp_dir: TempDir,
 }
 
 #[derive(Debug)]
 pub struct ConfigCli {
-    pub config: Config,
+    // Config
+    pub tmp_dir: PathBuf,
+    temp_dir: TempDir,
+
     pub tmp_home_dir: PathBuf,
     pub tmp_project_dir: PathBuf,
     pub exec_path: PathBuf,
@@ -63,7 +60,9 @@ impl Config {
             .join(carte_name.as_ref());
 
         ConfigCli {
-            config: self,
+            temp_dir: self.temp_dir,
+            tmp_dir: self.tmp_dir,
+
             tmp_home_dir: home_dir,
             tmp_project_dir: project_dir,
             exec_path: current_exec,
@@ -79,14 +78,15 @@ pub fn before(test_name: &str, assets: Assets) -> Config {
     let test_name = format!("{}.{}", "d4d", test_name);
 
     // Create temporary directory.
-    let path = TempDir::new(test_name.as_str())
-        .expect("fail to create temporary directory")
-        .into_path();
+    let temp_dir = TempDir::new(test_name.as_str()).expect("fail to create temporary directory");
 
     // Copy assets to it.
-    to_dir(&path, assets).expect("fail to copy assets");
+    to_dir(temp_dir.path(), assets).expect("fail to copy assets");
 
-    Config { tmp_dir: path }
+    Config {
+        tmp_dir: temp_dir.path().to_path_buf(),
+        temp_dir,
+    }
 }
 
 /// Assert that patter value or|and expression is present on an vector.
