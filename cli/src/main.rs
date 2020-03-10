@@ -23,7 +23,7 @@ fn main() {
     if let Some(_) = app.subcommand_matches("init") {
         if let Some(home) = dirs::home_dir() {
             if let Ok(local_projects) = LocalProjects::new(home) {
-                println!("{}", local_projects.to_string());
+                println!("{}", local_projects);
             } else {
                 eprintln!("fail to read local projects");
             }

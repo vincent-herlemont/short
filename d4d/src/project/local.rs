@@ -1,4 +1,7 @@
+use serde::export::Formatter;
 use serde::{Deserialize, Serialize};
+use std::fmt;
+use std::fmt::Display;
 use std::fs::OpenOptions;
 use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
@@ -50,9 +53,9 @@ impl LocalProject {
     }
 }
 
-impl ToString for LocalProject {
-    fn to_string(&self) -> String {
-        self.name.to_owned()
+impl Display for LocalProject {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)
     }
 }
 
@@ -63,9 +66,12 @@ pub struct LocalProjects {
     all: Vec<LocalProject>,
 }
 
-impl ToString for LocalProjects {
-    fn to_string(&self) -> String {
-        format!("{:?}", self.all)
+impl Display for LocalProjects {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        for local_project in &self.all {
+            writeln!(f, " - {}", local_project)?;
+        }
+        Ok(())
     }
 }
 
