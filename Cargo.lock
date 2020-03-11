@@ -90,6 +90,7 @@ dependencies = [
  "d4d",
  "dirs",
  "include_walk",
+ "insta",
  "utils",
  "walkdir",
 ]

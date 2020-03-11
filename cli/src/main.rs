@@ -1,8 +1,10 @@
 use clap::App;
 use clap::AppSettings::ArgRequiredElseHelp;
-use d4d::project::local::LocalProjects;
+use d4d::project::Projects;
 use std::env;
+use std::env::current_dir;
 use std::process::exit;
+use utils::result::Result;
 
 mod assets;
 
@@ -21,15 +23,29 @@ fn main() {
         .get_matches();
 
     if let Some(_) = app.subcommand_matches("init") {
-        if let Some(home) = dirs::home_dir() {
-            if let Ok(local_projects) = LocalProjects::new(home) {
-                println!("{}", local_projects);
-            } else {
-                eprintln!("fail to read local projects");
+        match init() {
+            Ok(_) => {
+                println!("");
             }
-        } else {
-            eprintln!("Fail to found the $HOME directories");
-            exit(1);
+            Err(err) => {
+                eprintln!("{}", err);
+                exit(1);
+            }
         }
     }
+}
+
+fn init() -> Result<()> {
+    match (current_dir(), dirs::home_dir()) {
+        (Ok(current_dir), Some(home_dir)) => {
+            Projects::init(current_dir, home_dir)?;
+        }
+        (Err(err), _) => {
+            eprintln!("{}", err);
+        }
+        (_, None) => {
+            eprintln!("fail to found your home directory");
+        }
+    }
+    Ok(())
 }

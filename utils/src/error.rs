@@ -12,6 +12,7 @@ use std::io;
 #[derive(Debug)]
 pub enum Error {
     Other(String),
+    Wrap(String, Box<Error>),
     Io(io::Error),
     SerdeYaml(serde_yaml::Error),
 }
@@ -34,11 +35,20 @@ impl Error {
     pub fn new_box(msg: String) -> Box<Error> {
         Box::new(Error::new(msg))
     }
+
+    pub fn wrap<S: AsRef<str>>(msg: S, err: Error) -> Error {
+        Error::Wrap(String::from(msg.as_ref()), Box::new(err))
+    }
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        write!(f, "{}", self)
+        match self {
+            Error::Other(msg) => write!(f, "{}", msg),
+            Error::Wrap(msg, err) => write!(f, "{} : {}", msg, err),
+            Error::Io(err) => write!(f, "{}", err),
+            _ => write!(f, "{:?}", self),
+        }
     }
 }
 
@@ -49,6 +59,7 @@ impl StdError for Error {
         match self {
             Io(e) => Some(e),
             SerdeYaml(e) => Some(e),
+            Wrap(message, error) => Some(error),
             Other(_) => None,
         }
     }
@@ -57,6 +68,12 @@ impl StdError for Error {
 impl From<&'static str> for Error {
     fn from(message: &'static str) -> Error {
         Error::Other(String::from(message))
+    }
+}
+
+impl From<String> for Error {
+    fn from(message: String) -> Error {
+        Error::Other(message)
     }
 }
 

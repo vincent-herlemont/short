@@ -29,7 +29,7 @@ fn global_file_path<P: AsRef<Path>>(home: P) -> PathBuf {
 }
 
 #[allow(dead_code)]
-fn read_global_file<P: AsRef<Path>>(home: P) -> Result<Projects> {
+fn read_global_file<P: AsRef<Path>>(home: P) -> Result<GlobalProjects> {
     let path = global_file_path(home);
     let file = File::open(path)?;
     let buf = BufReader::new(file);
@@ -38,7 +38,7 @@ fn read_global_file<P: AsRef<Path>>(home: P) -> Result<Projects> {
 
 /// Create or overwrite project config file.
 #[allow(dead_code)]
-fn save_global_file<P: AsRef<Path>>(home: P, projects: Projects) -> Result<()> {
+fn save_global_file<P: AsRef<Path>>(home: P, projects: &GlobalProjects) -> Result<()> {
     let path = global_file_path(home);
     let file = OpenOptions::new()
         .write(true)
@@ -51,7 +51,7 @@ fn save_global_file<P: AsRef<Path>>(home: P, projects: Projects) -> Result<()> {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Project {
+struct GlobalProject {
     name: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -61,10 +61,10 @@ struct Project {
     git_secret_repo: Option<String>,
 }
 
-impl Project {
+impl GlobalProject {
     #[allow(dead_code)]
-    fn new<S: AsRef<str>>(name: S) -> Project {
-        Project {
+    fn new<S: AsRef<str>>(name: S) -> GlobalProject {
+        GlobalProject {
             name: String::from(name.as_ref()),
             current_env: None,
             git_secret_repo: None,
@@ -73,16 +73,53 @@ impl Project {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Projects {
+pub struct GlobalProjects {
     #[serde(rename = "projects")]
-    all: Vec<Project>,
+    all: Vec<GlobalProject>,
+}
+
+impl GlobalProjects {
+    pub fn new<P: AsRef<Path>>(home_dir: P) -> Result<GlobalProjects> {
+        match read_global_file(&home_dir) {
+            Ok(global_file) => Ok(global_file),
+            Err(_) => {
+                let global_directory = global_directory_path(&home_dir);
+                if !global_directory.exists() {
+                    match create_global_directory(&home_dir) {
+                        Ok(_) => (),
+                        Err(err) => {
+                            return Err(Error::wrap(
+                                format!(
+                                    "fail to create configuration directory {}",
+                                    global_directory.to_string_lossy()
+                                ),
+                                err,
+                            ));
+                        }
+                    }
+                }
+                // TODO: match for create err only if file does not exist.
+                let global_projects = GlobalProjects { all: vec![] };
+                match save_global_file(&home_dir, &global_projects) {
+                    Ok(_) => Ok(global_projects),
+                    Err(err) => Err(Error::wrap(
+                        format!(
+                            "fail to create global file to {}",
+                            home_dir.as_ref().to_string_lossy()
+                        ),
+                        err,
+                    )),
+                }
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::project::global::{
-        create_global_directory, global_file_path, read_global_file, save_global_file, Project,
-        Projects,
+        create_global_directory, global_file_path, read_global_file, save_global_file,
+        GlobalProject, GlobalProjects,
     };
     use insta::assert_debug_snapshot;
     use std::collections::HashMap;
@@ -94,19 +131,19 @@ mod tests {
     #[test]
     fn test_save_global_file() {
         let config = before("test_save_global_file", Assets::All(HashMap::new()));
-        let projects = Projects {
-            all: vec![Project::new("project_1")],
+        let projects = GlobalProjects {
+            all: vec![GlobalProject::new("project_1")],
         };
         let r = create_global_directory(&config.tmp_dir);
         assert!(r.is_ok());
-        let r = save_global_file(&config.tmp_dir, projects);
+        let r = save_global_file(&config.tmp_dir, &projects);
         assert!(r.is_ok());
         let r = read_to_string(global_file_path(&config.tmp_dir)).unwrap();
         assert_eq!(r, String::from("---\nprojects:\n  - name: project_1"));
 
         // Overwrite
-        let projects = Projects { all: vec![] };
-        let r = save_global_file(&config.tmp_dir, projects);
+        let projects = GlobalProjects { all: vec![] };
+        let r = save_global_file(&config.tmp_dir, &projects);
         assert!(r.is_ok());
         let r = read_to_string(global_file_path(&config.tmp_dir)).unwrap();
         assert_eq!(r, String::from("---\nprojects: []"));

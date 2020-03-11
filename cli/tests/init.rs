@@ -1,3 +1,4 @@
+use insta::assert_debug_snapshot;
 use utils::asset::Assets;
 use utils::test::before;
 
@@ -8,4 +9,18 @@ fn init() {
     let config = before("init", Assets::None).cli(CRATE_NAME);
     let output = config.command().arg("init").output().unwrap();
     assert_eq!("\n", String::from_utf8(output.stdout).unwrap());
+
+    // TODO : make helper
+    let mut content_dir: Vec<_> = walkdir::WalkDir::new(&config.tmp_dir)
+        .into_iter()
+        .map(|e| {
+            let e = e.unwrap();
+            e.into_path()
+                .strip_prefix(&config.tmp_dir)
+                .unwrap()
+                .to_path_buf()
+        })
+        .collect();
+    content_dir.sort();
+    assert_debug_snapshot!(content_dir);
 }

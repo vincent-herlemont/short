@@ -1,0 +1,14 @@
+---
+source: cli/tests/init.rs
+expression: content_dir
+---
+[
+    "",
+    "home",
+    "home/.d4d",
+    "home/.d4d/projects.yaml",
+    "home/.keep",
+    "project",
+    "project/.keep",
+    "project/d4d.yaml",
+]

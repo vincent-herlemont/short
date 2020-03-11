@@ -3,7 +3,7 @@ source: d4d/src/project/global.rs
 expression: projects
 ---
 Ok(
-    Projects {
+    GlobalProjects {
         all: [],
     },
 )

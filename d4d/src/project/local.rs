@@ -76,14 +76,22 @@ impl Display for LocalProjects {
 }
 
 impl LocalProjects {
-    pub fn new<P: AsRef<Path>>(root: P) -> Result<LocalProjects> {
-        match read_local_file(&root) {
+    pub fn new<P: AsRef<Path>>(current_dir: P) -> Result<LocalProjects> {
+        match read_local_file(&current_dir) {
             Ok(local_projects) => Ok(local_projects),
             Err(_) => {
-                // TODO: match only if file does not exist.
+                // TODO: match for create err only if file does not exist.
                 let local_projects = LocalProjects { all: vec![] };
-                save_local_file(&root, &local_projects)?;
-                Ok(local_projects)
+                match save_local_file(&current_dir, &local_projects) {
+                    Ok(_) => Ok(local_projects),
+                    Err(err) => Err(Error::wrap(
+                        format!(
+                            "fail to create local file {}",
+                            current_dir.as_ref().to_string_lossy()
+                        ),
+                        err,
+                    )),
+                }
             }
         }
     }
