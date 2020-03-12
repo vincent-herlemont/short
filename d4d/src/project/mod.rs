@@ -7,6 +7,7 @@ use utils::result::Result;
 pub mod global;
 pub mod local;
 
+#[allow(dead_code)]
 pub struct Projects {
     local: LocalProjects,
     global: GlobalProjects,

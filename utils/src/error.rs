@@ -59,7 +59,7 @@ impl StdError for Error {
         match self {
             Io(e) => Some(e),
             SerdeYaml(e) => Some(e),
-            Wrap(message, error) => Some(error),
+            Wrap(_, error) => Some(error),
             Other(_) => None,
         }
     }
