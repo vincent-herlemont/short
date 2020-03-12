@@ -40,7 +40,10 @@ struct LocalProject {
     name: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    template_path: Option<String>,
+    template_path: Option<PathBuf>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    public_env_directory: Option<PathBuf>,
 }
 
 impl LocalProject {
@@ -49,6 +52,7 @@ impl LocalProject {
         LocalProject {
             name: String::from(name.as_ref()),
             template_path: None,
+            public_env_directory: None,
         }
     }
 }
@@ -62,6 +66,9 @@ impl Display for LocalProject {
 // TODO: implement Display trait
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LocalProjects {
+    #[serde(skip)]
+    current_dir: PathBuf,
+
     #[serde(rename = "projects")]
     all: Vec<LocalProject>,
 }
@@ -77,22 +84,56 @@ impl Display for LocalProjects {
 
 impl LocalProjects {
     pub fn new<P: AsRef<Path>>(current_dir: P) -> Result<LocalProjects> {
+        let current_dir = current_dir.as_ref().to_path_buf();
         match read_local_file(&current_dir) {
             Ok(local_projects) => Ok(local_projects),
             Err(_) => {
                 // TODO: match for create err only if file does not exist.
-                let local_projects = LocalProjects { all: vec![] };
+                let local_projects = LocalProjects {
+                    current_dir: current_dir.to_owned(),
+                    all: vec![],
+                };
                 match save_local_file(&current_dir, &local_projects) {
                     Ok(_) => Ok(local_projects),
                     Err(err) => Err(Error::wrap(
                         format!(
                             "fail to create local file {}",
-                            current_dir.as_ref().to_string_lossy()
+                            current_dir.to_string_lossy()
                         ),
                         err,
                     )),
                 }
             }
+        }
+    }
+
+    pub fn add<N, TP, PED>(
+        &mut self,
+        name: N,
+        template_path: TP,
+        public_env_directory: PED,
+    ) -> Result<()>
+    where
+        N: AsRef<str>,
+        TP: AsRef<Path>,
+        PED: AsRef<Path>,
+    {
+        self.all.push(LocalProject {
+            name: String::from(name.as_ref()),
+            template_path: Some(PathBuf::from(template_path.as_ref())),
+            public_env_directory: Some(PathBuf::from(public_env_directory.as_ref())),
+        });
+
+        if let Err(err) = save_local_file(&self.current_dir, self) {
+            Err(Error::wrap(
+                format!(
+                    "fail to save local file : {}",
+                    self.current_dir.to_string_lossy()
+                ),
+                err,
+            ))
+        } else {
+            Ok(())
         }
     }
 }
@@ -105,6 +146,7 @@ mod tests {
     use insta::assert_debug_snapshot;
     use std::collections::HashMap;
     use std::fs::read_to_string;
+    use std::path::PathBuf;
     use utils::asset::Assets;
     use utils::test::before;
 
@@ -129,6 +171,7 @@ projects:
     fn test_save_local_file() {
         let config = before("test_save_local_file", Assets::All(HashMap::new()));
         let local_projects = LocalProjects {
+            current_dir: PathBuf::new(),
             all: vec![LocalProject::new("test_1")],
         };
         let r = save_local_file(&config.tmp_dir, &local_projects);
@@ -137,7 +180,10 @@ projects:
         assert_eq!(content, String::from("---\nprojects:\n  - name: test_1"));
 
         // Overwrite
-        let local_projects = LocalProjects { all: vec![] };
+        let local_projects = LocalProjects {
+            current_dir: PathBuf::new(),
+            all: vec![],
+        };
         let r = save_local_file(&config.tmp_dir, &local_projects);
         assert!(r.is_ok());
         let content = read_to_string(local_file_path(&config.tmp_dir)).unwrap();

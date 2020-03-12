@@ -49,6 +49,8 @@ fn main() {
 
 fn add(args: Vec<String>) -> Result<()> {
     if let (Some(project_name), Some(path_to_yaml)) = (args.get(1), args.get(2)) {
+        let mut projects = init()?;
+        projects.add(project_name, path_to_yaml)?;
         println!("project name : {} ", project_name);
         println!("path to template : {}", path_to_yaml);
     } else {
@@ -56,21 +58,13 @@ fn add(args: Vec<String>) -> Result<()> {
             "incorrect arguments : project name or path to yaml is missing",
         ));
     }
-
     Ok(())
 }
 
-fn init() -> Result<()> {
+fn init() -> Result<Projects> {
     match (current_dir(), dirs::home_dir()) {
-        (Ok(current_dir), Some(home_dir)) => {
-            Projects::init(current_dir, home_dir)?;
-        }
-        (Err(err), _) => {
-            eprintln!("{}", err);
-        }
-        (_, None) => {
-            eprintln!("fail to found your home directory");
-        }
+        (Ok(current_dir), Some(home_dir)) => Projects::init(current_dir, home_dir),
+        (Err(err), _) => Err(Error::wrap("init", Error::from(err))),
+        (_, None) => Err(Error::from("fail to found your home directory")),
     }
-    Ok(())
 }

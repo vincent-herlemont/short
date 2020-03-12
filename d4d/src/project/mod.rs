@@ -29,4 +29,20 @@ impl Projects {
             (Err(err), Err(_)) => Err(Error::from(err)),
         }
     }
+
+    pub fn add<N, P>(&mut self, project_name: N, template_path: P) -> Result<()>
+    where
+        N: AsRef<str>,
+        P: AsRef<Path>,
+    {
+        // TODO : move template
+        let template_path = template_path.as_ref();
+        let public_env_directory = template_path.parent().ok_or(format!(
+            "fail to get directory of template : {}",
+            template_path.to_string_lossy()
+        ))?;
+        self.local
+            .add(project_name, template_path, public_env_directory)?;
+        Ok(())
+    }
 }

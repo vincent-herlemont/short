@@ -1,4 +1,5 @@
 use insta::assert_debug_snapshot;
+use std::fs::read_to_string;
 use utils::asset::Assets;
 use utils::test::before;
 
@@ -37,5 +38,16 @@ fn add() {
     assert_eq!(
         "project name : my_project \npath to template : ./path/to/template.yaml\n\n",
         String::from_utf8(output.stdout).unwrap()
+    );
+
+    let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
+    let content = read_to_string(local_project_file).unwrap();
+    assert_eq!(
+        r#"---
+projects:
+  - name: my_project
+    template_path: "./path/to/template.yaml"
+    public_env_directory: "./path/to""#,
+        content.as_str()
     )
 }
