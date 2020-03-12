@@ -1,9 +1,10 @@
-use clap::App;
 use clap::AppSettings::ArgRequiredElseHelp;
+use clap::{App, Arg};
 use d4d::project::Projects;
 use std::env;
 use std::env::current_dir;
 use std::process::exit;
+use utils::error::Error;
 use utils::result::Result;
 
 mod assets;
@@ -16,16 +17,16 @@ fn main() {
         .setting(ArgRequiredElseHelp)
         .bin_name(BIN_NAME)
         .version(VERSION)
-        .subcommand(App::new("add").about("add preset configuration"))
         .subcommand(App::new("watch").about("watch cloudformation infrastructure"))
         .subcommand(App::new("status").about("display of cloud formation infrastructure"))
+        .arg(Arg::with_name("add").multiple(true))
         .subcommand(App::new("init"))
         .get_matches();
 
     if let Some(_) = app.subcommand_matches("init") {
         match init() {
             Ok(_) => {
-                println!("");
+                println!();
             }
             Err(err) => {
                 eprintln!("{}", err);
@@ -33,6 +34,30 @@ fn main() {
             }
         }
     }
+    if let Some(args) = app.values_of_lossy("add") {
+        match add(args) {
+            Ok(_) => {
+                println!();
+            }
+            Err(err) => {
+                eprintln!("{}", err);
+                exit(1);
+            }
+        }
+    }
+}
+
+fn add(args: Vec<String>) -> Result<()> {
+    if let (Some(project_name), Some(path_to_yaml)) = (args.get(1), args.get(2)) {
+        println!("project name : {} ", project_name);
+        println!("path to template : {}", path_to_yaml);
+    } else {
+        return Err(Error::from(
+            "incorrect arguments : project name or path to yaml is missing",
+        ));
+    }
+
+    Ok(())
 }
 
 fn init() -> Result<()> {
