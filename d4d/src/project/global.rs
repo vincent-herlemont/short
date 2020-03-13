@@ -55,6 +55,9 @@ struct GlobalProject {
     name: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    path: Option<PathBuf>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     current_env: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -66,6 +69,7 @@ impl GlobalProject {
     fn new<S: AsRef<str>>(name: S) -> GlobalProject {
         GlobalProject {
             name: String::from(name.as_ref()),
+            path: None,
             current_env: None,
             git_secret_repo: None,
         }
@@ -74,12 +78,16 @@ impl GlobalProject {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GlobalProjects {
+    #[serde(skip)]
+    home_dir: PathBuf,
+
     #[serde(rename = "projects")]
     all: Vec<GlobalProject>,
 }
 
 impl GlobalProjects {
     pub fn new<P: AsRef<Path>>(home_dir: P) -> Result<GlobalProjects> {
+        let home_dir = home_dir.as_ref().to_path_buf();
         match read_global_file(&home_dir) {
             Ok(global_file) => Ok(global_file),
             Err(_) => {
@@ -99,18 +107,50 @@ impl GlobalProjects {
                     }
                 }
                 // TODO: match for create err only if file does not exist.
-                let global_projects = GlobalProjects { all: vec![] };
+                let global_projects = GlobalProjects {
+                    home_dir: home_dir.to_owned(),
+                    all: vec![],
+                };
                 match save_global_file(&home_dir, &global_projects) {
                     Ok(_) => Ok(global_projects),
                     Err(err) => Err(Error::wrap(
                         format!(
                             "fail to create global file to {}",
-                            home_dir.as_ref().to_string_lossy()
+                            home_dir.to_string_lossy()
                         ),
                         err,
                     )),
                 }
             }
+        }
+    }
+
+    pub fn add<N, P>(&mut self, name: N, path: P) -> Result<()>
+    where
+        N: AsRef<str>,
+        P: AsRef<Path>,
+    {
+        let path = PathBuf::from(path.as_ref())
+            .canonicalize()
+            .map_err(|e| Error::wrap("fail to get absolute path of : {}", Error::from(e)))?;
+
+        self.all.push(GlobalProject {
+            name: String::from(name.as_ref()),
+            path: Some(path),
+            current_env: None,
+            git_secret_repo: None,
+        });
+
+        if let Err(err) = save_global_file(&self.home_dir, self) {
+            Err(Error::wrap(
+                format!(
+                    "fail to save global file to : {}",
+                    self.home_dir.to_string_lossy(),
+                ),
+                err,
+            ))
+        } else {
+            Ok(())
         }
     }
 }
@@ -124,6 +164,7 @@ mod tests {
     use insta::assert_debug_snapshot;
     use std::collections::HashMap;
     use std::fs::read_to_string;
+    use std::path::PathBuf;
     use utils::asset::Assets;
     use utils::test::before;
     use walkdir::WalkDir;
@@ -132,6 +173,7 @@ mod tests {
     fn test_save_global_file() {
         let config = before("test_save_global_file", Assets::All(HashMap::new()));
         let projects = GlobalProjects {
+            home_dir: PathBuf::new(),
             all: vec![GlobalProject::new("project_1")],
         };
         let r = create_global_directory(&config.tmp_dir);
@@ -142,7 +184,10 @@ mod tests {
         assert_eq!(r, String::from("---\nprojects:\n  - name: project_1"));
 
         // Overwrite
-        let projects = GlobalProjects { all: vec![] };
+        let projects = GlobalProjects {
+            home_dir: PathBuf::new(),
+            all: vec![],
+        };
         let r = save_global_file(&config.tmp_dir, &projects);
         assert!(r.is_ok());
         let r = read_to_string(global_file_path(&config.tmp_dir)).unwrap();
@@ -174,6 +219,9 @@ projects:
     - name: project_2
       current_env: dev
     - name: project_3
+      path: /todo/plop/
+      current_env: dev
+    - name: project_4
       current_env: prod
       git_secret_repo: "git@privategit.com" 
 "#,

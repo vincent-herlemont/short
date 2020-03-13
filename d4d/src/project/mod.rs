@@ -42,7 +42,8 @@ impl Projects {
             template_path.to_string_lossy()
         ))?;
         self.local
-            .add(project_name, template_path, public_env_directory)?;
+            .add(&project_name, template_path, public_env_directory)?;
+        self.global.add(&project_name, public_env_directory)?;
         Ok(())
     }
 }

@@ -4,14 +4,17 @@ expression: projects
 ---
 Ok(
     GlobalProjects {
+        home_dir: "",
         all: [
             GlobalProject {
                 name: "project_1",
+                path: None,
                 current_env: None,
                 git_secret_repo: None,
             },
             GlobalProject {
                 name: "project_2",
+                path: None,
                 current_env: Some(
                     "dev",
                 ),
@@ -19,6 +22,17 @@ Ok(
             },
             GlobalProject {
                 name: "project_3",
+                path: Some(
+                    "/todo/plop/",
+                ),
+                current_env: Some(
+                    "dev",
+                ),
+                git_secret_repo: None,
+            },
+            GlobalProject {
+                name: "project_4",
+                path: None,
                 current_env: Some(
                     "prod",
                 ),

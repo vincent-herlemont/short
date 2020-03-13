@@ -6,6 +6,7 @@ use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::process::Command;
 use tempdir::TempDir;
+use walkdir::WalkDir;
 
 #[derive(Debug)]
 pub struct Config {
@@ -67,6 +68,44 @@ impl Config {
             tmp_project_dir: project_dir,
             exec_path: current_exec,
         }
+    }
+}
+
+/// ConfigPath
+pub trait ConfigPath {
+    /// Return the root folder path
+    fn path(&self) -> PathBuf;
+
+    /// Return tree of all path (file and directory) relative to the root folder.
+    fn tree(&self) -> Vec<PathBuf> {
+        let mut tree: Vec<PathBuf> = WalkDir::new(self.path())
+            .into_iter()
+            .filter_map(|dir_entry| {
+                if let Ok(dir_entry) = dir_entry {
+                    if let Ok(path) = dir_entry.path().strip_prefix(self.path()) {
+                        Some(path.to_owned())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect();
+        tree.sort();
+        tree
+    }
+}
+
+impl ConfigPath for Config {
+    fn path(&self) -> PathBuf {
+        self.tmp_dir.to_owned()
+    }
+}
+
+impl ConfigPath for ConfigCli {
+    fn path(&self) -> PathBuf {
+        self.tmp_dir.to_owned()
     }
 }
 

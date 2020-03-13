@@ -10,6 +10,7 @@ edition = "2018"
 tempdir = "0.3"
 serde = { version = "1.0.104", features = ["derive"] }
 serde_yaml = "0.8.11"
+walkdir = "2.3.1"
 
 [build-dependencies]
 include_walk = "0.3.0"

@@ -1,8 +1,7 @@
 use insta::assert_debug_snapshot;
 use std::fs::read_to_string;
 use utils::asset::Assets;
-use utils::test::before;
-
+use utils::test::{before, ConfigPath};
 const CRATE_NAME: &'static str = env!("CARGO_PKG_NAME");
 
 #[test]
@@ -11,18 +10,7 @@ fn init() {
     let output = config.command().arg("init").output().unwrap();
     assert_eq!("\n", String::from_utf8(output.stdout).unwrap());
 
-    // TODO : make helper
-    let mut content_dir: Vec<_> = walkdir::WalkDir::new(&config.tmp_dir)
-        .into_iter()
-        .map(|e| {
-            let e = e.unwrap();
-            e.into_path()
-                .strip_prefix(&config.tmp_dir)
-                .unwrap()
-                .to_path_buf()
-        })
-        .collect();
-    content_dir.sort();
+    let content_dir = config.tree();
     assert_debug_snapshot!(content_dir);
 }
 
@@ -30,13 +18,10 @@ fn init() {
 fn add() {
     let config = before("add", Assets::None).cli(CRATE_NAME);
     let mut command = config.command();
-    command
-        .arg("add")
-        .arg("my_project")
-        .arg("./path/to/template.yaml");
+    command.arg("add").arg("my_project").arg("./template.yaml");
     let output = command.output().unwrap();
     assert_eq!(
-        "project name : my_project \npath to template : ./path/to/template.yaml\n\n",
+        "project name : my_project \npath to template : ./template.yaml\n\n",
         String::from_utf8(output.stdout).unwrap()
     );
 
@@ -46,8 +31,23 @@ fn add() {
         r#"---
 projects:
   - name: my_project
-    template_path: "./path/to/template.yaml"
-    public_env_directory: "./path/to""#,
+    template_path: "./template.yaml"
+    public_env_directory: ".""#,
         content.as_str()
-    )
+    );
+
+    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
+    let content = read_to_string(global_project_file).unwrap();
+    assert_eq!(
+        format!(
+            r#"---
+projects:
+  - name: my_project
+    path: {}"#,
+            config.tmp_project_dir.to_string_lossy()
+        ),
+        content.as_str()
+    );
+    let content_dir = config.tree();
+    assert_debug_snapshot!(content_dir);
 }
