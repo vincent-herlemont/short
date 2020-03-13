@@ -8,15 +8,12 @@ use std::path::{Path, PathBuf};
 use utils::error::Error;
 use utils::result::Result;
 
-#[allow(dead_code)]
 const PROJECT_FILE_NAME: &'static str = "d4d.yaml";
 
-#[allow(dead_code)]
 fn local_file_path<P: AsRef<Path>>(root: P) -> PathBuf {
     root.as_ref().join(PROJECT_FILE_NAME)
 }
 
-#[allow(dead_code)]
 fn save_local_file<P: AsRef<Path>>(root: P, local_projects: &LocalProjects) -> Result<()> {
     let path = local_file_path(root);
     let file = OpenOptions::new()
@@ -28,7 +25,6 @@ fn save_local_file<P: AsRef<Path>>(root: P, local_projects: &LocalProjects) -> R
     serde_yaml::to_writer(buf, &local_projects).map_err(|e| Error::from(e))
 }
 
-#[allow(dead_code)]
 fn read_local_file<P: AsRef<Path>>(root: P) -> Result<LocalProjects> {
     let file = OpenOptions::new().read(true).open(root)?;
     let buf = BufReader::new(file);
@@ -63,7 +59,6 @@ impl Display for LocalProject {
     }
 }
 
-// TODO: implement Display trait
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LocalProjects {
     #[serde(skip)]

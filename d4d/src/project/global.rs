@@ -5,16 +5,13 @@ use std::path::{Path, PathBuf};
 use utils::error::Error;
 use utils::result::Result;
 
-#[allow(dead_code)]
 const PROJECT_CONFIG_DIRECTORY: &'static str = ".d4d";
-#[allow(dead_code)]
 const PROJECT_CURRENT_FILE_NAME: &'static str = "projects.yaml";
 
 fn global_directory_path<P: AsRef<Path>>(home: P) -> PathBuf {
     home.as_ref().join(PROJECT_CONFIG_DIRECTORY)
 }
 
-#[allow(dead_code)]
 fn create_global_directory<P: AsRef<Path>>(home: P) -> Result<()> {
     let path = global_directory_path(home);
     match create_dir(path) {
@@ -23,12 +20,10 @@ fn create_global_directory<P: AsRef<Path>>(home: P) -> Result<()> {
     }
 }
 
-#[allow(dead_code)]
 fn global_file_path<P: AsRef<Path>>(home: P) -> PathBuf {
     global_directory_path(home).join(PROJECT_CURRENT_FILE_NAME)
 }
 
-#[allow(dead_code)]
 fn read_global_file<P: AsRef<Path>>(home: P) -> Result<GlobalProjects> {
     let path = global_file_path(home);
     let file = File::open(path)?;
@@ -37,7 +32,6 @@ fn read_global_file<P: AsRef<Path>>(home: P) -> Result<GlobalProjects> {
 }
 
 /// Create or overwrite project config file.
-#[allow(dead_code)]
 fn save_global_file<P: AsRef<Path>>(home: P, projects: &GlobalProjects) -> Result<()> {
     let path = global_file_path(home);
     let file = OpenOptions::new()
