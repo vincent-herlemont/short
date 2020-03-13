@@ -3,4 +3,5 @@ members = [
     "utils",
     "d4d",
     "cli",
+    "env",
 ]
