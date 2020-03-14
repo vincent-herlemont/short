@@ -1,5 +1,4 @@
 use std::fmt::{Display, Formatter};
-/// https://smartmob-rfc.readthedocs.io/en/latest/2-dotenv.html
 use std::io::{BufRead, Error, ErrorKind};
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -12,7 +11,7 @@ pub struct Var {
 
 impl Display for Var {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}={}", self.name, self.value)
+        writeln!(f, "{}={}", self.name, self.value)
     }
 }
 
@@ -58,7 +57,7 @@ pub struct Comment {
 
 impl Display for Comment {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "#{}", self.value)
+        writeln!(f, "#{}", self.value)
     }
 }
 
@@ -91,6 +90,28 @@ impl Display for Entry {
     }
 }
 
+impl Entry {
+    fn empty(line: &String) -> Option<Entry> {
+        let line = line.trim_start();
+        let line = line.trim_end();
+        if line.len() > 0 {
+            None
+        } else {
+            Some(Entry::Empty)
+        }
+    }
+
+    fn comment(line: &String) -> Option<Entry> {
+        let comment = Comment::from_line(&line)?;
+        Some(Entry::Comment(comment))
+    }
+
+    fn var(line: &String) -> Result<Entry> {
+        let var = Var::from_line(line)?;
+        Ok(Entry::Var(var))
+    }
+}
+
 #[derive(Debug)]
 pub struct Env {
     entries: Vec<Entry>,
@@ -106,16 +127,17 @@ impl Display for Env {
 }
 
 impl Env {
-    pub fn from<'b>(buf: &'b mut dyn BufRead) -> Result<Self> {
+    pub fn from(cursor: &mut dyn BufRead) -> Result<Self> {
         let mut entries = vec![];
-
-        for line in buf.lines() {
+        for line in cursor.lines() {
             let line = line?;
-            if let Some(comment) = Comment::from_line(&line) {
-                entries.insert(0, Entry::Comment(comment))
+            if let Some(empty) = Entry::empty(&line) {
+                entries.append(&mut vec![empty]);
+            } else if let Some(comment) = Entry::comment(&line) {
+                entries.append(&mut vec![comment]);
             } else {
-                let var = Var::from_line(&line)?;
-                entries.insert(0, Entry::Var(var));
+                let var = Entry::var(&line)?;
+                entries.append(&mut vec![var]);
             }
         }
 
