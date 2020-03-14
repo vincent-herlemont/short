@@ -157,14 +157,14 @@ projects:
       template_path: "./test_template.yaml"
         "#,
         );
-        let config = before("test_save_local_file", Assets::All(assets));
+        let config = before("test_save_local_file", Assets::Static(assets));
         let local_projects = read_local_file(local_file_path(&config.tmp_dir)).unwrap();
         assert_debug_snapshot!(local_projects);
     }
 
     #[test]
     fn test_save_local_file() {
-        let config = before("test_save_local_file", Assets::All(HashMap::new()));
+        let config = before("test_save_local_file", Assets::Static(HashMap::new()));
         let local_projects = LocalProjects {
             current_dir: PathBuf::new(),
             all: vec![LocalProject::new("test_1")],

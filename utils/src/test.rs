@@ -46,7 +46,7 @@ impl Config {
         assets.insert(HOME, "");
         assets.insert(PROJECT, "");
 
-        to_dir(&self.tmp_dir, Assets::All(assets)).expect("fail to copy cli assets");
+        to_dir(&self.tmp_dir, Assets::Static(assets)).expect("fail to copy cli assets");
 
         let home_dir = self.tmp_dir.join(HOME).parent().unwrap().to_path_buf();
         let project_dir = self.tmp_dir.join(PROJECT).parent().unwrap().to_path_buf();

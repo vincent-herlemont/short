@@ -165,7 +165,7 @@ mod tests {
 
     #[test]
     fn test_save_global_file() {
-        let config = before("test_save_global_file", Assets::All(HashMap::new()));
+        let config = before("test_save_global_file", Assets::Static(HashMap::new()));
         let projects = GlobalProjects {
             home_dir: PathBuf::new(),
             all: vec![GlobalProject::new("project_1")],
@@ -197,7 +197,7 @@ mod tests {
 projects: []
 "#,
         );
-        let config = before("test_empty_read_global_file", Assets::All(assets));
+        let config = before("test_empty_read_global_file", Assets::Static(assets));
         let projects = read_global_file(&config.tmp_dir);
         assert_debug_snapshot!(projects);
     }
@@ -220,14 +220,14 @@ projects:
       git_secret_repo: "git@privategit.com" 
 "#,
         );
-        let config = before("test_read_global_file", Assets::All(assets));
+        let config = before("test_read_global_file", Assets::Static(assets));
         let projects = read_global_file(&config.tmp_dir);
         assert_debug_snapshot!(projects);
     }
 
     #[test]
     fn test_create_global_directory() {
-        let config = before("create_global_directory", Assets::All(HashMap::new()));
+        let config = before("create_global_directory", Assets::Static(HashMap::new()));
         let r = create_global_directory(&config.tmp_dir);
         assert!(r.is_ok());
         let r: Vec<_> = WalkDir::new(&config.tmp_dir).into_iter().collect();

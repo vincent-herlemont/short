@@ -6,14 +6,17 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 pub const ASSETS_DIRECTORY: &'static str = "assets";
+/// Sub Assets allow to insert from a sub set directory
+/// into the current directory without create [`sub_path`] directories.
 pub struct SubAssets {
     all: HashMap<&'static str, &'static str>,
     sub_path: PathBuf,
 }
 
 pub enum Assets {
-    Sub(SubAssets),
-    All(HashMap<&'static str, &'static str>),
+    StaticSub(SubAssets),
+    Static(HashMap<&'static str, &'static str>),
+    Dynamic(HashMap<PathBuf, String>),
     None,
 }
 
@@ -26,7 +29,7 @@ pub fn to_dir<P: AsRef<Path>>(path: P, assets: Assets) -> Result<()> {
     }
 
     let assets = match assets {
-        Assets::Sub(sub_assets) => {
+        Assets::StaticSub(sub_assets) => {
             let sub_path = sub_assets.sub_path;
             sub_assets
                 .all
@@ -36,17 +39,21 @@ pub fn to_dir<P: AsRef<Path>>(path: P, assets: Assets) -> Result<()> {
                     let p = p.strip_prefix(sub_path.clone()).ok();
 
                     if let Some(p) = p {
-                        p.to_str().map(|s| -> _ { (PathBuf::from(s), content) })
+                        p.to_str()
+                            .map(|s| -> _ { (PathBuf::from(s), String::from(content)) })
                     } else {
                         None
                     }
                 })
                 .collect::<HashMap<_, _>>()
         }
-        Assets::All(assets) => assets
+        Assets::Static(assets) => assets
             .into_iter()
-            .map(|(asset_path, content)| -> _ { (PathBuf::from(asset_path), content) })
+            .map(|(asset_path, content)| -> _ {
+                (PathBuf::from(asset_path), String::from(content))
+            })
             .collect(),
+        Assets::Dynamic(assets) => assets,
         Assets::None => HashMap::new(),
     };
 
@@ -65,7 +72,7 @@ pub fn to_dir<P: AsRef<Path>>(path: P, assets: Assets) -> Result<()> {
 }
 
 pub fn default_assets(assets: HashMap<&'static str, &'static str>) -> Assets {
-    Assets::Sub(SubAssets {
+    Assets::StaticSub(SubAssets {
         sub_path: PathBuf::from(ASSETS_DIRECTORY),
         all: assets,
     })
