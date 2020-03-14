@@ -30,8 +30,24 @@ fn name_start_with_space() {
 }
 
 #[test]
-fn value_with_space() {
+fn value_end_with_space() {
     let mut content = Cursor::new(br#"A =a"#);
+    let env = Env::from(&mut content).unwrap();
+    assert_eq!("A=a", format!("{}", env));
+    // assert!(env.is_err());
+}
+
+#[test]
+fn value_start_with_space() {
+    let mut content = Cursor::new(br#" A=a"#);
+    let env = Env::from(&mut content).unwrap();
+    assert_eq!("A=a", format!("{}", env));
+    // assert!(env.is_err());
+}
+
+#[test]
+fn value_with_space_inside() {
+    let mut content = Cursor::new(br#"A B=a"#);
     let env = Env::from(&mut content);
     assert!(env.is_err());
 }

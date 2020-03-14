@@ -31,13 +31,19 @@ impl Var {
     fn from_line(line: &String) -> Result<Self> {
         let vars: Vec<&str> = line.rsplitn(2, "=").collect();
         match vars.as_slice() {
-            [_, name] if name.find(char::is_whitespace).map_or(false, |_| true) => Err(Error::new(
-                ErrorKind::InvalidData,
-                format!("space on name \"{}\"", name),
-            )),
             [value, name] => {
                 let value = value.trim_end();
                 let value = value.trim_start();
+                let name = name.trim_end();
+                let name = name.trim_start();
+
+                if name.contains(char::is_whitespace) {
+                    return Err(Error::new(
+                        ErrorKind::InvalidData,
+                        format!("space on name \"{}\"", name),
+                    ));
+                }
+
                 Ok(Var::new(name, value))
             }
             _ => Err(Error::new(ErrorKind::InvalidData, "fail to parse env")),
