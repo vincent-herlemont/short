@@ -1,7 +1,7 @@
 //! Embedding and shifting of asset
-use super::error::Error;
+use crate::error::Error;
+use crate::result::Result;
 use std::collections::HashMap;
-use std::error::Error as stdError;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -19,10 +19,10 @@ pub enum Assets {
 
 /// Copy all [`Asset`] in target directory [`path`].
 /// With third parameter [`sub_path`] you can copy from a sub assets directory.
-pub fn to_dir<P: AsRef<Path>>(path: P, assets: Assets) -> Result<(), Box<dyn stdError>> {
+pub fn to_dir<P: AsRef<Path>>(path: P, assets: Assets) -> Result<()> {
     let path = path.as_ref();
     if !path.exists() {
-        return Err(Error::new_box(format!("directory {:?} not exists", path)));
+        return Err(Error::from(format!("directory {:?} not exists", path)));
     }
 
     let assets = match assets {
