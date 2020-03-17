@@ -18,12 +18,16 @@ fn init() {
 fn add() {
     let config = before("add", Assets::None).cli(CRATE_NAME);
     let mut command = config.command();
+    let d = config.tree();
+    dbg!(d);
     command.arg("add").arg("my_project").arg("./template.yaml");
     let output = command.output().unwrap();
-    assert_eq!(
-        "project name : my_project \npath to template : ./template.yaml\n\n",
-        String::from_utf8(output.stdout).unwrap()
-    );
+    println!("{}", String::from_utf8(output.stdout).unwrap());
+    println!("{}", String::from_utf8(output.stderr).unwrap());
+    // assert_eq!(
+    //     "project name : my_project \npath to template : ./template.yaml\n\n",
+    //     String::from_utf8(output.stdout).unwrap()
+    // );
 
     let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
     let content = read_to_string(local_project_file).unwrap();
@@ -50,4 +54,55 @@ projects:
     );
     let content_dir = config.tree();
     assert_debug_snapshot!(content_dir);
+}
+
+#[test]
+fn env() {
+    let config = before("env", Assets::None).cli(CRATE_NAME);
+
+    // Project : p1
+    config
+        .add_asset_project(
+            "./d4d.yaml",
+            r#"---
+projects:
+  - name: p1
+    public_env_directory: "."
+"#,
+        )
+        .unwrap();
+    config.add_asset_project("./.dev", r#"VAR1=val1"#).unwrap();
+
+    config
+        .add_asset_home(
+            ".d4d/projects.yaml",
+            format!(
+                r#"---
+projects:
+  - name: p1
+    path: {}"#,
+                config.tmp_project_dir.to_string_lossy()
+            ),
+        )
+        .unwrap();
+
+    let mut command = config.command();
+
+    let output = command
+        .arg("env")
+        .arg("-c")
+        .arg("-p")
+        .arg("p1")
+        .arg("-e")
+        .arg("dev")
+        .output()
+        .unwrap();
+
+    assert_eq!(
+        r#"- p1
+VAR1=val1
+
+"#,
+        String::from_utf8(output.stdout).unwrap()
+    )
 }

@@ -1,16 +1,41 @@
-use crate::project::global::GlobalProjects;
-use crate::project::local::LocalProjects;
-use std::path::Path;
+use crate::project::global::{GlobalProject, GlobalProjects};
+use crate::project::local::{LocalProject, LocalProjects};
+use serde::export::Formatter;
+use std::fmt;
+use std::fmt::Display;
+use std::path::{Path, PathBuf};
 use utils::error::Error;
 use utils::result::Result;
 
 pub mod global;
 pub mod local;
 
-#[allow(dead_code)]
+#[derive(Debug)]
 pub struct Projects {
     local: LocalProjects,
     global: GlobalProjects,
+}
+
+#[derive(Debug)]
+pub struct Project<'a> {
+    local: &'a LocalProject,
+    global: &'a GlobalProject,
+}
+
+impl<'a> Project<'a> {
+    pub fn name(&self) -> String {
+        self.local.name()
+    }
+
+    pub fn public_env_directory(&self) -> Option<PathBuf> {
+        self.local.public_env_directory()
+    }
+}
+
+impl<'a> Display for Project<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "- {}", self.name())
+    }
 }
 
 impl Projects {
@@ -45,5 +70,19 @@ impl Projects {
             .add(&project_name, template_path, public_env_directory)?;
         self.global.add(&project_name, public_env_directory)?;
         Ok(())
+    }
+
+    pub fn found<P: AsRef<str>>(&self, project_name: P) -> Result<Project> {
+        if let (Some(global), Some(local)) = (
+            self.global.get(&project_name),
+            self.local.get(&project_name),
+        ) {
+            Ok(Project { global, local })
+        } else {
+            Err(Error::new(format!(
+                "Fail to found project {}",
+                project_name.as_ref()
+            )))
+        }
     }
 }

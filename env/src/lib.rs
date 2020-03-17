@@ -1,5 +1,7 @@
 use std::fmt::{Display, Formatter};
-use std::io::{BufRead, Error, ErrorKind};
+use std::fs::OpenOptions;
+use std::io::{BufRead, BufReader, Error, ErrorKind};
+use std::path::Path;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -127,7 +129,13 @@ impl Display for Env {
 }
 
 impl Env {
-    pub fn from(cursor: &mut dyn BufRead) -> Result<Self> {
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let file = OpenOptions::new().read(true).open(path.as_ref())?;
+        let mut buf_reader = BufReader::new(file);
+        Env::from_reader(&mut buf_reader)
+    }
+
+    pub fn from_reader(cursor: &mut dyn BufRead) -> Result<Self> {
         let mut entries = vec![];
         for line in cursor.lines() {
             let line = line?;

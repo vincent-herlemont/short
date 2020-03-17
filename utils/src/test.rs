@@ -1,9 +1,10 @@
 //! Helper for test related of d4d domain.
 use crate::asset::{to_dir, Assets};
+use crate::result::Result;
 use std::collections::HashMap;
 use std::env::current_exe;
 use std::ffi::OsStr;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use tempdir::TempDir;
 use walkdir::WalkDir;
@@ -32,11 +33,32 @@ impl ConfigCli {
     pub fn command(&self) -> Command {
         self.other_command(&self.exec_path)
     }
+
     pub fn other_command<S: AsRef<OsStr>>(&self, program: S) -> Command {
         let mut command = Command::new(program);
         command.current_dir(&self.tmp_project_dir);
         command.env("HOME", &self.tmp_home_dir);
         command
+    }
+
+    pub fn add_asset_project<P, S>(&self, path: P, content: S) -> Result<()>
+    where
+        P: AsRef<Path>,
+        S: AsRef<str>,
+    {
+        let project_dir = PathBuf::from(PROJECT).parent().unwrap().to_owned();
+        let path = project_dir.join(PathBuf::from(path.as_ref()));
+        self.add_asset(path, content)
+    }
+
+    pub fn add_asset_home<P, S>(&self, path: P, content: S) -> Result<()>
+    where
+        P: AsRef<Path>,
+        S: AsRef<str>,
+    {
+        let project_dir = PathBuf::from(HOME).parent().unwrap().to_owned();
+        let path = project_dir.join(PathBuf::from(path.as_ref()));
+        self.add_asset(path, content)
     }
 }
 
@@ -94,6 +116,18 @@ pub trait ConfigPath {
             .collect();
         tree.sort();
         tree
+    }
+
+    /// Allow to add assets
+    fn add_asset<P, S>(&self, path: P, content: S) -> Result<()>
+    where
+        P: AsRef<Path>,
+        S: AsRef<str>,
+    {
+        let mut assets = HashMap::new();
+        assets.insert(PathBuf::from(path.as_ref()), String::from(content.as_ref()));
+        to_dir(&self.path(), Assets::Dynamic(assets))?;
+        Ok(())
     }
 }
 

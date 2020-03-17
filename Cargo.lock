@@ -150,6 +150,7 @@ name = "d4d"
 version = "0.1.0"
 dependencies = [
  "dirs",
+ "env",
  "include_walk",
  "insta",
  "serde",

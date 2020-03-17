@@ -11,6 +11,7 @@ serde = { version = "1.0.104", features = ["derive"] }
 serde_yaml = "0.8.11"
 dirs = "2.0.2"
 utils = { path = "../utils" }
+env = {path = "../env"}
 
 [dev-dependencies]
 walkdir = "2.3.1"

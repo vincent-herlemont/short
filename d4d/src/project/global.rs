@@ -24,7 +24,7 @@ fn global_file_path<P: AsRef<Path>>(home: P) -> PathBuf {
     global_directory_path(home).join(PROJECT_CURRENT_FILE_NAME)
 }
 
-fn read_global_file<P: AsRef<Path>>(home: P) -> Result<GlobalProjects> {
+fn read_global_file<'a, P: AsRef<Path>>(home: P) -> Result<GlobalProjects> {
     let path = global_file_path(home);
     let file = File::open(path)?;
     let buf = BufReader::new(file);
@@ -34,6 +34,7 @@ fn read_global_file<P: AsRef<Path>>(home: P) -> Result<GlobalProjects> {
 /// Create or overwrite project config file.
 fn save_global_file<P: AsRef<Path>>(home: P, projects: &GlobalProjects) -> Result<()> {
     let path = global_file_path(home);
+    dbg!(&path);
     let file = OpenOptions::new()
         .write(true)
         .create(true)
@@ -45,7 +46,7 @@ fn save_global_file<P: AsRef<Path>>(home: P, projects: &GlobalProjects) -> Resul
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct GlobalProject {
+pub struct GlobalProject {
     name: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -76,7 +77,7 @@ pub struct GlobalProjects {
     home_dir: PathBuf,
 
     #[serde(rename = "projects")]
-    all: Vec<GlobalProject>,
+    all: Vec<Box<GlobalProject>>,
 }
 
 impl GlobalProjects {
@@ -105,6 +106,7 @@ impl GlobalProjects {
                     home_dir: home_dir.to_owned(),
                     all: vec![],
                 };
+                dbg!(&home_dir, &global_projects);
                 match save_global_file(&home_dir, &global_projects) {
                     Ok(_) => Ok(global_projects),
                     Err(err) => Err(Error::wrap(
@@ -128,12 +130,12 @@ impl GlobalProjects {
             .canonicalize()
             .map_err(|e| Error::wrap("fail to get absolute path of : {}", Error::from(e)))?;
 
-        self.all.push(GlobalProject {
+        self.all.push(Box::new(GlobalProject {
             name: String::from(name.as_ref()),
             path: Some(path),
             current_env: None,
             git_secret_repo: None,
-        });
+        }));
 
         if let Err(err) = save_global_file(&self.home_dir, self) {
             Err(Error::wrap(
@@ -146,6 +148,16 @@ impl GlobalProjects {
         } else {
             Ok(())
         }
+    }
+
+    pub fn get<P: AsRef<str>>(&self, project_name: P) -> Option<&GlobalProject> {
+        self.all.iter().find_map(|global_project| {
+            if global_project.name == String::from(project_name.as_ref()) {
+                Some(global_project.as_ref())
+            } else {
+                None
+            }
+        })
     }
 }
 
@@ -168,8 +180,9 @@ mod tests {
         let config = before("test_save_global_file", Assets::Static(HashMap::new()));
         let projects = GlobalProjects {
             home_dir: PathBuf::new(),
-            all: vec![GlobalProject::new("project_1")],
+            all: vec![Box::new(GlobalProject::new("project_1"))],
         };
+
         let r = create_global_directory(&config.tmp_dir);
         assert!(r.is_ok());
         let r = save_global_file(&config.tmp_dir, &projects);

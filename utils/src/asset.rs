@@ -58,7 +58,6 @@ pub fn to_dir<P: AsRef<Path>>(path: P, assets: Assets) -> Result<()> {
     };
 
     for (asset_path, contents) in assets {
-        let asset_path = PathBuf::from(asset_path);
         let path = path.join(asset_path);
         if let Some(parent) = path.parent() {
             if !parent.exists() {

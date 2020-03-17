@@ -26,13 +26,13 @@ fn save_local_file<P: AsRef<Path>>(root: P, local_projects: &LocalProjects) -> R
 }
 
 fn read_local_file<P: AsRef<Path>>(root: P) -> Result<LocalProjects> {
-    let file = OpenOptions::new().read(true).open(root)?;
+    let file = OpenOptions::new().read(true).open(local_file_path(root))?;
     let buf = BufReader::new(file);
     serde_yaml::from_reader(buf).map_err(|e| Error::from(e))
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct LocalProject {
+pub struct LocalProject {
     name: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,6 +51,14 @@ impl LocalProject {
             public_env_directory: None,
         }
     }
+
+    pub fn name(&self) -> String {
+        self.name.to_owned()
+    }
+
+    pub fn public_env_directory(&self) -> Option<PathBuf> {
+        self.public_env_directory.to_owned()
+    }
 }
 
 impl Display for LocalProject {
@@ -65,7 +73,7 @@ pub struct LocalProjects {
     current_dir: PathBuf,
 
     #[serde(rename = "projects")]
-    all: Vec<LocalProject>,
+    all: Vec<Box<LocalProject>>,
 }
 
 impl Display for LocalProjects {
@@ -82,7 +90,8 @@ impl LocalProjects {
         let current_dir = current_dir.as_ref().to_path_buf();
         match read_local_file(&current_dir) {
             Ok(local_projects) => Ok(local_projects),
-            Err(_) => {
+            Err(error) => {
+                dbg!(error);
                 // TODO: match for create err only if file does not exist.
                 let local_projects = LocalProjects {
                     current_dir: current_dir.to_owned(),
@@ -113,11 +122,11 @@ impl LocalProjects {
         TP: AsRef<Path>,
         PED: AsRef<Path>,
     {
-        self.all.push(LocalProject {
+        self.all.push(Box::new(LocalProject {
             name: String::from(name.as_ref()),
             template_path: Some(PathBuf::from(template_path.as_ref())),
             public_env_directory: Some(PathBuf::from(public_env_directory.as_ref())),
-        });
+        }));
 
         if let Err(err) = save_local_file(&self.current_dir, self) {
             Err(Error::wrap(
@@ -130,6 +139,16 @@ impl LocalProjects {
         } else {
             Ok(())
         }
+    }
+
+    pub fn get<P: AsRef<str>>(&self, project_name: P) -> Option<&LocalProject> {
+        self.all.iter().find_map(|local_project| {
+            if local_project.name == project_name.as_ref() {
+                Some(local_project.as_ref())
+            } else {
+                None
+            }
+        })
     }
 }
 
@@ -158,7 +177,7 @@ projects:
         "#,
         );
         let config = before("test_save_local_file", Assets::Static(assets));
-        let local_projects = read_local_file(local_file_path(&config.tmp_dir)).unwrap();
+        let local_projects = read_local_file(&config.tmp_dir).unwrap();
         assert_debug_snapshot!(local_projects);
     }
 
@@ -167,7 +186,7 @@ projects:
         let config = before("test_save_local_file", Assets::Static(HashMap::new()));
         let local_projects = LocalProjects {
             current_dir: PathBuf::new(),
-            all: vec![LocalProject::new("test_1")],
+            all: vec![Box::new(LocalProject::new("test_1"))],
         };
         let r = save_local_file(&config.tmp_dir, &local_projects);
         assert!(r.is_ok());
