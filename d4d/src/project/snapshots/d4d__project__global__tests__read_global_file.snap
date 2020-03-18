@@ -10,7 +10,7 @@ Ok(
                 name: "project_1",
                 path: None,
                 current_env: None,
-                git_secret_repo: None,
+                private_env_directory: None,
             },
             GlobalProject {
                 name: "project_2",
@@ -18,7 +18,7 @@ Ok(
                 current_env: Some(
                     "dev",
                 ),
-                git_secret_repo: None,
+                private_env_directory: None,
             },
             GlobalProject {
                 name: "project_3",
@@ -28,7 +28,7 @@ Ok(
                 current_env: Some(
                     "dev",
                 ),
-                git_secret_repo: None,
+                private_env_directory: None,
             },
             GlobalProject {
                 name: "project_4",
@@ -36,8 +36,8 @@ Ok(
                 current_env: Some(
                     "prod",
                 ),
-                git_secret_repo: Some(
-                    "git@privategit.com",
+                private_env_directory: Some(
+                    "/todo/plop",
                 ),
             },
         ],

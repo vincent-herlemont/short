@@ -30,6 +30,10 @@ impl<'a> Project<'a> {
     pub fn public_env_directory(&self) -> Option<PathBuf> {
         self.local.public_env_directory()
     }
+
+    pub fn private_env_directory(&self) -> Option<PathBuf> {
+        self.global.private_env_directory()
+    }
 }
 
 impl<'a> Display for Project<'a> {

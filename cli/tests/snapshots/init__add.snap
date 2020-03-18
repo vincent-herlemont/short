@@ -8,6 +8,8 @@ expression: content_dir
     "home/.d4d",
     "home/.d4d/projects.yaml",
     "home/.keep",
+    "private_env",
+    "private_env/.keep",
     "project",
     "project/.keep",
     "project/d4d.yaml",

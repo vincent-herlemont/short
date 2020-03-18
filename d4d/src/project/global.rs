@@ -56,7 +56,7 @@ pub struct GlobalProject {
     current_env: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    git_secret_repo: Option<String>,
+    private_env_directory: Option<PathBuf>,
 }
 
 impl GlobalProject {
@@ -66,8 +66,12 @@ impl GlobalProject {
             name: String::from(name.as_ref()),
             path: None,
             current_env: None,
-            git_secret_repo: None,
+            private_env_directory: None,
         }
+    }
+
+    pub fn private_env_directory(&self) -> Option<PathBuf> {
+        self.private_env_directory.to_owned()
     }
 }
 
@@ -134,7 +138,7 @@ impl GlobalProjects {
             name: String::from(name.as_ref()),
             path: Some(path),
             current_env: None,
-            git_secret_repo: None,
+            private_env_directory: None,
         }));
 
         if let Err(err) = save_global_file(&self.home_dir, self) {
@@ -230,7 +234,7 @@ projects:
       current_env: dev
     - name: project_4
       current_env: prod
-      git_secret_repo: "git@privategit.com" 
+      private_env_directory: "/todo/plop" 
 "#,
         );
         let config = before("test_read_global_file", Assets::Static(assets));

@@ -57,7 +57,7 @@ projects:
 }
 
 #[test]
-fn env() {
+fn check_env_local() {
     let config = before("env", Assets::None).cli(CRATE_NAME);
 
     // Project : p1
@@ -86,6 +86,62 @@ projects:
         )
         .unwrap();
 
+    let mut command = config.command();
+
+    let output = command
+        .arg("env")
+        .arg("-c")
+        .arg("-p")
+        .arg("p1")
+        .arg("-e")
+        .arg("dev")
+        .output()
+        .unwrap();
+
+    assert_eq!(
+        r#"- p1
+VAR1=val1
+
+"#,
+        String::from_utf8(output.stdout).unwrap()
+    )
+}
+
+#[test]
+fn check_env_private() {
+    let config = before("env", Assets::None).cli(CRATE_NAME);
+
+    // Project : p1
+    config
+        .add_asset_project(
+            "./d4d.yaml",
+            r#"---
+projects:
+  - name: p1
+"#,
+        )
+        .unwrap();
+    config
+        .add_asset_private_env("./.dev", r#"VAR1=val1"#)
+        .unwrap();
+
+    config
+        .add_asset_home(
+            ".d4d/projects.yaml",
+            format!(
+                r#"---
+projects:
+  - name: p1
+    path: {}
+    private_env_directory: {}"#,
+                config.tmp_project_dir.to_string_lossy(),
+                config.tmp_private_env_dir.to_string_lossy()
+            ),
+        )
+        .unwrap();
+
+    let tree = config.tree();
+    dbg!(tree);
     let mut command = config.command();
 
     let output = command

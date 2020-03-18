@@ -23,11 +23,13 @@ pub struct ConfigCli {
 
     pub tmp_home_dir: PathBuf,
     pub tmp_project_dir: PathBuf,
+    pub tmp_private_env_dir: PathBuf,
     pub exec_path: PathBuf,
 }
 
 const HOME: &'static str = "home/.keep";
 const PROJECT: &'static str = "project/.keep";
+const PRIVATE_ENV: &'static str = "private_env/.keep";
 
 impl ConfigCli {
     pub fn command(&self) -> Command {
@@ -60,6 +62,16 @@ impl ConfigCli {
         let path = project_dir.join(PathBuf::from(path.as_ref()));
         self.add_asset(path, content)
     }
+
+    pub fn add_asset_private_env<P, S>(&self, path: P, content: S) -> Result<()>
+    where
+        P: AsRef<Path>,
+        S: AsRef<str>,
+    {
+        let project_dir = PathBuf::from(PRIVATE_ENV).parent().unwrap().to_owned();
+        let path = project_dir.join(PathBuf::from(path.as_ref()));
+        self.add_asset(path, content)
+    }
 }
 
 impl Config {
@@ -67,11 +79,18 @@ impl Config {
         let mut assets = HashMap::new();
         assets.insert(HOME, "");
         assets.insert(PROJECT, "");
+        assets.insert(PRIVATE_ENV, "");
 
         to_dir(&self.tmp_dir, Assets::Static(assets)).expect("fail to copy cli assets");
 
         let home_dir = self.tmp_dir.join(HOME).parent().unwrap().to_path_buf();
         let project_dir = self.tmp_dir.join(PROJECT).parent().unwrap().to_path_buf();
+        let private_env_dir = self
+            .tmp_dir
+            .join(PRIVATE_ENV)
+            .parent()
+            .unwrap()
+            .to_path_buf();
 
         let current_exec = current_exe()
             .unwrap()
@@ -88,6 +107,7 @@ impl Config {
 
             tmp_home_dir: home_dir,
             tmp_project_dir: project_dir,
+            tmp_private_env_dir: private_env_dir,
             exec_path: current_exec,
         }
     }
