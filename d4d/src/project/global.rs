@@ -34,7 +34,6 @@ fn read_global_file<'a, P: AsRef<Path>>(home: P) -> Result<GlobalProjects> {
 /// Create or overwrite project config file.
 fn save_global_file<P: AsRef<Path>>(home: P, projects: &GlobalProjects) -> Result<()> {
     let path = global_file_path(home);
-    dbg!(&path);
     let file = OpenOptions::new()
         .write(true)
         .create(true)
@@ -110,7 +109,6 @@ impl GlobalProjects {
                     home_dir: home_dir.to_owned(),
                     all: vec![],
                 };
-                dbg!(&home_dir, &global_projects);
                 match save_global_file(&home_dir, &global_projects) {
                     Ok(_) => Ok(global_projects),
                     Err(err) => Err(Error::wrap(

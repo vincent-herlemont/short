@@ -90,8 +90,7 @@ impl LocalProjects {
         let current_dir = current_dir.as_ref().to_path_buf();
         match read_local_file(&current_dir) {
             Ok(local_projects) => Ok(local_projects),
-            Err(error) => {
-                dbg!(error);
+            Err(_error) => {
                 // TODO: match for create err only if file does not exist.
                 let local_projects = LocalProjects {
                     current_dir: current_dir.to_owned(),

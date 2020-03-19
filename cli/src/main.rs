@@ -21,7 +21,8 @@ fn main() {
         .version(VERSION)
         .subcommand(App::new("watch").about("watch cloudformation infrastructure"))
         .subcommand(App::new("status").about("display of cloud formation infrastructure"))
-        .arg(Arg::with_name("add").multiple(true))
+        // .arg(Arg::with_name("add").multiple(true))
+        .subcommand(App::new("add").arg(Arg::with_name("project").multiple(true)))
         .subcommand(App::new("init"))
         .subcommand(
             App::new("env")
@@ -73,7 +74,7 @@ fn init(mut projects: Projects, app: ArgMatches) {
                 exit(1);
             }
         }
-    } else if let Some(args) = app.values_of_lossy("add") {
+    } else if let Some(args) = app.subcommand_matches("add") {
         match add(args, &mut projects) {
             Ok(_) => {
                 println!();
@@ -86,15 +87,18 @@ fn init(mut projects: Projects, app: ArgMatches) {
     }
 }
 
-fn add(args: Vec<String>, projects: &mut Projects) -> Result<()> {
-    if let (Some(project_name), Some(path_to_yaml)) = (args.get(1), args.get(2)) {
-        projects.add(project_name, path_to_yaml)?;
-        println!("project name : {} ", project_name);
-        println!("path to template : {}", path_to_yaml);
-    } else {
-        return Err(Error::from(
-            "incorrect arguments : project name or path to yaml is missing",
-        ));
+fn add(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
+    if let Some(args) = args.values_of_lossy("project") {
+        if let (Some(project_name), Some(path_to_yaml)) = (args.get(0), args.get(1)) {
+            dbg!(project_name, path_to_yaml);
+            projects.add(project_name, path_to_yaml)?;
+            println!("project name : {} ", project_name);
+            println!("path to template : {}", path_to_yaml);
+        } else {
+            return Err(Error::from(
+                "incorrect arguments : project name or path to yaml is missing",
+            ));
+        }
     }
     Ok(())
 }
