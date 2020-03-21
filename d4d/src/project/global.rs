@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
+use std::env::current_exe;
 use std::fs::{create_dir, File, OpenOptions};
+use std::io::SeekFrom::Current;
 use std::io::{BufReader, BufWriter};
+use std::path::Component::CurDir;
 use std::path::{Path, PathBuf};
 use utils::error::Error;
 use utils::result::Result;
@@ -24,11 +27,18 @@ fn global_file_path<P: AsRef<Path>>(home: P) -> PathBuf {
     global_directory_path(home).join(PROJECT_CURRENT_FILE_NAME)
 }
 
-fn read_global_file<'a, P: AsRef<Path>>(home: P) -> Result<GlobalProjects> {
-    let path = global_file_path(home);
+fn read_global_file<'a, P: AsRef<Path>>(home_dir: P) -> Result<GlobalProjects> {
+    let home_dir = PathBuf::from(home_dir.as_ref());
+    let path = global_file_path(&home_dir);
     let file = File::open(path)?;
     let buf = BufReader::new(file);
-    serde_yaml::from_reader(buf).map_err(|e| Error::from(e))
+    match serde_yaml::from_reader::<_, GlobalProjects>(buf) {
+        Ok(global_project) => Ok(GlobalProjects {
+            home_dir,
+            ..global_project
+        }),
+        Err(err) => Err(Error::from(err)),
+    }
 }
 
 /// Create or overwrite project config file.
@@ -75,9 +85,21 @@ impl GlobalProject {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+struct CurrentProject {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    env: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct GlobalProjects {
     #[serde(skip)]
     home_dir: PathBuf,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    current_project: Option<CurrentProject>,
 
     #[serde(rename = "projects")]
     all: Vec<Box<GlobalProject>>,
@@ -107,6 +129,7 @@ impl GlobalProjects {
                 // TODO: match for create err only if file does not exist.
                 let global_projects = GlobalProjects {
                     home_dir: home_dir.to_owned(),
+                    current_project: None,
                     all: vec![],
                 };
                 match save_global_file(&home_dir, &global_projects) {
@@ -139,6 +162,49 @@ impl GlobalProjects {
             private_env_directory: None,
         }));
 
+        self.save()
+    }
+
+    pub fn get<P: AsRef<str>>(&self, project_name: P) -> Option<&GlobalProject> {
+        self.all.iter().find_map(|global_project| {
+            if global_project.name == String::from(project_name.as_ref()) {
+                Some(global_project.as_ref())
+            } else {
+                None
+            }
+        })
+    }
+
+    pub fn set_current_project_name<P: AsRef<str>>(&mut self, project_name: P) {
+        // TODO: check is project exist
+        self.current_project = Some(CurrentProject {
+            name: Some(String::from(project_name.as_ref())),
+            env: None,
+        })
+    }
+
+    pub fn set_current_env_name<E: AsRef<str>>(&mut self, env: E) -> Result<()> {
+        // TODO: check is env for the specific project exist
+        let env = String::from(env.as_ref());
+        if let Some(current_project) = &self.current_project {
+            if let Some(project_name) = &current_project.name {
+                let project_name = project_name.to_owned();
+
+                self.current_project = Some(CurrentProject {
+                    name: Some(String::from(project_name)),
+                    env: Some(env),
+                });
+
+                return Ok(());
+            }
+        }
+        Err(Error::new(format!(
+            "fail set current env {} : there is no project set",
+            env
+        )))
+    }
+
+    pub fn save(&self) -> Result<()> {
         if let Err(err) = save_global_file(&self.home_dir, self) {
             Err(Error::wrap(
                 format!(
@@ -150,16 +216,6 @@ impl GlobalProjects {
         } else {
             Ok(())
         }
-    }
-
-    pub fn get<P: AsRef<str>>(&self, project_name: P) -> Option<&GlobalProject> {
-        self.all.iter().find_map(|global_project| {
-            if global_project.name == String::from(project_name.as_ref()) {
-                Some(global_project.as_ref())
-            } else {
-                None
-            }
-        })
     }
 }
 
@@ -182,6 +238,7 @@ mod tests {
         let config = before("test_save_global_file", Assets::Static(HashMap::new()));
         let projects = GlobalProjects {
             home_dir: PathBuf::new(),
+            current_project: None,
             all: vec![Box::new(GlobalProject::new("project_1"))],
         };
 
@@ -195,6 +252,7 @@ mod tests {
         // Overwrite
         let projects = GlobalProjects {
             home_dir: PathBuf::new(),
+            current_project: None,
             all: vec![],
         };
         let r = save_global_file(&config.tmp_dir, &projects);

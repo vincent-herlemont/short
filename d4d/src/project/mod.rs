@@ -89,4 +89,17 @@ impl Projects {
             )))
         }
     }
+
+    pub fn set_current_project_name<P: AsRef<str>>(&mut self, project_name: P) {
+        self.global.set_current_project_name(project_name)
+    }
+
+    pub fn set_current_env_name<E: AsRef<str>>(&mut self, env: E) -> Result<()> {
+        self.global.set_current_env_name(env)
+    }
+
+    pub fn save(&self) -> Result<()> {
+        // TODO : save local too
+        self.global.save()
+    }
 }

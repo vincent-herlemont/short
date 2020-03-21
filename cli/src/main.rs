@@ -21,8 +21,8 @@ fn main() {
         .version(VERSION)
         .subcommand(App::new("watch").about("watch cloudformation infrastructure"))
         .subcommand(App::new("status").about("display of cloud formation infrastructure"))
-        // .arg(Arg::with_name("add").multiple(true))
         .subcommand(App::new("add").arg(Arg::with_name("project").multiple(true)))
+        .subcommand(App::new("use").arg(Arg::with_name("project").multiple(true)))
         .subcommand(App::new("init"))
         .subcommand(
             App::new("env")
@@ -84,13 +84,38 @@ fn init(mut projects: Projects, app: ArgMatches) {
                 exit(1);
             }
         }
+    } else if let Some(args) = app.subcommand_matches("use") {
+        match r#use(args, &mut projects) {
+            Ok(_) => {
+                println!();
+            }
+            Err(err) => {
+                eprintln!("{}", err);
+                exit(1);
+            }
+        }
     }
+}
+
+fn r#use(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
+    if let Some(args) = args.values_of_lossy("project") {
+        if let (Some(project_name), Some(env_name)) = (args.get(0), args.get(1)) {
+            dbg!(project_name, env_name);
+            projects.set_current_project_name(project_name);
+            projects.set_current_env_name(env_name)?;
+            projects.save()?;
+        } else {
+            return Err(Error::from(
+                "incorrect arguments : project name or env name is missing",
+            ));
+        }
+    }
+    Ok(())
 }
 
 fn add(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
     if let Some(args) = args.values_of_lossy("project") {
         if let (Some(project_name), Some(path_to_yaml)) = (args.get(0), args.get(1)) {
-            dbg!(project_name, path_to_yaml);
             projects.add(project_name, path_to_yaml)?;
             println!("project name : {} ", project_name);
             println!("path to template : {}", path_to_yaml);

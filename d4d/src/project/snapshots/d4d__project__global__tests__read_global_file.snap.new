@@ -4,7 +4,7 @@ expression: projects
 ---
 Ok(
     GlobalProjects {
-        home_dir: "/tmp/d4d.test_read_global_file.0qH5ILqkgW5h",
+        home_dir: "/tmp/d4d.test_read_global_file.xA4QXpKxTT0E",
         current_project: None,
         all: [
             GlobalProject {

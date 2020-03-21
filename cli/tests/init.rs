@@ -158,3 +158,20 @@ VAR1=val1
         String::from_utf8(output.stdout).unwrap()
     )
 }
+
+#[test]
+fn run_use() {
+    let config = before("env", Assets::None).cli(CRATE_NAME);
+    let mut command = config.command();
+    let _output = command.arg("use").arg("p1").arg("dev").output().unwrap();
+    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
+    let content = read_to_string(global_project_file).unwrap();
+    assert_eq!(
+        r#"---
+current_project:
+  name: p1
+  env: dev
+projects: []"#,
+        content
+    );
+}
