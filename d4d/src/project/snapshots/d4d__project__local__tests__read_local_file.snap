@@ -2,20 +2,7 @@
 source: d4d/src/project/local.rs
 expression: local_projects
 ---
-LocalProjects {
-    current_dir: "",
-    all: [
-        LocalProject {
-            name: "test_1",
-            template_path: None,
-            public_env_directory: None,
-        },
-        LocalProject {
-            name: "test_2",
-            template_path: Some(
-                "./test_template.yaml",
-            ),
-            public_env_directory: None,
-        },
-    ],
-}
+projects:
+  - name: test_1
+  - name: test_2
+    template_path: "./test_template.yaml"

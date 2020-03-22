@@ -156,7 +156,7 @@ mod tests {
     use crate::project::local::{
         local_file_path, read_local_file, save_local_file, LocalProject, LocalProjects,
     };
-    use insta::assert_debug_snapshot;
+    use insta::assert_yaml_snapshot;
     use std::collections::HashMap;
     use std::fs::read_to_string;
     use std::path::PathBuf;
@@ -177,7 +177,9 @@ projects:
         );
         let config = before("test_save_local_file", Assets::Static(assets));
         let local_projects = read_local_file(&config.tmp_dir).unwrap();
-        assert_debug_snapshot!(local_projects);
+        // TODO : init current_dir
+        //assert_eq!(&local_projects.current_dir, &config.tmp_dir);
+        assert_yaml_snapshot!(local_projects);
     }
 
     #[test]

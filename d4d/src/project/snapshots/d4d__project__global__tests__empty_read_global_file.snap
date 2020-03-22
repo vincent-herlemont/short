@@ -2,10 +2,4 @@
 source: d4d/src/project/global.rs
 expression: projects
 ---
-Ok(
-    GlobalProjects {
-        home_dir: "/tmp/d4d.test_empty_read_global_file.o38q87WfWrgI",
-        current_project: None,
-        all: [],
-    },
-)
+projects: []

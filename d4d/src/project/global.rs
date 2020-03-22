@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use std::env::current_exe;
+
 use std::fs::{create_dir, File, OpenOptions};
-use std::io::SeekFrom::Current;
+
 use std::io::{BufReader, BufWriter};
-use std::path::Component::CurDir;
+
 use std::path::{Path, PathBuf};
 use utils::error::Error;
 use utils::result::Result;
@@ -225,10 +225,10 @@ mod tests {
         create_global_directory, global_file_path, read_global_file, save_global_file,
         GlobalProject, GlobalProjects,
     };
-    use insta::assert_debug_snapshot;
+    use insta::assert_yaml_snapshot;
     use std::collections::HashMap;
     use std::fs::read_to_string;
-    use std::path::PathBuf;
+    use std::path::{PathBuf};
     use utils::asset::Assets;
     use utils::test::before;
     use walkdir::WalkDir;
@@ -271,8 +271,13 @@ projects: []
 "#,
         );
         let config = before("test_empty_read_global_file", Assets::Static(assets));
-        let projects = read_global_file(&config.tmp_dir);
-        assert_debug_snapshot!(projects);
+        if let Ok(projects) = read_global_file(&config.tmp_dir) {
+            assert_eq!(&projects.home_dir, &config.tmp_dir);
+            assert!(&projects.current_project.is_none());
+            assert_yaml_snapshot!(projects);
+        } else {
+            assert!(false);
+        }
     }
 
     #[test]
@@ -294,8 +299,13 @@ projects:
 "#,
         );
         let config = before("test_read_global_file", Assets::Static(assets));
-        let projects = read_global_file(&config.tmp_dir);
-        assert_debug_snapshot!(projects);
+        if let Ok(projects) = read_global_file(&config.tmp_dir) {
+            assert_eq!(&projects.home_dir, &config.tmp_dir);
+            assert!(&projects.current_project.is_none());
+            assert_yaml_snapshot!(&projects);
+        } else {
+            assert!(false);
+        }
     }
 
     #[test]
