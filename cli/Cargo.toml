@@ -12,7 +12,7 @@ d4d = { path = "../d4d" }
 
 [dev-dependencies]
 walkdir = "2.3.1"
-insta = "0.13.1"
+insta = "0.15.0"
 
 [build-dependencies]
 include_walk = "0.3.0"
