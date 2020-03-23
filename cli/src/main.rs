@@ -19,36 +19,32 @@ fn main() {
         .setting(VersionlessSubcommands)
         .bin_name(BIN_NAME)
         .version(VERSION)
+        .arg(
+            Arg::with_name("project")
+                .long("project")
+                .short("p")
+                .takes_value(true)
+                .global(true),
+        )
+        .arg(
+            Arg::with_name("env")
+                .long("env")
+                .short("e")
+                .takes_value(true)
+                .global(true),
+        )
         .subcommand(App::new("watch").about("watch cloudformation infrastructure"))
         .subcommand(App::new("status").about("display of cloud formation infrastructure"))
         .subcommand(App::new("add").arg(Arg::with_name("add_project").multiple(true)))
         .subcommand(App::new("use").arg(Arg::with_name("use_project").multiple(true)))
         .subcommand(App::new("init"))
         .subcommand(
-            App::new("env")
-                .setting(ArgRequiredElseHelp)
-                .arg(
-                    Arg::with_name("check")
-                        .help("Verified env syntax and coherence")
-                        .long("check")
-                        .short("c"),
-                )
-                .arg(
-                    Arg::with_name("project")
-                        .help("Project name")
-                        .long("project")
-                        .takes_value(true)
-                        .required(true)
-                        .short("p"),
-                )
-                .arg(
-                    Arg::with_name("env")
-                        .help("Env name")
-                        .required(true)
-                        .takes_value(true)
-                        .long("env")
-                        .short("e"),
-                ),
+            App::new("env").setting(ArgRequiredElseHelp).arg(
+                Arg::with_name("check")
+                    .help("Verified env syntax and coherence")
+                    .long("check")
+                    .short("c"),
+            ),
         )
         .get_matches();
 
@@ -65,7 +61,7 @@ fn init(mut projects: Projects, app: ArgMatches) {
     if let Some(_) = app.subcommand_matches("init") {
         println!();
     } else if let Some(args) = app.subcommand_matches("env") {
-        match check(&args) {
+        match env(&args) {
             Ok(_) => {
                 println!();
             }
@@ -136,7 +132,7 @@ fn init_projects() -> Result<Projects> {
     }
 }
 
-fn check(args: &ArgMatches) -> Result<()> {
+fn env(args: &ArgMatches) -> Result<()> {
     if let (Some(_), Some(vp), Some(ve)) = (
         args.values_of_lossy("check"),
         args.values_of_lossy("project"),
