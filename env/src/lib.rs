@@ -5,7 +5,7 @@ use std::path::Path;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Var {
     name: String,
     value: String,
@@ -49,6 +49,10 @@ impl Var {
             }
             _ => Err(Error::new(ErrorKind::InvalidData, "fail to parse env")),
         }
+    }
+
+    fn tuple(&self) -> (String, String) {
+        (self.name.to_owned(), self.value.to_owned())
     }
 }
 
@@ -129,6 +133,64 @@ impl Display for Env {
 }
 
 impl Env {
+    pub fn new() -> Self {
+        Self { entries: vec![] }
+    }
+
+    /// ```
+    /// use env::Env;
+    /// let mut env = Env::new();
+    ///
+    /// env.add("var1","test");
+    ///
+    /// if let Some((_,value)) = env.get("var1") {
+    ///     assert!(true);
+    /// } else {
+    ///     assert!(false);
+    /// }
+    ///
+    /// ```
+    pub fn add<N, V>(&mut self, name: N, value: V)
+    where
+        N: AsRef<str>,
+        V: AsRef<str>,
+    {
+        let name = String::from(name.as_ref());
+        let value = String::from(value.as_ref());
+        let entry = Entry::Var(Var { name, value });
+        self.entries.append(&mut vec![entry])
+    }
+
+    /// ```
+    /// use env::Env;
+    /// let mut env = Env::new();
+    ///
+    /// env.add("var1","test");
+    ///
+    /// if let Some((_,value)) = env.get("var1") {
+    ///     assert!(true);
+    /// } else {
+    ///     assert!(false);
+    /// }
+    ///
+    /// assert!(env.get("var2").is_none());
+    ///
+    /// ```
+    pub fn get<N: AsRef<str>>(&self, name: N) -> Option<(String, String)> {
+        self.entries.iter().find_map(|entry| {
+            if let Entry::Var(var) = entry {
+                if var.name == String::from(name.as_ref()) {
+                    return Some(var.tuple());
+                }
+            }
+            None
+        })
+    }
+
+    pub fn add_empty_line(&mut self) {
+        self.entries.append(&mut vec![Entry::Empty]);
+    }
+
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let file = OpenOptions::new().read(true).open(path.as_ref())?;
         let mut buf_reader = BufReader::new(file);
@@ -150,5 +212,65 @@ impl Env {
         }
 
         Ok(Env { entries })
+    }
+
+    pub fn iter(&self) -> EnvIterator {
+        EnvIterator {
+            index: 0,
+            env: &self,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct EnvIterator<'a> {
+    env: &'a Env,
+    index: usize,
+}
+
+impl<'a> Iterator for EnvIterator<'a> {
+    type Item = (String, String);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(var) = self.env.entries.get(self.index) {
+            self.index += 1;
+            if let Entry::Var(var) = var {
+                return Some(var.tuple());
+            } else {
+                return self.next();
+            }
+        }
+        None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Env;
+
+    #[test]
+    fn env_iterator() {
+        let mut env = Env::new();
+        env.add("name1", "value1");
+        env.add_empty_line();
+        env.add("name2", "value2");
+
+        let mut iter = env.iter();
+
+        if let Some((name, value)) = iter.next() {
+            assert_eq!(name, "name1");
+            assert_eq!(value, "value1");
+        } else {
+            assert!(false);
+        }
+
+        if let Some((name, value)) = iter.next() {
+            assert_eq!(name, "name2");
+            assert_eq!(value, "value2");
+        } else {
+            assert!(false);
+        }
+
+        assert!(iter.next().is_none());
     }
 }
