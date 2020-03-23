@@ -32,13 +32,12 @@ fn read_global_file<'a, P: AsRef<Path>>(home_dir: P) -> Result<GlobalProjects> {
     let path = global_file_path(&home_dir);
     let file = File::open(path)?;
     let buf = BufReader::new(file);
-    match serde_yaml::from_reader::<_, GlobalProjects>(buf) {
-        Ok(global_project) => Ok(GlobalProjects {
+    serde_yaml::from_reader(buf)
+        .map(|global_projects: GlobalProjects| GlobalProjects {
             home_dir,
-            ..global_project
-        }),
-        Err(err) => Err(Error::from(err)),
-    }
+            ..global_projects
+        })
+        .map_err(|e| Error::from(e))
 }
 
 /// Create or overwrite project config file.
@@ -228,7 +227,7 @@ mod tests {
     use insta::assert_yaml_snapshot;
     use std::collections::HashMap;
     use std::fs::read_to_string;
-    use std::path::{PathBuf};
+    use std::path::PathBuf;
     use utils::asset::Assets;
     use utils::test::before;
     use walkdir::WalkDir;
