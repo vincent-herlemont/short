@@ -15,6 +15,7 @@ pub enum Error {
     Wrap(String, Box<Error>),
     Io(io::Error),
     SerdeYaml(serde_yaml::Error),
+    Which(which::Error),
 }
 
 impl Error {
@@ -59,6 +60,7 @@ impl StdError for Error {
         match self {
             Io(e) => Some(e),
             SerdeYaml(e) => Some(e),
+            Which(_) => None,
             Wrap(_, error) => Some(error),
             Other(_) => None,
         }
@@ -86,6 +88,12 @@ impl From<io::Error> for Error {
 impl From<serde_yaml::Error> for Error {
     fn from(error: serde_yaml::Error) -> Error {
         Error::SerdeYaml(error)
+    }
+}
+
+impl From<which::Error> for Error {
+    fn from(error: which::Error) -> Error {
+        Error::Which(error)
     }
 }
 
