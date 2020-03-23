@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::env::current_exe;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Output};
 use tempdir::TempDir;
 use walkdir::WalkDir;
 
@@ -41,6 +41,21 @@ impl ConfigCli {
         command.current_dir(&self.tmp_project_dir);
         command.env("HOME", &self.tmp_home_dir);
         command
+    }
+
+    pub fn println(&self, output: &Output) {
+        println!(
+            "{}",
+            String::from_utf8(output.stderr.clone()).expect("fail to read stderr")
+        );
+        println!("---------------------------");
+        println!(
+            "{}",
+            String::from_utf8(output.stdout.clone()).expect("fail to read stdout")
+        );
+        println!("---------------------------");
+        println!("{}", output.status);
+        println!("tmp_dir : {}", self.tmp_dir.to_string_lossy());
     }
 
     pub fn add_asset_project<P, S>(&self, path: P, content: S) -> Result<()>
