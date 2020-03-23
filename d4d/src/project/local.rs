@@ -26,9 +26,17 @@ fn save_local_file<P: AsRef<Path>>(root: P, local_projects: &LocalProjects) -> R
 }
 
 fn read_local_file<P: AsRef<Path>>(root: P) -> Result<LocalProjects> {
-    let file = OpenOptions::new().read(true).open(local_file_path(root))?;
+    let current_dir = PathBuf::from(root.as_ref());
+    let file = OpenOptions::new()
+        .read(true)
+        .open(local_file_path(&current_dir))?;
     let buf = BufReader::new(file);
-    serde_yaml::from_reader(buf).map_err(|e| Error::from(e))
+    serde_yaml::from_reader(buf)
+        .map(|local_projects: LocalProjects| LocalProjects {
+            current_dir,
+            ..local_projects
+        })
+        .map_err(|e| Error::from(e))
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -177,8 +185,7 @@ projects:
         );
         let config = before("test_save_local_file", Assets::Static(assets));
         let local_projects = read_local_file(&config.tmp_dir).unwrap();
-        // TODO : init current_dir
-        //assert_eq!(&local_projects.current_dir, &config.tmp_dir);
+        assert_eq!(&local_projects.current_dir, &config.tmp_dir);
         assert_yaml_snapshot!(local_projects);
     }
 
