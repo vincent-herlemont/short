@@ -1,4 +1,8 @@
+use crate::exec::aws::aws::Aws;
+use crate::exec::aws::capabilities::Capabilities;
+use crate::exec::Runner;
 use crate::project::Projects;
+
 use std::path::PathBuf;
 use utils::error::Error;
 use utils::result::Result;
@@ -6,11 +10,15 @@ use utils::result::Result;
 #[derive(Debug)]
 pub struct AwsWorkflow<'a> {
     projects: &'a Projects,
+    aws: Aws,
 }
 
 impl<'a> AwsWorkflow<'a> {
     pub fn fake(projects: &'a Projects) -> Self {
-        Self { projects: projects }
+        Self {
+            projects: projects,
+            aws: Aws::fake(),
+        }
     }
 
     fn template_pkg_file(&self) -> Result<PathBuf> {
@@ -43,6 +51,27 @@ impl<'a> AwsWorkflow<'a> {
         let project_env = self.projects.current_env()?;
         Ok(format!("{}-{}", project_name, project_env))
     }
+
+    fn package<B: AsRef<str>>(self, deploy_bucket_name: B) -> Result<Runner> {
+        let project = self.projects.current_project()?;
+        let template_file = project.template_file()?;
+        let template_pkg_file = self.template_pkg_file()?;
+        Ok(self.aws.cli_cloudformation_package(
+            template_file,
+            deploy_bucket_name,
+            template_pkg_file,
+        ))
+    }
+
+    fn deploy(self) -> Result<Runner> {
+        let template_pkg_file = self.template_pkg_file()?;
+        let stack_name = self.stack_name()?;
+        Ok(self.aws.cli_cloudformation_deploy(
+            template_pkg_file,
+            stack_name,
+            Capabilities::new(&[]),
+        ))
+    }
 }
 
 #[cfg(test)]
@@ -50,6 +79,22 @@ mod tests {
     use crate::exec::aws::workflow::AwsWorkflow;
     use crate::project::Projects;
     use std::path::PathBuf;
+
+    #[test]
+    fn package() {
+        let project = Projects::fake();
+        let aws_workflow = AwsWorkflow::fake(&project);
+        let runner = aws_workflow.package("test_deploy_bucket").unwrap();
+        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation package --template-file /path/to/local/./project_test.tpl --s3-bucket test_deploy_bucket --output-template-file /path/to/local/project_test.pkg.tpl");
+    }
+
+    #[test]
+    fn deploy() {
+        let project = Projects::fake();
+        let aws_workflow = AwsWorkflow::fake(&project);
+        let runner = aws_workflow.deploy().unwrap();
+        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test")
+    }
 
     #[test]
     fn stack_name() {

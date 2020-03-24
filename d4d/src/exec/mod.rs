@@ -3,7 +3,7 @@ pub mod aws;
 use serde::export::Formatter;
 use std::fmt;
 use std::fmt::Display;
-use std::ops::Add;
+
 use std::path::PathBuf;
 use std::process::Command;
 use utils::error::Error;
@@ -48,7 +48,7 @@ impl Runner {
 impl Display for Runner {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.path.to_string_lossy())?;
-        for mut arg in &self.args {
+        for arg in &self.args {
             write!(f, " ")?;
             if let Some(_) = arg.find(char::is_whitespace) {
                 write!(f, "\"{}\"", arg)?;

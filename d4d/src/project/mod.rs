@@ -133,7 +133,7 @@ impl Projects {
 
 #[cfg(test)]
 mod tests {
-    use crate::project::{Project, Projects};
+    use crate::project::{Projects};
     use std::path::PathBuf;
 
     #[test]

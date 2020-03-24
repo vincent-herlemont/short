@@ -3,7 +3,8 @@ use crate::exec::{Runner, Software};
 use std::path::Path;
 use utils::result::Result;
 
-struct Aws {
+#[derive(Debug)]
+pub struct Aws {
     software: Software,
     region: String,
 }
@@ -15,6 +16,13 @@ impl Aws {
             // TODO: provide region from global configuration
             region: String::from("eu-west-3"),
         })
+    }
+
+    pub fn fake() -> Self {
+        Self {
+            software: Software::fake("aws"),
+            region: String::from("test-region"),
+        }
     }
 
     fn cli_set_region(&mut self) {
