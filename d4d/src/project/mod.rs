@@ -102,4 +102,11 @@ impl Projects {
         // TODO : save local too
         self.global.save()
     }
+
+    pub fn fake() -> Projects {
+        Projects {
+            global: GlobalProjects::fake(),
+            local: LocalProjects::fake(),
+        }
+    }
 }

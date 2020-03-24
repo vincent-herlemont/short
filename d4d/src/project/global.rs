@@ -216,6 +216,17 @@ impl GlobalProjects {
             Ok(())
         }
     }
+
+    pub fn fake() -> Self {
+        Self {
+            home_dir: PathBuf::from("/path/to/global"),
+            current_project: Some(CurrentProject {
+                name: Some(String::from("project_test")),
+                env: Some(String::from("env_test")),
+            }),
+            all: vec![],
+        }
+    }
 }
 
 #[cfg(test)]

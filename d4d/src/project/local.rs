@@ -157,6 +157,13 @@ impl LocalProjects {
             }
         })
     }
+
+    pub fn fake() -> Self {
+        Self {
+            current_dir: PathBuf::from("/path/to/local"),
+            all: vec![],
+        }
+    }
 }
 
 #[cfg(test)]
