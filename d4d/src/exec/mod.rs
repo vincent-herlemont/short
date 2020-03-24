@@ -147,7 +147,7 @@ mod tests {
         let mut soft = Software::new("echo").unwrap();
         soft.args(&["a b", "b", ""]);
         let runner = soft.runner();
-        assert_eq!(format!("{}", &runner), "/usr/bin/echo \"a b\" b ");
+        assert!(format!("{}", &runner).ends_with("echo \"a b\" b "));
         let output = runner.output().unwrap();
         assert_eq!(String::from_utf8(output.stdout).unwrap(), "a b b \n");
     }
