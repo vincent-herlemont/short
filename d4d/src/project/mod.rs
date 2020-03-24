@@ -90,6 +90,15 @@ impl Projects {
         }
     }
 
+    pub fn current_project(&self) -> Result<Project> {
+        let project_name = self.global.current_project()?;
+        self.found(project_name)
+    }
+
+    pub fn current_env(&self) -> Result<String> {
+        self.global.current_env()
+    }
+
     pub fn set_current_project_name<P: AsRef<str>>(&mut self, project_name: P) {
         self.global.set_current_project_name(project_name)
     }
@@ -108,5 +117,24 @@ impl Projects {
             global: GlobalProjects::fake(),
             local: LocalProjects::fake(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::project::{Project, Projects};
+
+    #[test]
+    fn current_project() {
+        let projects = Projects::fake();
+        let current_project = projects.current_project().unwrap();
+        assert_eq!(current_project.name(), String::from("project_test"));
+    }
+
+    #[test]
+    fn current_env() {
+        let projects = Projects::fake();
+        let current_env = projects.current_env().unwrap();
+        assert_eq!(current_env, String::from("env_test"));
     }
 }

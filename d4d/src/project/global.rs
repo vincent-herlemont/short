@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
-
 use std::fs::{create_dir, File, OpenOptions};
-
 use std::io::{BufReader, BufWriter};
-
 use std::path::{Path, PathBuf};
 use utils::error::Error;
 use utils::result::Result;
@@ -217,6 +214,27 @@ impl GlobalProjects {
         }
     }
 
+    pub fn current_project(&self) -> Result<String> {
+        let err = || Error::from("no current project is defined");
+        self.current_project
+            .as_ref()
+            .ok_or(err())?
+            .name
+            .clone()
+            .ok_or(err())
+    }
+
+    pub fn current_env(&self) -> Result<String> {
+        self.current_project()?;
+        let err = || Error::from("no current environment is defined");
+        self.current_project
+            .as_ref()
+            .ok_or(err())?
+            .env
+            .clone()
+            .ok_or(err())
+    }
+
     pub fn fake() -> Self {
         Self {
             home_dir: PathBuf::from("/path/to/global"),
@@ -224,7 +242,12 @@ impl GlobalProjects {
                 name: Some(String::from("project_test")),
                 env: Some(String::from("env_test")),
             }),
-            all: vec![],
+            all: vec![Box::new(GlobalProject {
+                name: String::from("project_test"),
+                current_env: None,
+                path: Some(PathBuf::from("/path/to/local")),
+                private_env_directory: None,
+            })],
         }
     }
 }
@@ -242,6 +265,22 @@ mod tests {
     use utils::asset::Assets;
     use utils::test::before;
     use walkdir::WalkDir;
+
+    #[test]
+    fn current_project() {
+        let global_projects = GlobalProjects::fake();
+        let current_project = global_projects.current_project();
+        assert!(current_project.is_ok());
+        assert_eq!(current_project.unwrap(), String::from("project_test"));
+    }
+
+    #[test]
+    fn current_env() {
+        let global_projects = GlobalProjects::fake();
+        let current_project = global_projects.current_env();
+        assert!(current_project.is_ok());
+        assert_eq!(current_project.unwrap(), String::from("env_test"));
+    }
 
     #[test]
     fn test_save_global_file() {
