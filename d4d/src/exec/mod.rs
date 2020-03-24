@@ -6,7 +6,6 @@ use utils::error::Error;
 use utils::result::Result;
 use which;
 
-
 #[derive(Debug)]
 pub struct Software {
     path: PathBuf,
@@ -64,7 +63,7 @@ impl Software {
         &self.args
     }
 
-    pub fn runner(&self) -> Runner {
+    pub fn runner(self) -> Runner {
         Runner {
             command: self.command(),
             args: self.args.to_owned(),
@@ -85,8 +84,7 @@ impl Software {
 
 #[cfg(test)]
 mod tests {
-    use crate::exec::{Software};
-    
+    use crate::exec::Software;
 
     #[test]
     fn new() {
