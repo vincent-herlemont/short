@@ -1,5 +1,9 @@
 pub mod aws;
 
+use serde::export::Formatter;
+use std::fmt;
+use std::fmt::Display;
+use std::ops::Add;
 use std::path::PathBuf;
 use std::process::Command;
 use utils::error::Error;
@@ -13,23 +17,46 @@ pub struct Software {
 }
 
 pub struct Runner {
-    command: Command,
+    path: PathBuf,
     args: Vec<String>,
 }
 
 impl Runner {
-    pub fn command(self) -> Command {
-        let mut command = self.command;
+    pub fn command(self) -> Result<Command> {
+        let mut command = Command::new(
+            self.path
+                .to_str()
+                .ok_or(format!(
+                    "forbidden no UTF-8 to path {}",
+                    self.path.to_string_lossy()
+                ))?
+                .trim(),
+        );
         command.args(self.args);
-        command
+        Ok(command)
     }
 
     pub fn output(self) -> Result<std::process::Output> {
-        self.command().output().map_err(|e| Error::from(e))
+        self.command()?.output().map_err(|e| Error::from(e))
     }
 
     pub fn args(&self) -> &Vec<String> {
         &self.args
+    }
+}
+
+impl Display for Runner {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.path.to_string_lossy())?;
+        for mut arg in &self.args {
+            write!(f, " ")?;
+            if let Some(_) = arg.find(char::is_whitespace) {
+                write!(f, "\"{}\"", arg)?;
+            } else {
+                write!(f, "{}", arg)?;
+            }
+        }
+        Ok(())
     }
 }
 
@@ -39,10 +66,6 @@ impl Software {
         let path = which::which(&name)
             .map_err(|e| Error::wrap(format!("fail to found {} command", &name), Error::from(e)))?;
         Ok(Software { path, args: vec![] })
-    }
-
-    fn command(&self) -> Command {
-        Command::new(self.path.to_string_lossy().trim())
     }
 
     pub fn arg<S: AsRef<str>>(&mut self, arg: S) {
@@ -65,8 +88,8 @@ impl Software {
 
     pub fn runner(self) -> Runner {
         Runner {
-            command: self.command(),
-            args: self.args.to_owned(),
+            path: self.path,
+            args: self.args,
         }
     }
 
@@ -117,5 +140,15 @@ mod tests {
         soft.arg("--version");
         let output = soft.runner().output();
         assert!(output.is_ok());
+    }
+
+    #[test]
+    fn display_runner() {
+        let mut soft = Software::new("echo").unwrap();
+        soft.args(&["a b", "b", ""]);
+        let runner = soft.runner();
+        assert_eq!(format!("{}", &runner), "/usr/bin/echo \"a b\" b ");
+        let output = runner.output().unwrap();
+        assert_eq!(String::from_utf8(output.stdout).unwrap(), "a b b \n");
     }
 }
