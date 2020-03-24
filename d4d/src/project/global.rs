@@ -78,6 +78,12 @@ impl GlobalProject {
     pub fn private_env_directory(&self) -> Option<PathBuf> {
         self.private_env_directory.to_owned()
     }
+
+    pub fn path(&self) -> Result<PathBuf> {
+        self.path
+            .clone()
+            .ok_or(Error::new(format!("{} is unreachable", self.name)))
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

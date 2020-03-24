@@ -34,6 +34,17 @@ impl<'a> Project<'a> {
     pub fn private_env_directory(&self) -> Option<PathBuf> {
         self.global.private_env_directory()
     }
+
+    pub fn project_path(&self) -> Result<PathBuf> {
+        self.global.path()
+    }
+
+    /// Return the absolute path of the current project
+    pub fn template_file(&self) -> Result<PathBuf> {
+        let project_path = self.project_path()?;
+        let template_path = self.local.template_path()?;
+        Ok(project_path.join(template_path))
+    }
 }
 
 impl<'a> Display for Project<'a> {
@@ -123,6 +134,17 @@ impl Projects {
 #[cfg(test)]
 mod tests {
     use crate::project::{Project, Projects};
+    use std::path::PathBuf;
+
+    #[test]
+    fn current_template() {
+        let projects = Projects::fake();
+        let current_template_file = projects.current_project().unwrap().template_file().unwrap();
+        assert_eq!(
+            current_template_file,
+            PathBuf::from("/path/to/local/project_test.tpl")
+        );
+    }
 
     #[test]
     fn current_project() {

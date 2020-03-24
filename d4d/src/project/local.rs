@@ -67,6 +67,13 @@ impl LocalProject {
     pub fn public_env_directory(&self) -> Option<PathBuf> {
         self.public_env_directory.to_owned()
     }
+
+    pub fn template_path(&self) -> Result<PathBuf> {
+        self.template_path.clone().ok_or(Error::from(format!(
+            "template_path missing for {}",
+            self.name
+        )))
+    }
 }
 
 impl Display for LocalProject {
