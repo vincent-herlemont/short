@@ -37,6 +37,12 @@ impl<'a> AwsWorkflow<'a> {
         template_file.set_file_name(chunks.join("."));
         Ok(template_file)
     }
+
+    fn stack_name(&self) -> Result<String> {
+        let project_name = self.projects.current_project()?.name();
+        let project_env = self.projects.current_env()?;
+        Ok(format!("{}-{}", project_name, project_env))
+    }
 }
 
 #[cfg(test)]
@@ -44,6 +50,14 @@ mod tests {
     use crate::exec::aws::workflow::AwsWorkflow;
     use crate::project::Projects;
     use std::path::PathBuf;
+
+    #[test]
+    fn stack_name() {
+        let project = Projects::fake();
+        let aws_workflow = AwsWorkflow::fake(&project);
+        let stack_name = aws_workflow.stack_name().unwrap();
+        assert_eq!(stack_name, "project_test-env_test");
+    }
 
     #[test]
     fn template_pkg_file() {
