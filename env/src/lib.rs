@@ -147,12 +147,11 @@ impl Env {
     ///
     /// env.add("var1","test");
     ///
-    /// if let Some((_,value)) = env.get("var1") {
+    /// if let Ok((_,value)) = env.get("var1") {
     ///     assert!(true);
     /// } else {
     ///     assert!(false);
     /// }
-    ///
     /// ```
     pub fn add<N, V>(&mut self, name: N, value: V)
     where
@@ -171,24 +170,34 @@ impl Env {
     ///
     /// env.add("var1","test");
     ///
-    /// if let Some((_,value)) = env.get("var1") {
+    /// if let Ok((_,value)) = env.get("var1") {
     ///     assert!(true);
     /// } else {
     ///     assert!(false);
     /// }
-    ///
-    /// assert!(env.get("var2").is_none());
-    ///
+    /// assert!(env.get("var2").is_err());
     /// ```
-    pub fn get<N: AsRef<str>>(&self, name: N) -> Option<(String, String)> {
-        self.entries.iter().find_map(|entry| {
-            if let Entry::Var(var) = entry {
-                if var.name == String::from(name.as_ref()) {
-                    return Some(var.tuple());
+    pub fn get<N: AsRef<str>>(&self, name: N) -> Result<(String, String)> {
+        self.entries
+            .iter()
+            .find_map(|entry| {
+                if let Entry::Var(var) = entry {
+                    if var.name == String::from(name.as_ref()) {
+                        return Some(var.tuple());
+                    }
                 }
-            }
-            None
-        })
+                None
+            })
+            .ok_or(Error::new(
+                ErrorKind::NotFound,
+                format!(
+                    "fail to found env var {} {}",
+                    name.as_ref().to_string(),
+                    self.name
+                        .as_ref()
+                        .map_or(String::new(), |env| format!(" to env {} ", env))
+                ),
+            ))
     }
 
     pub fn add_empty_line(&mut self) {
