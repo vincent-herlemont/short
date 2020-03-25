@@ -120,6 +120,7 @@ impl Entry {
 
 #[derive(Debug)]
 pub struct Env {
+    name: Option<String>,
     entries: Vec<Entry>,
 }
 
@@ -134,7 +135,10 @@ impl Display for Env {
 
 impl Env {
     pub fn new() -> Self {
-        Self { entries: vec![] }
+        Self {
+            name: None,
+            entries: vec![],
+        }
     }
 
     /// ```
@@ -192,9 +196,29 @@ impl Env {
     }
 
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let file = OpenOptions::new().read(true).open(path.as_ref())?;
+        let path = path.as_ref().to_path_buf();
+        let file_name_err = || {
+            Error::new(
+                ErrorKind::InvalidData,
+                format!(
+                    "fail to read file env file name {}",
+                    path.to_string_lossy().trim()
+                ),
+            )
+        };
+
+        let file_name = path
+            .file_name()
+            .ok_or(file_name_err())?
+            .to_str()
+            .ok_or(file_name_err())?
+            .to_string();
+
+        let file = OpenOptions::new().read(true).open(path)?;
         let mut buf_reader = BufReader::new(file);
-        Env::from_reader(&mut buf_reader)
+        let mut env = Env::from_reader(&mut buf_reader)?;
+        env.set_name(file_name);
+        Ok(env)
     }
 
     pub fn from_reader(cursor: &mut dyn BufRead) -> Result<Self> {
@@ -211,7 +235,28 @@ impl Env {
             }
         }
 
-        Ok(Env { entries })
+        Ok(Env {
+            name: None,
+            entries,
+        })
+    }
+
+    /// Set name and remove dot char in the beginning of the name.
+    pub fn set_name<N: AsRef<str>>(&mut self, name: N) {
+        let name = name.as_ref().trim_start_matches('.');
+        self.name = Some(name.to_string());
+    }
+
+    pub fn name(&self) -> Result<String> {
+        self.name
+            .clone()
+            .ok_or(Error::new(ErrorKind::Interrupted, "env has not name"))
+    }
+
+    pub fn dot_name(&self) -> Result<String> {
+        let mut name = self.name()?;
+        name.insert(0, '.');
+        Ok(name)
     }
 
     pub fn iter(&self) -> EnvIterator {
@@ -272,5 +317,28 @@ mod tests {
         }
 
         assert!(iter.next().is_none());
+    }
+
+    #[test]
+    fn name() {
+        let mut env = Env::new();
+        assert!(env.name().is_err());
+        env.set_name("test-env");
+        let name = env.name().unwrap();
+        assert_eq!(name, "test-env");
+
+        // trim dot
+        let mut env = Env::new();
+        env.set_name(".test-env");
+        let name = env.name().unwrap();
+        assert_eq!(name, "test-env");
+    }
+
+    #[test]
+    fn dot_name() {
+        let mut env = Env::new();
+        env.set_name("test-env");
+        let name = env.dot_name().unwrap();
+        assert_eq!(name, ".test-env");
     }
 }
