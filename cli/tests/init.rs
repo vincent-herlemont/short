@@ -136,8 +136,6 @@ projects:
         )
         .unwrap();
 
-    let tree = config.tree();
-    dbg!(tree);
     let mut command = config.command();
 
     let output = command

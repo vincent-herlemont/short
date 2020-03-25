@@ -96,7 +96,6 @@ fn init(mut projects: Projects, app: ArgMatches) {
 fn r#use(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
     if let Some(args) = args.values_of_lossy("use_project") {
         if let (Some(project_name), Some(env_name)) = (args.get(0), args.get(1)) {
-            dbg!(project_name, env_name);
             projects.set_current_project_name(project_name);
             projects.set_current_env_name(env_name)?;
             projects.save()?;
