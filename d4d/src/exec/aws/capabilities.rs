@@ -5,7 +5,9 @@ use std::hash::Hash;
 
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub enum Capability {
+    #[allow(non_camel_case_types)]
     CAPABILITY_IAM,
+    #[allow(non_camel_case_types)]
     CAPABILITY_NAMED_IAM,
 }
 

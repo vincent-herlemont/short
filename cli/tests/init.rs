@@ -173,3 +173,57 @@ projects: []"#,
         content
     );
 }
+
+#[test]
+fn run_deploy() {
+    let config = before("env", Assets::None).cli(CRATE_NAME);
+
+    // Project : p1
+    config
+        .add_asset_project(
+            "./d4d.yaml",
+            r#"---
+projects:
+  - name: p1
+    template_path: "./template.yaml"
+    public_env_directory: "."
+"#,
+        )
+        .unwrap();
+    config
+        .add_asset_project("./.dev", r#"AWS_S3_BUCKET_DEPLOY=bucket_1"#)
+        .unwrap();
+
+    config
+        .add_asset_home(
+            ".d4d/projects.yaml",
+            format!(
+                r#"---
+projects:
+  - name: p1
+    path: {}"#,
+                config.tmp_project_dir.to_string_lossy()
+            ),
+        )
+        .unwrap();
+
+    let mut command = config.command();
+    let output = command
+        .arg("deploy")
+        .args(&["-p", "p1"])
+        .args(&["-e", "dev"])
+        .output()
+        .unwrap();
+
+    assert_eq!(
+        String::from_utf8(output.stdout).unwrap(),
+        format!(
+            r#"--dry-run
+/usr/bin/aws --region eu-west-3 cloudformation package --template-file {p}/./template.yaml --s3-bucket bucket_1 --output-template-file {p}/template.pkg.yaml
+/usr/bin/aws --region eu-west-3 cloudformation deploy --template-file {p}/template.pkg.yaml --stack-name p1-dev
+
+"#,
+            p = config.tmp_project_dir.to_string_lossy().trim()
+        )
+    )
+}

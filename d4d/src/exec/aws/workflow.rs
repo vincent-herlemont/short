@@ -17,9 +17,16 @@ pub struct AwsWorkflow<'a> {
 }
 
 impl<'a> AwsWorkflow<'a> {
+    pub fn new(project: &'a Project) -> Result<Self> {
+        Ok(Self {
+            project,
+            aws: Aws::new()?,
+        })
+    }
+
     pub fn fake(project: &'a Project) -> Self {
         Self {
-            project: project,
+            project,
             aws: Aws::fake(),
         }
     }
@@ -54,7 +61,7 @@ impl<'a> AwsWorkflow<'a> {
         Ok(format!("{}-{}", project_name, project_env))
     }
 
-    fn package(self, env: &Env) -> Result<Runner> {
+    pub fn package(self, env: &Env) -> Result<Runner> {
         let template_file = self.project.template_file()?;
         let template_pkg_file = self.template_pkg_file()?;
         let (_, deploy_bucket_name) = env.get(AWS_S3_BUCKET_DEPLOY).map_err(|err| {
@@ -70,7 +77,7 @@ impl<'a> AwsWorkflow<'a> {
         ))
     }
 
-    fn deploy(self, env: &Env) -> Result<Runner> {
+    pub fn deploy(self, env: &Env) -> Result<Runner> {
         let template_pkg_file = self.template_pkg_file()?;
         let stack_name = self.stack_name(env)?;
         Ok(self.aws.cli_cloudformation_deploy(
@@ -127,7 +134,7 @@ mod tests {
     fn template_pkg_file() {
         let projects = Projects::fake();
         let project = projects.current_project().unwrap();
-        let (aws_workflow, env) = aws_workflow_env(&project);
+        let (aws_workflow, _) = aws_workflow_env(&project);
         let template_pkg_file = aws_workflow.template_pkg_file().unwrap();
         assert_eq!(
             template_pkg_file,

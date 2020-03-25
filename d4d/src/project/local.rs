@@ -168,11 +168,18 @@ impl LocalProjects {
     pub fn fake() -> Self {
         Self {
             current_dir: PathBuf::from("/path/to/local"),
-            all: vec![Box::new(LocalProject {
-                name: String::from("project_test"),
-                template_path: Some(PathBuf::from("./project_test.tpl")),
-                public_env_directory: None,
-            })],
+            all: vec![
+                Box::new(LocalProject {
+                    name: String::from("project_test"),
+                    template_path: Some(PathBuf::from("./project_test.tpl")),
+                    public_env_directory: None,
+                }),
+                Box::new(LocalProject {
+                    name: String::from("project_test_bis"),
+                    template_path: Some(PathBuf::from("./project_test_bis.tpl")),
+                    public_env_directory: None,
+                }),
+            ],
         }
     }
 }

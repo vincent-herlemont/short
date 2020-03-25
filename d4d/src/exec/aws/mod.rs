@@ -1,3 +1,3 @@
 mod aws;
 mod capabilities;
-mod workflow;
+pub mod workflow;

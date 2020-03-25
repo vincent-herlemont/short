@@ -7,11 +7,14 @@ use std::path::{Path, PathBuf};
 use utils::error::Error;
 use utils::result::Result;
 
+pub use super::project::global::CurrentProject;
+
 pub mod global;
 pub mod local;
 
 #[derive(Debug)]
 pub struct Projects {
+    temp_current_project: Option<CurrentProject>,
     local: LocalProjects,
     global: GlobalProjects,
 }
@@ -63,7 +66,11 @@ impl Projects {
             LocalProjects::new(current_dir),
             GlobalProjects::new(home_dir),
         ) {
-            (Ok(local), Ok(global)) => Ok(Projects { local, global }),
+            (Ok(local), Ok(global)) => Ok(Projects {
+                local,
+                global,
+                temp_current_project: None,
+            }),
             (Err(err), Ok(_)) => Err(Error::from(err)),
             (Ok(_), Err(err)) => Err(Error::from(err)),
             (Err(err), Err(_)) => Err(Error::from(err)),
@@ -101,13 +108,24 @@ impl Projects {
         }
     }
 
+    pub fn set_temporary_current_project(&mut self, current_project: CurrentProject) {
+        self.temp_current_project = Some(current_project);
+    }
+
     pub fn current_project(&self) -> Result<Project> {
-        let project_name = self.global.current_project()?;
+        let project_name = match &self.temp_current_project {
+            Some(current_project) => current_project.name()?,
+            None => self.global.current_project()?.name()?,
+        };
         self.found(project_name)
     }
 
     pub fn current_env(&self) -> Result<String> {
-        self.global.current_env()
+        let env = match &self.temp_current_project {
+            Some(current_project) => current_project.env()?,
+            None => self.global.current_project()?.env()?,
+        };
+        Ok(env)
     }
 
     pub fn set_current_project_name<P: AsRef<str>>(&mut self, project_name: P) {
@@ -127,13 +145,14 @@ impl Projects {
         Projects {
             global: GlobalProjects::fake(),
             local: LocalProjects::fake(),
+            temp_current_project: None,
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::project::{Projects};
+    use crate::project::{CurrentProject, Projects};
     use std::path::PathBuf;
 
     #[test]
@@ -158,5 +177,21 @@ mod tests {
         let projects = Projects::fake();
         let current_env = projects.current_env().unwrap();
         assert_eq!(current_env, String::from("env_test"));
+    }
+
+    #[test]
+    fn temporary_current_project() {
+        let mut projects = Projects::fake();
+        projects.set_temporary_current_project(CurrentProject::new("project_test_bis"));
+
+        let current_project = projects.current_project().unwrap();
+        assert_eq!(current_project.name(), String::from("project_test_bis"));
+        assert!(projects.current_env().is_err());
+
+        let mut projects = Projects::fake();
+        projects.set_temporary_current_project(
+            CurrentProject::new("project_test_bis").set_env("watever_env"),
+        );
+        assert_eq!(projects.current_env().unwrap(), String::from("watever_env"));
     }
 }

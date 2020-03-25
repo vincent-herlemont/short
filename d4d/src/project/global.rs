@@ -86,13 +86,40 @@ impl GlobalProject {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct CurrentProject {
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct CurrentProject {
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     env: Option<String>,
+}
+
+impl CurrentProject {
+    pub fn new<N: AsRef<str>>(name: N) -> Self {
+        Self {
+            name: Some(String::from(name.as_ref())),
+            env: None,
+        }
+    }
+
+    pub fn set_env<E: AsRef<str>>(self, env: E) -> Self {
+        Self {
+            env: Some(String::from(env.as_ref())),
+            ..self
+        }
+    }
+
+    pub fn name(&self) -> Result<String> {
+        let err = || Error::from("project name missing");
+        self.name.clone().ok_or(err())
+    }
+
+    pub fn env(&self) -> Result<String> {
+        self.name()?;
+        let err = || Error::from("env missing");
+        self.env.clone().ok_or(err())
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -179,10 +206,7 @@ impl GlobalProjects {
 
     pub fn set_current_project_name<P: AsRef<str>>(&mut self, project_name: P) {
         // TODO: check is project exist
-        self.current_project = Some(CurrentProject {
-            name: Some(String::from(project_name.as_ref())),
-            env: None,
-        })
+        self.current_project = Some(CurrentProject::new(project_name))
     }
 
     pub fn set_current_env_name<E: AsRef<str>>(&mut self, env: E) -> Result<()> {
@@ -191,12 +215,7 @@ impl GlobalProjects {
         if let Some(current_project) = &self.current_project {
             if let Some(project_name) = &current_project.name {
                 let project_name = project_name.to_owned();
-
-                self.current_project = Some(CurrentProject {
-                    name: Some(String::from(project_name)),
-                    env: Some(env),
-                });
-
+                self.current_project = Some(CurrentProject::new(project_name).set_env(env));
                 return Ok(());
             }
         }
@@ -220,25 +239,9 @@ impl GlobalProjects {
         }
     }
 
-    pub fn current_project(&self) -> Result<String> {
+    pub fn current_project(&self) -> Result<&CurrentProject> {
         let err = || Error::from("no current project is defined");
-        self.current_project
-            .as_ref()
-            .ok_or(err())?
-            .name
-            .clone()
-            .ok_or(err())
-    }
-
-    pub fn current_env(&self) -> Result<String> {
-        self.current_project()?;
-        let err = || Error::from("no current environment is defined");
-        self.current_project
-            .as_ref()
-            .ok_or(err())?
-            .env
-            .clone()
-            .ok_or(err())
+        self.current_project.as_ref().ok_or(err())
     }
 
     pub fn fake() -> Self {
@@ -248,12 +251,20 @@ impl GlobalProjects {
                 name: Some(String::from("project_test")),
                 env: Some(String::from("env_test")),
             }),
-            all: vec![Box::new(GlobalProject {
-                name: String::from("project_test"),
-                current_env: None,
-                path: Some(PathBuf::from("/path/to/local")),
-                private_env_directory: None,
-            })],
+            all: vec![
+                Box::new(GlobalProject {
+                    name: String::from("project_test"),
+                    current_env: None,
+                    path: Some(PathBuf::from("/path/to/local")),
+                    private_env_directory: None,
+                }),
+                Box::new(GlobalProject {
+                    name: String::from("project_test_bis"),
+                    current_env: None,
+                    path: Some(PathBuf::from("/path/to/local_bis")),
+                    private_env_directory: None,
+                }),
+            ],
         }
     }
 }
@@ -277,15 +288,10 @@ mod tests {
         let global_projects = GlobalProjects::fake();
         let current_project = global_projects.current_project();
         assert!(current_project.is_ok());
-        assert_eq!(current_project.unwrap(), String::from("project_test"));
-    }
-
-    #[test]
-    fn current_env() {
-        let global_projects = GlobalProjects::fake();
-        let current_project = global_projects.current_env();
-        assert!(current_project.is_ok());
-        assert_eq!(current_project.unwrap(), String::from("env_test"));
+        assert_eq!(
+            current_project.unwrap().name().unwrap(),
+            String::from("project_test")
+        );
     }
 
     #[test]
