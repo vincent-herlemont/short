@@ -22,6 +22,7 @@ fn main() {
         .setting(VersionlessSubcommands)
         .bin_name(BIN_NAME)
         .version(VERSION)
+        .about("test version 0.0.1")
         .arg(
             Arg::with_name("project")
                 .long("project")

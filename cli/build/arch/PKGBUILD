@@ -1,0 +1,26 @@
+# Maintainer: Vincent Herlemont <vincentherl@leszeros.com>
+pkgname=d4d-git
+pkgver=v0.0.1.r0.g1218540
+pkgrel=1
+source=("${pkgname}::git+https://github.com/vincent-herlemont/d4d.git")
+makedepends=('git' 'rust' 'cargo')
+provides=()
+replaces=()
+md5sums=('SKIP')
+arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+
+pkgver() {
+    git describe --long --tags | sed 's/^foo-//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+    echo "PWD = $(pwd)"
+    cd ${pkgname};
+    cargo build --release --frozen --all-features
+}
+
+package() {
+   cd ${pkgname};
+   install -Dm 755 target/release/cli -t "${pkgdir}/usr/bin"
+   mv "${pkgdir}/usr/bin/cli" "${pkgdir}/usr/bin/d4d"
+}
