@@ -26,9 +26,9 @@ pub struct Capabilities {
 }
 
 impl<'a> Capabilities {
-    pub fn new(list: &[Capability]) -> Self {
+    pub fn new() -> Self {
         Self {
-            list: list.iter().cloned().collect(),
+            list: HashSet::new(),
         }
     }
     pub fn to_strings(&self) -> Option<Vec<String>> {
@@ -40,6 +40,10 @@ impl<'a> Capabilities {
             Some(list)
         }
     }
+
+    pub fn add(&mut self, capability: Capability) {
+        self.list.insert(capability);
+    }
 }
 
 #[cfg(test)]
@@ -48,16 +52,27 @@ mod tests {
 
     #[test]
     fn to_string() {
-        let capabilities = Capabilities::new(&[]);
+        let capabilities = Capabilities::new();
         assert!(capabilities.to_strings().is_none());
 
-        let capabilities = Capabilities::new(&[
-            Capability::CAPABILITY_IAM,
-            Capability::CAPABILITY_NAMED_IAM,
-            Capability::CAPABILITY_IAM,
-        ]);
+        let mut capabilities = Capabilities::new();
+        capabilities.add(Capability::CAPABILITY_IAM);
+        capabilities.add(Capability::CAPABILITY_NAMED_IAM);
+        capabilities.add(Capability::CAPABILITY_IAM);
+
         if let Some(capabilities) = capabilities.to_strings() {
             assert_eq!(capabilities, &["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"]);
+        } else {
+            assert!(false);
+        }
+    }
+
+    #[test]
+    fn add() {
+        let mut capabilities = Capabilities::new();
+        capabilities.add(Capability::CAPABILITY_NAMED_IAM);
+        if let Some(capabilities) = capabilities.to_strings() {
+            assert_eq!(capabilities, &["CAPABILITY_NAMED_IAM"]);
         } else {
             assert!(false);
         }

@@ -1,5 +1,5 @@
 use crate::exec::aws::aws::Aws;
-use crate::exec::aws::capabilities::Capabilities;
+use crate::exec::aws::capabilities::{Capabilities, Capability};
 use crate::exec::{ExecCtx, Runner};
 
 use crate::project::Project;
@@ -80,11 +80,19 @@ impl<'a> AwsWorkflow<'a> {
     pub fn deploy(self, env: &Env) -> Result<Runner> {
         let template_pkg_file = self.template_pkg_file()?;
         let stack_name = self.stack_name(env)?;
-        Ok(self.aws.cli_cloudformation_deploy(
-            template_pkg_file,
-            stack_name,
-            Capabilities::new(&[]),
-        ))
+
+        let mut capabilities = Capabilities::new();
+        if env.is_set("AWS_CAPABILITY_NAMED_IAM", "true") {
+            capabilities.add(Capability::CAPABILITY_NAMED_IAM);
+        }
+
+        if env.is_set("AWS_CAPABILITY_IAM", "true") {
+            capabilities.add(Capability::CAPABILITY_IAM);
+        }
+
+        Ok(self
+            .aws
+            .cli_cloudformation_deploy(template_pkg_file, stack_name, capabilities))
     }
 }
 
@@ -121,7 +129,14 @@ mod tests {
         let project = projects.current_project().unwrap();
         let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
         let runner = aws_workflow.deploy(&env).unwrap();
-        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test")
+        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test");
+
+        // Test capabilities
+        let (aws_workflow, mut env) = aws_workflow_env(&project, &exec_ctx);
+        env.add("AWS_CAPABILITY_IAM", "true");
+        env.add("AWS_CAPABILITY_NAMED_IAM", "true");
+        let runner = aws_workflow.deploy(&env).unwrap();
+        println!("{}", runner);
     }
 
     #[test]

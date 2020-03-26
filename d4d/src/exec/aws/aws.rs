@@ -89,8 +89,8 @@ impl<'s> Aws<'s> {
 #[cfg(test)]
 mod tests {
     use crate::exec::aws::aws::Aws;
-    use crate::exec::aws::capabilities::Capabilities;
-    use crate::exec::aws::capabilities::Capability::{CAPABILITY_IAM, CAPABILITY_NAMED_IAM};
+    
+    use crate::exec::aws::capabilities::{Capabilities, Capability};
     use crate::exec::{ExecCtx, Software};
 
     fn new_fake_aws(exec_ctx: &ExecCtx) -> Aws {
@@ -143,7 +143,7 @@ mod tests {
         let runner = aws.cli_cloudformation_deploy(
             "./template_name_file.yaml",
             "stack_name",
-            Capabilities::new(&[]),
+            Capabilities::new(),
         );
 
         let args = runner.args();
@@ -163,11 +163,11 @@ mod tests {
 
         let exec_ctx = ExecCtx::new();
         let aws = new_fake_aws(&exec_ctx);
-        let runner = aws.cli_cloudformation_deploy(
-            "./template_name_file.yaml",
-            "stack_name",
-            Capabilities::new(&[CAPABILITY_IAM, CAPABILITY_NAMED_IAM]),
-        );
+        let mut capabilities = Capabilities::new();
+        capabilities.add(Capability::CAPABILITY_IAM);
+        capabilities.add(Capability::CAPABILITY_NAMED_IAM);
+        let runner =
+            aws.cli_cloudformation_deploy("./template_name_file.yaml", "stack_name", capabilities);
 
         let args = runner.args();
         assert_eq!(
