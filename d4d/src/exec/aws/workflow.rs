@@ -1,6 +1,6 @@
 use crate::exec::aws::aws::Aws;
 use crate::exec::aws::capabilities::Capabilities;
-use crate::exec::Runner;
+use crate::exec::{ExecCtx, Runner};
 
 use crate::project::Project;
 use env::Env;
@@ -13,21 +13,21 @@ const AWS_S3_BUCKET_DEPLOY: &'static str = "AWS_S3_BUCKET_DEPLOY";
 #[derive(Debug)]
 pub struct AwsWorkflow<'a> {
     project: &'a Project<'a>,
-    aws: Aws,
+    aws: Aws<'a>,
 }
 
 impl<'a> AwsWorkflow<'a> {
-    pub fn new(project: &'a Project) -> Result<Self> {
+    pub fn new(project: &'a Project, exec_ctx: &'a ExecCtx) -> Result<Self> {
         Ok(Self {
             project,
-            aws: Aws::new()?,
+            aws: Aws::new(exec_ctx)?,
         })
     }
 
-    pub fn fake(project: &'a Project) -> Self {
+    pub fn fake(project: &'a Project, exec_ctx: &'a ExecCtx) -> Self {
         Self {
             project,
-            aws: Aws::fake(),
+            aws: Aws::fake(exec_ctx),
         }
     }
 
@@ -91,12 +91,13 @@ impl<'a> AwsWorkflow<'a> {
 #[cfg(test)]
 mod tests {
     use crate::exec::aws::workflow::{AwsWorkflow, AWS_S3_BUCKET_DEPLOY};
+    use crate::exec::ExecCtx;
     use crate::project::{Project, Projects};
     use env::Env;
     use std::path::PathBuf;
 
-    fn aws_workflow_env<'a>(project: &'a Project) -> (AwsWorkflow<'a>, Env) {
-        let aws_workflow = AwsWorkflow::fake(&project);
+    fn aws_workflow_env<'a>(project: &'a Project, exec_ctx: &'a ExecCtx) -> (AwsWorkflow<'a>, Env) {
+        let aws_workflow = AwsWorkflow::fake(&project, exec_ctx);
         let mut env = Env::new();
         env.add(AWS_S3_BUCKET_DEPLOY, "test_deploy_bucket");
         env.set_name("env_test");
@@ -106,8 +107,9 @@ mod tests {
     #[test]
     fn package() {
         let projects = Projects::fake();
+        let exec_ctx = ExecCtx::new();
         let project = projects.current_project().unwrap();
-        let (aws_workflow, env) = aws_workflow_env(&project);
+        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
         let runner = aws_workflow.package(&env).unwrap();
         assert_eq!(format!("{}",runner),"aws --region test-region cloudformation package --template-file /path/to/local/./project_test.tpl --s3-bucket test_deploy_bucket --output-template-file /path/to/local/project_test.pkg.tpl");
     }
@@ -115,8 +117,9 @@ mod tests {
     #[test]
     fn deploy() {
         let projects = Projects::fake();
+        let exec_ctx = ExecCtx::new();
         let project = projects.current_project().unwrap();
-        let (aws_workflow, env) = aws_workflow_env(&project);
+        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
         let runner = aws_workflow.deploy(&env).unwrap();
         assert_eq!(format!("{}",runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test")
     }
@@ -124,8 +127,9 @@ mod tests {
     #[test]
     fn stack_name() {
         let projects = Projects::fake();
+        let exec_ctx = ExecCtx::new();
         let project = projects.current_project().unwrap();
-        let (aws_workflow, env) = aws_workflow_env(&project);
+        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
         let stack_name = aws_workflow.stack_name(&env).unwrap();
         assert_eq!(stack_name, "project_test-env_test");
     }
@@ -133,8 +137,9 @@ mod tests {
     #[test]
     fn template_pkg_file() {
         let projects = Projects::fake();
+        let exec_ctx = ExecCtx::new();
         let project = projects.current_project().unwrap();
-        let (aws_workflow, _) = aws_workflow_env(&project);
+        let (aws_workflow, _) = aws_workflow_env(&project, &exec_ctx);
         let template_pkg_file = aws_workflow.template_pkg_file().unwrap();
         assert_eq!(
             template_pkg_file,

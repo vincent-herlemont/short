@@ -3,6 +3,7 @@ use clap::{App, Arg, ArgMatches};
 use d4d::env as d4denv;
 use d4d::env::get;
 use d4d::exec::aws::workflow::AwsWorkflow;
+use d4d::exec::ExecCtx;
 use d4d::project::{CurrentProject, Projects};
 use std::env;
 use std::env::current_dir;
@@ -35,6 +36,7 @@ fn main() {
                 .takes_value(true)
                 .global(true),
         )
+        .arg(Arg::with_name("dry-run").long("dry-run").global(true))
         .subcommand(App::new("watch").about("watch cloudformation infrastructure"))
         .subcommand(App::new("status").about("display of cloud formation infrastructure"))
         .subcommand(App::new("add").arg(Arg::with_name("add_project").multiple(true)))
@@ -51,8 +53,9 @@ fn main() {
         )
         .get_matches();
 
+    let exec_ctx = init_exec_ctx(&app);
     match init_projects(&app) {
-        Ok(projects) => match init(projects, app) {
+        Ok(projects) => match init(exec_ctx, projects, app) {
             Ok(()) => println!(),
             Err(err) => {
                 eprintln!("{}", err);
@@ -66,7 +69,16 @@ fn main() {
     }
 }
 
-fn init(mut projects: Projects, app: ArgMatches) -> Result<()> {
+fn init_exec_ctx(app: &ArgMatches) -> ExecCtx {
+    let exec_ctx = ExecCtx::new();
+    if app.is_present("dry-run") {
+        exec_ctx.set_dry_run(true)
+    } else {
+        exec_ctx
+    }
+}
+
+fn init(exec_ctx: ExecCtx, mut projects: Projects, app: ArgMatches) -> Result<()> {
     if let Some(_) = app.subcommand_matches("init") {
         return Ok(());
     } else if let Some(args) = app.subcommand_matches("env") {
@@ -76,7 +88,7 @@ fn init(mut projects: Projects, app: ArgMatches) -> Result<()> {
     } else if let Some(args) = app.subcommand_matches("use") {
         return r#use(args, &mut projects);
     } else if let Some(_) = app.subcommand_matches("deploy") {
-        return deploy(&projects);
+        return deploy(&exec_ctx, &projects);
     }
     Ok(())
 }
@@ -153,15 +165,15 @@ fn env(args: &ArgMatches) -> Result<()> {
     Ok(())
 }
 
-fn deploy(projects: &Projects) -> Result<()> {
+fn deploy(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let project = projects.current_project()?;
     let env = projects.current_env()?;
     let env = get(&project, &env)?;
 
     println!("--dry-run");
-    let runner = AwsWorkflow::new(&project)?.package(&env)?;
+    let runner = AwsWorkflow::new(&project, &exec_ctx)?.package(&env)?;
     println!("{}", runner);
-    let runner = AwsWorkflow::new(&project)?.deploy(&env)?;
+    let runner = AwsWorkflow::new(&project, &exec_ctx)?.deploy(&env)?;
     println!("{}", runner);
     Ok(())
 }

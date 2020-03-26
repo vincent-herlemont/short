@@ -3,17 +3,18 @@ pub mod aws;
 use serde::export::Formatter;
 use std::fmt;
 use std::fmt::Display;
-
 use std::path::PathBuf;
 use std::process::Command;
 use utils::error::Error;
 use utils::result::Result;
 use which;
 
+
 #[derive(Debug)]
-pub struct Software {
+pub struct Software<'s> {
     path: PathBuf,
     args: Vec<String>,
+    exec_ctx: &'s ExecCtx,
 }
 
 pub struct Runner {
@@ -60,12 +61,21 @@ impl Display for Runner {
     }
 }
 
-impl Software {
-    pub fn new<N: AsRef<str>>(name: N) -> Result<Self> {
+impl<'s> Software<'s> {
+    pub fn new<N: AsRef<str>>(name: N, exec_ctx: &'s ExecCtx) -> Result<Self> {
         let name = String::from(name.as_ref());
-        let path = which::which(&name)
-            .map_err(|e| Error::wrap(format!("fail to found {} command", &name), Error::from(e)))?;
-        Ok(Software { path, args: vec![] })
+        let path = if !exec_ctx.dry_run() {
+            which::which(&name).map_err(|e| {
+                Error::wrap(format!("fail to found {} command", &name), Error::from(e))
+            })?
+        } else {
+            PathBuf::from(name)
+        };
+        Ok(Software {
+            path,
+            args: vec![],
+            exec_ctx,
+        })
     }
 
     pub fn arg<S: AsRef<str>>(&mut self, arg: S) {
@@ -97,36 +107,59 @@ impl Software {
         self.path.to_owned()
     }
 
-    pub fn fake<N: AsRef<str>>(name: N) -> Self {
+    pub fn fake<N: AsRef<str>>(name: N, exec_ctx: &'s ExecCtx) -> Self {
         Software {
             path: PathBuf::from(name.as_ref()),
             args: vec![],
+            exec_ctx,
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct ExecCtx {
+    dry_run: bool,
+}
+
+impl ExecCtx {
+    pub fn new() -> Self {
+        Self { dry_run: false }
+    }
+
+    pub fn set_dry_run(self, dry_run: bool) -> Self {
+        Self { dry_run }
+    }
+
+    pub fn dry_run(&self) -> bool {
+        self.dry_run
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::exec::Software;
+    use crate::exec::{ExecCtx, Software};
 
     #[test]
     fn new() {
-        let soft = Software::new("rustc");
+        let exec_ctx = ExecCtx::new();
+        let soft = Software::new("rustc", &exec_ctx);
         assert!(soft.is_ok());
-        let soft = Software::new("taratata");
+        let soft = Software::new("taratata", &exec_ctx);
         assert!(soft.is_err());
     }
 
     #[test]
     fn arg() {
-        let mut soft = Software::new("rustc").unwrap();
+        let exec_ctx = ExecCtx::new();
+        let mut soft = Software::new("rustc", &exec_ctx).unwrap();
         soft.arg("--version");
         assert_eq!(soft.get_args(), &vec![String::from("--version")])
     }
 
     #[test]
     fn args() {
-        let mut soft = Software::new("rustc").unwrap();
+        let exec_ctx = ExecCtx::new();
+        let mut soft = Software::new("rustc", &exec_ctx).unwrap();
         soft.args(&["--help", "-v"]);
         assert_eq!(
             soft.get_args(),
@@ -136,7 +169,8 @@ mod tests {
 
     #[test]
     fn output() {
-        let mut soft = Software::new("rustc").unwrap();
+        let exec_ctx = ExecCtx::new();
+        let mut soft = Software::new("rustc", &exec_ctx).unwrap();
         soft.arg("--version");
         let output = soft.runner().output();
         assert!(output.is_ok());
@@ -144,11 +178,20 @@ mod tests {
 
     #[test]
     fn display_runner() {
-        let mut soft = Software::new("echo").unwrap();
+        let exec_ctx = ExecCtx::new();
+        let mut soft = Software::new("echo", &exec_ctx).unwrap();
         soft.args(&["a b", "b", ""]);
         let runner = soft.runner();
         assert!(format!("{}", &runner).ends_with("echo \"a b\" b "));
         let output = runner.output().unwrap();
         assert_eq!(String::from_utf8(output.stdout).unwrap(), "a b b \n");
+    }
+
+    #[test]
+    fn exec_ctx() {
+        let exec_ctx = ExecCtx::new();
+        assert!(!exec_ctx.dry_run());
+        let exec_ctx = exec_ctx.set_dry_run(true);
+        assert!(exec_ctx.dry_run());
     }
 }

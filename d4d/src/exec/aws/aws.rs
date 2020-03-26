@@ -1,26 +1,26 @@
 use crate::exec::aws::capabilities::Capabilities;
-use crate::exec::{Runner, Software};
+use crate::exec::{ExecCtx, Runner, Software};
 use std::path::Path;
 use utils::result::Result;
 
 #[derive(Debug)]
-pub struct Aws {
-    software: Software,
+pub struct Aws<'s> {
+    software: Software<'s>,
     region: String,
 }
 
-impl Aws {
-    pub fn new() -> Result<Self> {
+impl<'s> Aws<'s> {
+    pub fn new(exec_ctx: &'s ExecCtx) -> Result<Self> {
         Ok(Self {
-            software: Software::new("aws")?,
+            software: Software::new("aws", exec_ctx)?,
             // TODO: provide region from global configuration
             region: String::from("eu-west-3"),
         })
     }
 
-    pub fn fake() -> Self {
+    pub fn fake(exec_ctx: &'s ExecCtx) -> Self {
         Self {
-            software: Software::fake("aws"),
+            software: Software::fake("aws", exec_ctx),
             region: String::from("test-region"),
         }
     }
@@ -91,18 +91,19 @@ mod tests {
     use crate::exec::aws::aws::Aws;
     use crate::exec::aws::capabilities::Capabilities;
     use crate::exec::aws::capabilities::Capability::{CAPABILITY_IAM, CAPABILITY_NAMED_IAM};
-    use crate::exec::Software;
+    use crate::exec::{ExecCtx, Software};
 
-    fn new_fake_aws() -> Aws {
+    fn new_fake_aws(exec_ctx: &ExecCtx) -> Aws {
         Aws {
-            software: Software::fake("aws"),
+            software: Software::fake("aws", exec_ctx),
             region: String::from("test-region"),
         }
     }
 
     #[test]
     fn version() {
-        let aws = new_fake_aws();
+        let exec_ctx = ExecCtx::new();
+        let aws = new_fake_aws(&exec_ctx);
         let runner = aws.cli_version();
         let args = runner.args();
         assert_eq!(args, &vec!["--version"])
@@ -110,7 +111,8 @@ mod tests {
 
     #[test]
     fn cloudformation_package() {
-        let aws = new_fake_aws();
+        let exec_ctx = ExecCtx::new();
+        let aws = new_fake_aws(&exec_ctx);
         let runner = aws.cli_cloudformation_package(
             "./template_name_file.yaml",
             "deploy_bucket_1",
@@ -136,7 +138,8 @@ mod tests {
 
     #[test]
     fn cloudformation_deploy() {
-        let aws = new_fake_aws();
+        let exec_ctx = ExecCtx::new();
+        let aws = new_fake_aws(&exec_ctx);
         let runner = aws.cli_cloudformation_deploy(
             "./template_name_file.yaml",
             "stack_name",
@@ -158,7 +161,8 @@ mod tests {
             ]
         );
 
-        let aws = new_fake_aws();
+        let exec_ctx = ExecCtx::new();
+        let aws = new_fake_aws(&exec_ctx);
         let runner = aws.cli_cloudformation_deploy(
             "./template_name_file.yaml",
             "stack_name",
