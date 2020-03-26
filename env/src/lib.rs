@@ -200,6 +200,15 @@ impl Env {
             ))
     }
 
+    pub fn is_set<N, V>(&self, name: N, value: V) -> bool
+    where
+        N: AsRef<str>,
+        V: AsRef<str>,
+    {
+        self.get(name)
+            .map_or(false, |(_, env_value)| env_value == value.as_ref())
+    }
+
     pub fn add_empty_line(&mut self) {
         self.entries.append(&mut vec![Entry::Empty]);
     }
@@ -349,5 +358,15 @@ mod tests {
         env.set_name("test-env");
         let name = env.dot_name().unwrap();
         assert_eq!(name, ".test-env");
+    }
+
+    #[test]
+    fn is_set() {
+        let mut env = Env::new();
+        env.add("name1", "value1");
+        let is_set = env.is_set("name1", "value1");
+        assert!(is_set);
+        let is_set = env.is_set("name1", "value2");
+        assert!(!is_set);
     }
 }
