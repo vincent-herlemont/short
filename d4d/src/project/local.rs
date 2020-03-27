@@ -66,8 +66,11 @@ impl LocalProject {
         self.name.to_owned()
     }
 
-    pub fn public_env_directory(&self) -> Option<PathBuf> {
-        self.public_env_directory.to_owned()
+    pub fn public_env_directory(&self) -> Result<PathBuf> {
+        self.public_env_directory.clone().ok_or(Error::new(format!(
+            "public_env_directory not found for {}",
+            self.name()
+        )))
     }
 
     pub fn provider(&self) -> &ProviderCfg {

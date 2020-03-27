@@ -75,8 +75,11 @@ impl GlobalProject {
         }
     }
 
-    pub fn private_env_directory(&self) -> Option<PathBuf> {
-        self.private_env_directory.to_owned()
+    pub fn private_env_directory(&self) -> Result<PathBuf> {
+        self.private_env_directory.clone().ok_or(Error::new(format!(
+            "private_env_directory not found for {}",
+            self.name
+        )))
     }
 
     pub fn path(&self) -> Result<PathBuf> {
@@ -240,7 +243,14 @@ impl GlobalProjects {
     }
 
     pub fn current_project(&self) -> Result<&CurrentProject> {
-        let err = || Error::from("no current project is defined");
+        let err = || {
+            Error::from(
+                r#"no current project is defined : two paths open to you
+ - provider arguments: [-p,--project,...] and [-e,--env,...]
+ - apply command: use <project> <env>
+"#,
+            )
+        };
         self.current_project.as_ref().ok_or(err())
     }
 

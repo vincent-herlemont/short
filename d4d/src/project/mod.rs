@@ -32,11 +32,11 @@ impl<'a> Project<'a> {
         self.local.name()
     }
 
-    pub fn public_env_directory(&self) -> Option<PathBuf> {
+    pub fn public_env_directory(&self) -> Result<PathBuf> {
         self.local.public_env_directory()
     }
 
-    pub fn private_env_directory(&self) -> Option<PathBuf> {
+    pub fn private_env_directory(&self) -> Result<PathBuf> {
         self.global.private_env_directory()
     }
 
