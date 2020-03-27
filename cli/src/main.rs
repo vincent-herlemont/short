@@ -22,35 +22,51 @@ fn main() {
         .setting(VersionlessSubcommands)
         .bin_name(BIN_NAME)
         .version(VERSION)
-        .about("test version 0.0.1")
+        .about("Cloud environment deployment")
         .arg(
             Arg::with_name("project")
                 .long("project")
                 .short("p")
                 .takes_value(true)
-                .global(true),
+                .global(true)
+                .help("Project name"),
         )
         .arg(
             Arg::with_name("env")
                 .long("env")
                 .short("e")
                 .takes_value(true)
-                .global(true),
+                .global(true)
+                .help("Environment name"),
         )
-        .arg(Arg::with_name("dry-run").long("dry-run").global(true))
-        .subcommand(App::new("watch").about("watch cloudformation infrastructure"))
-        .subcommand(App::new("status").about("display of cloud formation infrastructure"))
-        .subcommand(App::new("add").arg(Arg::with_name("add_project").multiple(true)))
-        .subcommand(App::new("use").arg(Arg::with_name("use_project").multiple(true)))
-        .subcommand(App::new("deploy"))
-        .subcommand(App::new("init"))
+        .arg(
+            Arg::with_name("dry-run")
+                .long("dry-run")
+                .global(true)
+                .help("Disable all executions"),
+        )
         .subcommand(
-            App::new("env").setting(ArgRequiredElseHelp).arg(
-                Arg::with_name("check")
-                    .help("Verified env syntax and coherence")
-                    .long("check")
-                    .short("c"),
-            ),
+            App::new("add")
+                .about("Add new project")
+                .arg(Arg::with_name("add_project").multiple(true)),
+        )
+        .subcommand(
+            App::new("use")
+                .about("Set an current project and environment")
+                .arg(Arg::with_name("use_project").multiple(true)),
+        )
+        .subcommand(App::new("deploy").about("Deploy on the cloud"))
+        .subcommand(App::new("init").about("Create en empty configuration file"))
+        .subcommand(
+            App::new("env")
+                .setting(ArgRequiredElseHelp)
+                .about("Manage environment files")
+                .arg(
+                    Arg::with_name("check")
+                        .help("Verified env coherence and syntax")
+                        .long("check")
+                        .short("c"),
+                ),
         )
         .get_matches();
 
