@@ -61,7 +61,7 @@ pub fn get(project: &Project, env: &String) -> Result<Env> {
         get_public(&env_public_path, &env_file_name),
         get_private(&env_private_path, &env_file_name),
     ) {
-        (Some(public_env_file), Some(private_env_file)) => Err(Error::new(format!(
+        (Some(_), Some(_)) => Err(Error::new(format!(
             r#"environement {} is on conflit for {} : two versions of {} exists
 please delete one of theses :
    - {}
