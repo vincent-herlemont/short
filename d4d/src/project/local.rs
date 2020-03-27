@@ -170,29 +170,24 @@ impl LocalProjects {
     }
 
     pub fn fake() -> Self {
-        let aws_cfg = AwsCfg::new("us-east-1");
+        let mut aws_cfg_1 = AwsCfg::new("us-east-1");
+        aws_cfg_1.set_template_path("./project_test.tpl");
+
+        let mut aws_cfg_2 = AwsCfg::new("us-east-1");
+        aws_cfg_2.set_template_path("./project_test_bis.tpl");
+
         Self {
             current_dir: PathBuf::from("/path/to/local"),
             all: vec![
                 Box::new(LocalProject {
                     name: String::from("project_test"),
                     public_env_directory: None,
-                    provider: ProviderCfg::ConfAws(
-                        aws_cfg
-                            .clone()
-                            .set_template_path("./project_test.tpl")
-                            .to_owned(),
-                    ),
+                    provider: ProviderCfg::ConfAws(aws_cfg_1),
                 }),
                 Box::new(LocalProject {
                     name: String::from("project_test_bis"),
                     public_env_directory: None,
-                    provider: ProviderCfg::ConfAws(
-                        aws_cfg
-                            .clone()
-                            .set_template_path("./project_test_bis.tpl")
-                            .to_owned(),
-                    ),
+                    provider: ProviderCfg::ConfAws(aws_cfg_2),
                 }),
             ],
         }

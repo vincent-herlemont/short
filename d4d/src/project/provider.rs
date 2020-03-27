@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
+
 use utils::error::Error;
 use utils::result::Result;
 
@@ -24,7 +25,7 @@ impl ProviderCfg {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AwsCfg {
     region: String,
 
