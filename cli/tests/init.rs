@@ -31,8 +31,11 @@ fn add() {
         r#"---
 projects:
   - name: my_project
-    template_path: "./template.yaml"
-    public_env_directory: ".""#,
+    public_env_directory: "."
+    provider:
+      name: aws
+      region: us-east-1
+      template_path: "./template.yaml""#,
         content.as_str()
     );
 
@@ -64,6 +67,9 @@ fn check_env_local() {
 projects:
   - name: p1
     public_env_directory: "."
+    provider:
+        name: aws
+        region: us-east-3
 "#,
         )
         .unwrap();
@@ -114,6 +120,9 @@ fn check_env_private() {
             r#"---
 projects:
   - name: p1
+    provider:
+        name: aws
+        region: us-east-3
 "#,
         )
         .unwrap();
@@ -185,8 +194,11 @@ fn run_deploy() {
             r#"---
 projects:
   - name: p1
-    template_path: "./template.yaml"
     public_env_directory: "."
+    provider:
+        name: aws
+        region: us-east-3
+        template_path: "./template.yaml"
 "#,
         )
         .unwrap();

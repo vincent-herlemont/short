@@ -83,7 +83,7 @@ fn init(exec_ctx: ExecCtx, mut projects: Projects, app: ArgMatches) -> Result<()
     if let Some(_) = app.subcommand_matches("init") {
         return Ok(());
     } else if let Some(args) = app.subcommand_matches("env") {
-        return env(&args);
+        return env(&args, &projects);
     } else if let Some(args) = app.subcommand_matches("add") {
         return add(args, &mut projects);
     } else if let Some(args) = app.subcommand_matches("use") {
@@ -143,22 +143,18 @@ fn init_projects(args: &ArgMatches) -> Result<Projects> {
     }
 }
 
-fn env(args: &ArgMatches) -> Result<()> {
+fn env(args: &ArgMatches, projects: &Projects) -> Result<()> {
     if let (Some(_), Some(vp), Some(ve)) = (
         args.values_of_lossy("check"),
         args.values_of_lossy("project"),
         args.values_of_lossy("env"),
     ) {
         if let (Some(project), Some(env)) = (vp.first(), ve.first()) {
-            let projects = init_projects(args).unwrap();
-            if let Ok(project) = projects.found(project) {
-                let env = d4denv::get(&project, &env)?;
-                println!("{}", &project);
-                print!("{}", &env);
-                return Ok(());
-            } else {
-                return Err(Error::new(format!("fail to found project {}", project)));
-            }
+            let project = projects.found(project)?;
+            let env = d4denv::get(&project, &env)?;
+            println!("{}", &project);
+            print!("{}", &env);
+            return Ok(());
         } else {
             return Err(Error::new("fail to get env or project"));
         }

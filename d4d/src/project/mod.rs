@@ -8,9 +8,11 @@ use utils::error::Error;
 use utils::result::Result;
 
 pub use super::project::global::CurrentProject;
+use crate::project::provider::{AwsCfg, ProviderCfg};
 
 pub mod global;
 pub mod local;
+pub mod provider;
 
 #[derive(Debug)]
 pub struct Projects {
@@ -45,7 +47,7 @@ impl<'a> Project<'a> {
     /// Return the absolute path of the current project
     pub fn template_file(&self) -> Result<PathBuf> {
         let project_path = self.project_path()?;
-        let template_path = self.local.template_path()?;
+        let template_path = self.local.provider().aws()?.template_path()?;
         Ok(project_path.join(template_path))
     }
 }
@@ -88,8 +90,13 @@ impl Projects {
             "fail to get directory of template : {}",
             template_path.to_string_lossy()
         ))?;
-        self.local
-            .add(&project_name, template_path, public_env_directory)?;
+        let mut aws_cfg = AwsCfg::new("us-east-1");
+        aws_cfg.set_template_path(template_path);
+        self.local.add(
+            &project_name,
+            public_env_directory,
+            ProviderCfg::ConfAws(aws_cfg),
+        )?;
         self.global.add(&project_name, public_env_directory)?;
         Ok(())
     }
@@ -102,7 +109,7 @@ impl Projects {
             Ok(Project { global, local })
         } else {
             Err(Error::new(format!(
-                "Fail to found project {}",
+                "fail to found project {}",
                 project_name.as_ref()
             )))
         }

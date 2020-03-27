@@ -136,7 +136,7 @@ mod tests {
         env.add("AWS_CAPABILITY_IAM", "true");
         env.add("AWS_CAPABILITY_NAMED_IAM", "true");
         let runner = aws_workflow.deploy(&env).unwrap();
-        println!("{}", runner);
+        assert_eq!(format!("{}", runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM");
     }
 
     #[test]

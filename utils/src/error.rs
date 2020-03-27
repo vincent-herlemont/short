@@ -40,6 +40,16 @@ impl Error {
     pub fn wrap<S: AsRef<str>>(msg: S, err: Error) -> Error {
         Error::Wrap(String::from(msg.as_ref()), Box::new(err))
     }
+
+    pub fn is<P>(&self, predicate: P) -> bool
+    where
+        P: Fn(&Error) -> bool,
+    {
+        match self {
+            Error::Wrap(_, err) => err.is(predicate),
+            err => predicate(err),
+        }
+    }
 }
 
 impl Display for Error {
@@ -102,6 +112,7 @@ mod tests {
     use super::Error;
     use crate::result::Result;
     use std::io;
+    use std::io::ErrorKind;
 
     #[test]
     fn error_test() {
@@ -132,5 +143,16 @@ mod tests {
             Error::Other(_) => assert!(true),
             _ => assert!(false),
         };
+    }
+
+    #[test]
+    fn nested_error() {
+        let err = Error::from(io::Error::new(ErrorKind::NotFound, "not found"));
+        let err = Error::wrap("wrap lvl 1", err);
+        let err = Error::wrap("wrap lvl 2", err);
+        let b = err.is(|err| matches!(err, Error::Io(_)));
+        assert!(b);
+        let b = err.is(|err| matches!(err, Error::Other(_)));
+        assert!(!b);
     }
 }

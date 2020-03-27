@@ -4,5 +4,11 @@ expression: local_projects
 ---
 projects:
   - name: test_1
+    provider:
+      name: aws
+      region: us-east-3
   - name: test_2
-    template_path: "./test_template.yaml"
+    provider:
+      name: aws
+      region: us-east-3
+      template_path: "./test_template.yaml"
