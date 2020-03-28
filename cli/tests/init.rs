@@ -17,9 +17,20 @@ fn init() {
 #[test]
 fn add() {
     let config = before("add", Assets::None).cli(CRATE_NAME);
+
+    // Project : empty
+    config
+        .add_asset_project(
+            "./d4d.yaml",
+            r#"---
+projects: []"#,
+        )
+        .unwrap();
+
     let mut command = config.command();
     command.arg("add").arg("my_project").arg("./template.yaml");
     let output = command.output().unwrap();
+
     assert_eq!(
         "project name : my_project \npath to template : ./template.yaml\n\n",
         String::from_utf8(output.stdout).unwrap()
@@ -169,8 +180,33 @@ VAR1=val1
 #[test]
 fn run_use() {
     let config = before("env", Assets::None).cli(CRATE_NAME);
+
+    // Project : p1
+    config
+        .add_asset_project(
+            "./d4d.yaml",
+            r#"---
+projects: []
+"#,
+        )
+        .unwrap();
+    config
+        .add_asset_private_env("./.dev", r#"VAR1=val1"#)
+        .unwrap();
+
+    config
+        .add_asset_home(
+            ".d4d/projects.yaml",
+            format!(
+                r#"---
+projects: []"#
+            ),
+        )
+        .unwrap();
+
     let mut command = config.command();
     let _output = command.arg("use").arg("p1").arg("dev").output().unwrap();
+
     let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
     let content = read_to_string(global_project_file).unwrap();
     assert_eq!(

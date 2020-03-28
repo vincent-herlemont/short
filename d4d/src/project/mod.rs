@@ -59,14 +59,14 @@ impl<'a> Display for Project<'a> {
 }
 
 impl Projects {
-    pub fn init<CD, HD>(current_dir: CD, home_dir: HD) -> Result<Projects>
+    pub fn load<CD, HD>(current_dir: CD, home_dir: HD) -> Result<Projects>
     where
         CD: AsRef<Path>,
         HD: AsRef<Path>,
     {
         match (
-            LocalProjects::new(current_dir),
-            GlobalProjects::new(home_dir),
+            LocalProjects::load(current_dir),
+            GlobalProjects::load(home_dir),
         ) {
             (Ok(local), Ok(global)) => Ok(Projects {
                 local,
@@ -77,6 +77,12 @@ impl Projects {
             (Ok(_), Err(err)) => Err(Error::from(err)),
             (Err(err), Err(_)) => Err(Error::from(err)),
         }
+    }
+
+    pub fn init(current_dir: &PathBuf, home_dir: &PathBuf) -> Result<()> {
+        LocalProjects::new(current_dir)?;
+        GlobalProjects::new(home_dir)?;
+        Ok(())
     }
 
     pub fn add<N, P>(&mut self, project_name: N, template_path: P) -> Result<()>

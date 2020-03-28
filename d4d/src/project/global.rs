@@ -44,9 +44,26 @@ fn save_global_file<P: AsRef<Path>>(home: P, projects: &GlobalProjects) -> Resul
         .write(true)
         .create(true)
         .truncate(true)
-        .open(path)?;
+        .open(&path)
+        .map_err(|err| {
+            Error::wrap(
+                format!(
+                    "fail to open global configuration {}",
+                    path.to_string_lossy()
+                ),
+                Error::from(err),
+            )
+        })?;
     let buf = BufWriter::new(file);
-    serde_yaml::to_writer(buf, &projects)?;
+    serde_yaml::to_writer(buf, &projects).map_err(|err| {
+        Error::wrap(
+            format!(
+                "fail to save global configuration {}",
+                path.to_string_lossy()
+            ),
+            Error::from(err),
+        )
+    })?;
     Ok(())
 }
 
@@ -138,44 +155,37 @@ pub struct GlobalProjects {
 }
 
 impl GlobalProjects {
-    pub fn new<P: AsRef<Path>>(home_dir: P) -> Result<GlobalProjects> {
+    pub fn load<P: AsRef<Path>>(home_dir: P) -> Result<GlobalProjects> {
         let home_dir = home_dir.as_ref().to_path_buf();
         match read_global_file(&home_dir) {
             Ok(global_file) => Ok(global_file),
-            Err(_) => {
-                let global_directory = global_directory_path(&home_dir);
-                if !global_directory.exists() {
-                    match create_global_directory(&home_dir) {
-                        Ok(_) => (),
-                        Err(err) => {
-                            return Err(Error::wrap(
-                                format!(
-                                    "fail to create configuration directory {}",
-                                    global_directory.to_string_lossy()
-                                ),
-                                err,
-                            ));
-                        }
-                    }
-                }
-                // TODO: match for create err only if file does not exist.
-                let global_projects = GlobalProjects {
-                    home_dir: home_dir.to_owned(),
-                    current_project: None,
-                    all: vec![],
-                };
-                match save_global_file(&home_dir, &global_projects) {
-                    Ok(_) => Ok(global_projects),
-                    Err(err) => Err(Error::wrap(
+            Err(_) => Self::new(home_dir),
+        }
+    }
+
+    pub fn new<P: AsRef<Path>>(home_dir: P) -> Result<GlobalProjects> {
+        let global_directory = global_directory_path(&home_dir);
+        if !global_directory.exists() {
+            match create_global_directory(&home_dir) {
+                Ok(_) => (),
+                Err(err) => {
+                    return Err(Error::wrap(
                         format!(
-                            "fail to create global file to {}",
-                            home_dir.to_string_lossy()
+                            "fail to create configuration directory {}",
+                            global_directory.to_string_lossy()
                         ),
                         err,
-                    )),
+                    ));
                 }
             }
         }
+        let global_projects = GlobalProjects {
+            home_dir: home_dir.as_ref().to_owned(),
+            current_project: None,
+            all: vec![],
+        };
+        save_global_file(home_dir, &global_projects)?;
+        Ok(global_projects)
     }
 
     pub fn add<N, P>(&mut self, name: N, path: P) -> Result<()>

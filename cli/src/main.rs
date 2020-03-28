@@ -4,9 +4,11 @@ use d4d::env as d4denv;
 use d4d::env::get;
 use d4d::exec::aws::workflow::AwsWorkflow;
 use d4d::exec::ExecCtx;
+
 use d4d::project::{CurrentProject, Projects};
 use std::env;
 use std::env::current_dir;
+use std::path::PathBuf;
 use std::process::exit;
 use utils::error::Error;
 use utils::result::Result;
@@ -70,9 +72,18 @@ fn main() {
         )
         .get_matches();
 
+    if let Some(_args) = app.subcommand_matches("init") {
+        match init_command() {
+            Ok(()) => println!(),
+            Err(err) => eprintln!("{}", err),
+        }
+        return;
+    }
+
     let exec_ctx = init_exec_ctx(&app);
+
     match init_projects(&app) {
-        Ok(projects) => match init(exec_ctx, projects, app) {
+        Ok(projects) => match dispatch_core_commands(exec_ctx, projects, app) {
             Ok(()) => println!(),
             Err(err) => {
                 eprintln!("{}", err);
@@ -86,6 +97,16 @@ fn main() {
     }
 }
 
+fn init_command() -> Result<()> {
+    match reach_directories() {
+        Ok((curent_dir, home_dir)) => {
+            Projects::init(&curent_dir, &home_dir)?;
+            Ok(())
+        }
+        Err(err) => Err(Error::wrap("fail to init project", Error::from(err))),
+    }
+}
+
 fn init_exec_ctx(app: &ArgMatches) -> ExecCtx {
     let exec_ctx = ExecCtx::new();
     if app.is_present("dry-run") {
@@ -95,10 +116,12 @@ fn init_exec_ctx(app: &ArgMatches) -> ExecCtx {
     }
 }
 
-fn init(exec_ctx: ExecCtx, mut projects: Projects, app: ArgMatches) -> Result<()> {
-    if let Some(_) = app.subcommand_matches("init") {
-        return Ok(());
-    } else if let Some(args) = app.subcommand_matches("env") {
+fn dispatch_core_commands(
+    exec_ctx: ExecCtx,
+    mut projects: Projects,
+    app: ArgMatches,
+) -> Result<()> {
+    if let Some(args) = app.subcommand_matches("env") {
         return env(&args, &projects);
     } else if let Some(args) = app.subcommand_matches("add") {
         return add(args, &mut projects);
@@ -143,7 +166,7 @@ fn add(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
 fn init_projects(args: &ArgMatches) -> Result<Projects> {
     match (current_dir(), dirs::home_dir()) {
         (Ok(current_dir), Some(home_dir)) => {
-            let mut projects = Projects::init(current_dir, home_dir)?;
+            let mut projects = Projects::load(current_dir, home_dir)?;
             if let Some(project_name) = args.value_of_lossy("project") {
                 let current_project = CurrentProject::new(project_name);
                 projects.set_temporary_current_project(current_project.clone());
@@ -156,6 +179,20 @@ fn init_projects(args: &ArgMatches) -> Result<Projects> {
         }
         (Err(err), _) => Err(Error::wrap("init", Error::from(err))),
         (_, None) => Err(Error::from("fail to found your home directory")),
+    }
+}
+
+/// return (current_dir,home_dir)
+fn reach_directories() -> Result<(PathBuf, PathBuf)> {
+    match (current_dir(), dirs::home_dir()) {
+        (Ok(current_dir), Some(home_dir)) => Ok((current_dir, home_dir)),
+        (Err(err), _) => Err(Error::wrap(
+            "fail to reach current directory",
+            Error::from(err),
+        )),
+        (_, None) => Err(Error::new(
+            "fail to reach home directory, please check your $HOME (linux,osx) or FOLDERID_Profile (windows)",
+        )),
     }
 }
 

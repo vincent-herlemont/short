@@ -36,7 +36,15 @@ fn save_local_file<P: AsRef<Path>>(root: P, local_projects: &LocalProjects) -> R
 fn read_local_file<P: AsRef<Path>>(root: P) -> Result<LocalProjects> {
     let current_dir = PathBuf::from(root.as_ref());
     let local_file = local_file_path(&current_dir);
-    let file = OpenOptions::new().read(true).open(&local_file)?;
+    let file = OpenOptions::new()
+        .read(true)
+        .open(&local_file)
+        .map_err(|err| {
+            Error::wrap(
+                format!("fail to open project file {}", local_file.to_string_lossy()),
+                Error::from(err),
+            )
+        })?;
     let buf = BufReader::new(file);
     serde_yaml::from_reader(buf)
         .map_err(|err| {
@@ -103,31 +111,18 @@ impl Display for LocalProjects {
 }
 
 impl LocalProjects {
-    pub fn new<P: AsRef<Path>>(current_dir: P) -> Result<LocalProjects> {
+    pub fn load<P: AsRef<Path>>(current_dir: P) -> Result<LocalProjects> {
         let current_dir = current_dir.as_ref().to_path_buf();
-        match read_local_file(&current_dir) {
-            Ok(local_projects) => Ok(local_projects),
-            Err(error) => {
-                if error.is(|err| matches!(err, Error::SerdeYaml(_))) {
-                    return Err(error);
-                }
-                // TODO: match for create err only if file does not exist.
-                let local_projects = LocalProjects {
-                    current_dir: current_dir.to_owned(),
-                    all: vec![],
-                };
-                match save_local_file(&current_dir, &local_projects) {
-                    Ok(_) => Ok(local_projects),
-                    Err(err) => Err(Error::wrap(
-                        format!(
-                            "fail to create local file {}",
-                            current_dir.to_string_lossy()
-                        ),
-                        err,
-                    )),
-                }
-            }
-        }
+        read_local_file(&current_dir)
+    }
+
+    pub fn new<P: AsRef<Path>>(current_dir: P) -> Result<LocalProjects> {
+        let local_projects = LocalProjects {
+            current_dir: current_dir.as_ref().to_owned(),
+            all: vec![],
+        };
+        save_local_file(current_dir, &local_projects)?;
+        Ok(local_projects)
     }
 
     pub fn add<N, PED>(
