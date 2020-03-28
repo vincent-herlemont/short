@@ -17,6 +17,18 @@ fn local_file_path<P: AsRef<Path>>(root: P) -> PathBuf {
     root.as_ref().join(PROJECT_FILE_NAME)
 }
 
+fn local_file_exist<P: AsRef<Path>>(root: P) -> Result<()> {
+    let path = local_file_path(root);
+    if path.exists() {
+        Err(Error::new(format!(
+            "project file exists {}",
+            path.to_string_lossy()
+        )))
+    } else {
+        Ok(())
+    }
+}
+
 fn save_local_file<P: AsRef<Path>>(root: P, local_projects: &LocalProjects) -> Result<()> {
     let path = local_file_path(root);
     let file = OpenOptions::new()
@@ -121,7 +133,8 @@ impl LocalProjects {
             current_dir: current_dir.as_ref().to_owned(),
             all: vec![],
         };
-        save_local_file(current_dir, &local_projects)?;
+        local_file_exist(&current_dir)?;
+        save_local_file(&current_dir, &local_projects)?;
         Ok(local_projects)
     }
 

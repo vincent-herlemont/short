@@ -79,9 +79,8 @@ impl Projects {
         }
     }
 
-    pub fn init(current_dir: &PathBuf, home_dir: &PathBuf) -> Result<()> {
+    pub fn init(current_dir: &PathBuf) -> Result<()> {
         LocalProjects::new(current_dir)?;
-        GlobalProjects::new(home_dir)?;
         Ok(())
     }
 

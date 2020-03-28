@@ -99,8 +99,8 @@ fn main() {
 
 fn init_command() -> Result<()> {
     match reach_directories() {
-        Ok((curent_dir, home_dir)) => {
-            Projects::init(&curent_dir, &home_dir)?;
+        Ok((curent_dir, _)) => {
+            Projects::init(&curent_dir)?;
             Ok(())
         }
         Err(err) => Err(Error::wrap("fail to init project", Error::from(err))),
