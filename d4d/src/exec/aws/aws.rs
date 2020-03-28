@@ -29,7 +29,7 @@ impl<'s> Aws<'s> {
         self.software.args(&["--region", self.region.as_str()])
     }
 
-    pub fn cli_version(mut self) -> Runner {
+    pub fn cli_version(mut self) -> Runner<'s> {
         self.software.arg("--version");
         self.software.runner()
     }
@@ -39,7 +39,7 @@ impl<'s> Aws<'s> {
         template_file: IT,
         deploy_bucket_name: B,
         template_pkg_file: OT,
-    ) -> Runner
+    ) -> Runner<'s>
     where
         IT: AsRef<Path>,
         B: AsRef<str>,
@@ -64,7 +64,7 @@ impl<'s> Aws<'s> {
         template_file: T,
         stack_name: S,
         capabilities: Capabilities,
-    ) -> Runner
+    ) -> Runner<'s>
     where
         T: AsRef<Path>,
         S: AsRef<str>,
@@ -89,7 +89,7 @@ impl<'s> Aws<'s> {
 #[cfg(test)]
 mod tests {
     use crate::exec::aws::aws::Aws;
-    
+
     use crate::exec::aws::capabilities::{Capabilities, Capability};
     use crate::exec::{ExecCtx, Software};
 

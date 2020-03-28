@@ -4,11 +4,10 @@ use serde::export::Formatter;
 use std::fmt;
 use std::fmt::Display;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Output};
 use utils::error::Error;
 use utils::result::Result;
 use which;
-
 
 #[derive(Debug)]
 pub struct Software<'s> {
@@ -17,12 +16,13 @@ pub struct Software<'s> {
     exec_ctx: &'s ExecCtx,
 }
 
-pub struct Runner {
+pub struct Runner<'s> {
     path: PathBuf,
     args: Vec<String>,
+    exec_ctx: &'s ExecCtx,
 }
 
-impl Runner {
+impl<'s> Runner<'s> {
     pub fn command(self) -> Result<Command> {
         let mut command = Command::new(
             self.path
@@ -37,8 +37,26 @@ impl Runner {
         Ok(command)
     }
 
-    pub fn output(self) -> Result<std::process::Output> {
-        self.command()?.output().map_err(|e| Error::from(e))
+    pub fn output(self) -> Result<Output> {
+        let output = self.command()?.output().map_err(|e| Error::from(e))?;
+        Ok(output)
+    }
+
+    pub fn run(self) -> Result<()> {
+        println!("{}", &self);
+        if !self.exec_ctx.dry_run() {
+            let output = self.output()?;
+            println!(
+                "{}",
+                String::from_utf8(output.stderr.clone()).expect("fail to read stderr")
+            );
+            println!(
+                "{}",
+                String::from_utf8(output.stdout.clone()).expect("fail to read stdout")
+            );
+            println!("{}", output.status);
+        }
+        Ok(())
     }
 
     pub fn args(&self) -> &Vec<String> {
@@ -46,7 +64,7 @@ impl Runner {
     }
 }
 
-impl Display for Runner {
+impl<'s> Display for Runner<'s> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.path.to_string_lossy())?;
         for arg in &self.args {
@@ -96,10 +114,11 @@ impl<'s> Software<'s> {
         &self.args
     }
 
-    pub fn runner(self) -> Runner {
+    pub fn runner(self) -> Runner<'s> {
         Runner {
             path: self.path,
             args: self.args,
+            exec_ctx: self.exec_ctx,
         }
     }
 

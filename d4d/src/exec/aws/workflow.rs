@@ -11,20 +11,20 @@ use utils::result::Result;
 const AWS_S3_BUCKET_DEPLOY: &'static str = "AWS_S3_BUCKET_DEPLOY";
 
 #[derive(Debug)]
-pub struct AwsWorkflow<'a> {
+pub struct AwsWorkflow<'a, 'b> {
     project: &'a Project<'a>,
-    aws: Aws<'a>,
+    aws: Aws<'b>,
 }
 
-impl<'a> AwsWorkflow<'a> {
-    pub fn new(project: &'a Project, exec_ctx: &'a ExecCtx) -> Result<Self> {
+impl<'a, 'b> AwsWorkflow<'a, 'b> {
+    pub fn new(project: &'a Project, exec_ctx: &'b ExecCtx) -> Result<Self> {
         Ok(Self {
             project,
             aws: Aws::new(exec_ctx)?,
         })
     }
 
-    pub fn fake(project: &'a Project, exec_ctx: &'a ExecCtx) -> Self {
+    pub fn fake(project: &'a Project, exec_ctx: &'b ExecCtx) -> Self {
         Self {
             project,
             aws: Aws::fake(exec_ctx),
@@ -61,7 +61,7 @@ impl<'a> AwsWorkflow<'a> {
         Ok(format!("{}-{}", project_name, project_env))
     }
 
-    pub fn package(self, env: &Env) -> Result<Runner> {
+    pub fn package(self, env: &Env) -> Result<Runner<'b>> {
         let template_file = self.project.template_file()?;
         let template_pkg_file = self.template_pkg_file()?;
         let (_, deploy_bucket_name) = env.get(AWS_S3_BUCKET_DEPLOY).map_err(|err| {
@@ -77,7 +77,7 @@ impl<'a> AwsWorkflow<'a> {
         ))
     }
 
-    pub fn deploy(self, env: &Env) -> Result<Runner> {
+    pub fn deploy(self, env: &Env) -> Result<Runner<'b>> {
         let template_pkg_file = self.template_pkg_file()?;
         let stack_name = self.stack_name(env)?;
 
@@ -104,7 +104,10 @@ mod tests {
     use env::Env;
     use std::path::PathBuf;
 
-    fn aws_workflow_env<'a>(project: &'a Project, exec_ctx: &'a ExecCtx) -> (AwsWorkflow<'a>, Env) {
+    fn aws_workflow_env<'a, 'b>(
+        project: &'a Project,
+        exec_ctx: &'b ExecCtx,
+    ) -> (AwsWorkflow<'a, 'b>, Env) {
         let aws_workflow = AwsWorkflow::fake(&project, exec_ctx);
         let mut env = Env::new();
         env.add(AWS_S3_BUCKET_DEPLOY, "test_deploy_bucket");

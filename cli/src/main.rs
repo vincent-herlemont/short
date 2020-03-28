@@ -219,11 +219,9 @@ fn deploy(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let project = projects.current_project()?;
     let env = projects.current_env()?;
     let env = get(&project, &env)?;
-
-    println!("--dry-run");
     let runner = AwsWorkflow::new(&project, &exec_ctx)?.package(&env)?;
-    println!("{}", runner);
+    runner.run()?;
     let runner = AwsWorkflow::new(&project, &exec_ctx)?.deploy(&env)?;
-    println!("{}", runner);
+    runner.run()?;
     Ok(())
 }
