@@ -148,8 +148,12 @@ impl LocalProjects {
         N: AsRef<str>,
         PED: AsRef<Path>,
     {
+        let name = name.as_ref().to_string();
+        if let Some(_) = self.get(&name) {
+            return Err(Error::new(format!("project {} already exists", &name)));
+        }
         self.all.push(Box::new(LocalProject {
-            name: String::from(name.as_ref()),
+            name,
             public_env_directory: Some(PathBuf::from(public_env_directory.as_ref())),
             provider,
         }));

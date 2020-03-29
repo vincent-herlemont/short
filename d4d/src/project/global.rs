@@ -193,12 +193,16 @@ impl GlobalProjects {
         N: AsRef<str>,
         P: AsRef<Path>,
     {
+        let name = name.as_ref().to_string();
+        if let Some(_) = self.get(&name) {
+            return Ok(());
+        }
         let path = PathBuf::from(path.as_ref())
             .canonicalize()
             .map_err(|e| Error::wrap("fail to get absolute path of : {}", Error::from(e)))?;
 
         self.all.push(Box::new(GlobalProject {
-            name: String::from(name.as_ref()),
+            name,
             path: Some(path),
             current_env: None,
             private_env_directory: None,

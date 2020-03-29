@@ -62,34 +62,49 @@ projects: []"#,
         String::from_utf8(output.stdout).unwrap()
     );
 
-    let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
-    let content = read_to_string(local_project_file).unwrap();
-    assert_eq!(
-        r#"---
+    const PROJECT_FILE_CONTENT: &'static str = r#"---
 projects:
   - name: my_project
     public_env_directory: "."
     provider:
       name: aws
       region: us-east-1
-      template_path: "./template.yaml""#,
-        content.as_str()
-    );
+      template_path: "./template.yaml""#;
+    let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
+    let content = read_to_string(local_project_file).unwrap();
+    assert_eq!(PROJECT_FILE_CONTENT, content.as_str());
 
-    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
-    let content = read_to_string(global_project_file).unwrap();
-    assert_eq!(
-        format!(
-            r#"---
+    let global_project_file_content: String = format!(
+        r#"---
 projects:
   - name: my_project
     path: {}"#,
-            config.tmp_project_dir.to_string_lossy()
-        ),
-        content.as_str()
+        config.tmp_project_dir.to_string_lossy()
     );
+    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
+    let content = read_to_string(global_project_file).unwrap();
+    assert_eq!(global_project_file_content, content.as_str());
+
     let content_dir = config.tree();
     assert_debug_snapshot!(content_dir);
+
+    // Make sure to not insert the same project twice.
+    let mut command = config.command();
+    command.arg("add").arg("my_project").arg("./template.yaml");
+    let output = command.output().unwrap();
+
+    assert_eq!(
+        "project my_project already exists\n",
+        String::from_utf8(output.stderr).unwrap()
+    );
+
+    let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
+    let content = read_to_string(local_project_file).unwrap();
+    assert_eq!(PROJECT_FILE_CONTENT, content.as_str());
+
+    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
+    let content = read_to_string(global_project_file).unwrap();
+    assert_eq!(global_project_file_content, content.as_str());
 }
 
 #[test]
