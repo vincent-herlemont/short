@@ -7,6 +7,7 @@ use std::error::Error as StdError;
 use std::fmt::Result as FmtResult;
 use std::fmt::{Display, Formatter};
 use std::io;
+use std::path::StripPrefixError;
 
 // TODO: Add PartialEq to Error type.
 #[derive(Debug)]
@@ -16,6 +17,7 @@ pub enum Error {
     Io(io::Error),
     SerdeYaml(serde_yaml::Error),
     Which(which::Error),
+    StripPrefixError(StripPrefixError),
 }
 
 impl Error {
@@ -73,6 +75,7 @@ impl StdError for Error {
             Which(_) => None,
             Wrap(_, error) => Some(error),
             Other(_) => None,
+            StripPrefixError(e) => Some(e),
         }
     }
 }
@@ -104,6 +107,12 @@ impl From<serde_yaml::Error> for Error {
 impl From<which::Error> for Error {
     fn from(error: which::Error) -> Error {
         Error::Which(error)
+    }
+}
+
+impl From<StripPrefixError> for Error {
+    fn from(error: StripPrefixError) -> Error {
+        Error::StripPrefixError(error)
     }
 }
 

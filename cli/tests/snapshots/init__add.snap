@@ -13,4 +13,5 @@ expression: content_dir
     "project",
     "project/.keep",
     "project/d4d.yaml",
+    "project/template.yaml",
 ]

@@ -50,6 +50,26 @@ impl<'a> Project<'a> {
         let template_path = self.local.provider().aws()?.template_path()?;
         Ok(project_path.join(template_path))
     }
+
+    pub fn template_path_rel(&self) -> Result<PathBuf> {
+        let project_path = self.project_path()?;
+        let template_file = self.template_file()?;
+        Ok(template_file
+            .strip_prefix(project_path)
+            .map_err(|err| {
+                Error::wrap(
+                    format!(
+                        r#"fail to get relative template path for {} : {}
+ - check global projects configuration
+"#,
+                        self.name(),
+                        template_file.to_string_lossy()
+                    ),
+                    Error::from(err),
+                )
+            })?
+            .to_path_buf())
+    }
 }
 
 impl<'a> Display for Project<'a> {
@@ -84,26 +104,43 @@ impl Projects {
         Ok(())
     }
 
-    pub fn add<N, P>(&mut self, project_name: N, template_path: P) -> Result<()>
+    pub fn add<N, P>(&mut self, project_name: N, template_path: P) -> Result<Project>
     where
         N: AsRef<str>,
         P: AsRef<Path>,
     {
-        // TODO : move template
-        let template_path = template_path.as_ref();
-        let public_env_directory = template_path.parent().ok_or(format!(
-            "fail to get directory of template : {}",
-            template_path.to_string_lossy()
-        ))?;
+        let template_path = template_path
+            .as_ref()
+            .strip_prefix(self.local.current_dir())
+            .map_err(|err| {
+                Error::wrap(
+                    format!(
+                        "fail to create template_path {}",
+                        template_path.as_ref().to_string_lossy()
+                    ),
+                    Error::from(err),
+                )
+            })?
+            .to_path_buf();
+
+        let public_env_directory = template_path
+            .parent()
+            .ok_or(format!(
+                "fail to get directory of template : {}",
+                template_path.to_string_lossy()
+            ))?
+            .to_path_buf();
+
         let mut aws_cfg = AwsCfg::new("us-east-1");
         aws_cfg.set_template_path(template_path);
-        self.local.add(
+
+        let global = self.global.add(&project_name, self.local.current_dir())?;
+        let local = self.local.add(
             &project_name,
             public_env_directory,
             ProviderCfg::ConfAws(aws_cfg),
         )?;
-        self.global.add(&project_name, public_env_directory)?;
-        Ok(())
+        Ok(Project { global, local })
     }
 
     pub fn found<P: AsRef<str>>(&self, project_name: P) -> Result<Project> {

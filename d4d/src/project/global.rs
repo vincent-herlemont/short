@@ -188,27 +188,33 @@ impl GlobalProjects {
         Ok(global_projects)
     }
 
-    pub fn add<N, P>(&mut self, name: N, path: P) -> Result<()>
+    pub fn add<N, P>(&mut self, name: N, path: P) -> Result<&GlobalProject>
     where
         N: AsRef<str>,
         P: AsRef<Path>,
     {
         let name = name.as_ref().to_string();
+        let mut find = false;
         if let Some(_) = self.get(&name) {
-            return Ok(());
+            find = true;
         }
         let path = PathBuf::from(path.as_ref())
             .canonicalize()
             .map_err(|e| Error::wrap("fail to get absolute path of : {}", Error::from(e)))?;
 
-        self.all.push(Box::new(GlobalProject {
-            name,
+        let global_project = Box::new(GlobalProject {
+            name: name.clone(),
             path: Some(path),
             current_env: None,
             private_env_directory: None,
-        }));
+        });
 
-        self.save()
+        if !find {
+            self.all.push(global_project);
+
+            self.save()?;
+        }
+        Ok(self.get(name).unwrap())
     }
 
     pub fn get<P: AsRef<str>>(&self, project_name: P) -> Option<&GlobalProject> {

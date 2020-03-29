@@ -3,7 +3,7 @@ use serde::export::Formatter;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::Display;
-use std::fs::OpenOptions;
+use std::fs::{OpenOptions};
 use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 
@@ -45,8 +45,23 @@ fn save_local_file<P: AsRef<Path>>(root: P, local_projects: &LocalProjects) -> R
     })
 }
 
+/// Find local file recursively in parent paths
+fn find_current_dir<P: AsRef<Path>>(current_dir: P) -> Result<PathBuf> {
+    let current_dir = current_dir.as_ref().to_path_buf();
+    let local_file = local_file_path(&current_dir);
+    if !local_file.exists() {
+        let parent = current_dir
+            .parent()
+            .ok_or(Error::new("project file not found"))?
+            .to_path_buf();
+        find_current_dir(parent)
+    } else {
+        Ok(current_dir)
+    }
+}
+
 fn read_local_file<P: AsRef<Path>>(root: P) -> Result<LocalProjects> {
-    let current_dir = PathBuf::from(root.as_ref());
+    let current_dir = find_current_dir(&root)?;
     let local_file = local_file_path(&current_dir);
     let file = OpenOptions::new()
         .read(true)
@@ -143,7 +158,7 @@ impl LocalProjects {
         name: N,
         public_env_directory: PED,
         provider: ProviderCfg,
-    ) -> Result<()>
+    ) -> Result<&LocalProject>
     where
         N: AsRef<str>,
         PED: AsRef<Path>,
@@ -152,11 +167,13 @@ impl LocalProjects {
         if let Some(_) = self.get(&name) {
             return Err(Error::new(format!("project {} already exists", &name)));
         }
-        self.all.push(Box::new(LocalProject {
-            name,
+
+        let local_project = Box::new(LocalProject {
+            name: name.clone(),
             public_env_directory: Some(PathBuf::from(public_env_directory.as_ref())),
             provider,
-        }));
+        });
+        self.all.push(local_project);
 
         if let Err(err) = save_local_file(&self.current_dir, self) {
             Err(Error::wrap(
@@ -167,7 +184,7 @@ impl LocalProjects {
                 err,
             ))
         } else {
-            Ok(())
+            Ok(self.get(name).unwrap())
         }
     }
 
@@ -203,6 +220,10 @@ impl LocalProjects {
                 }),
             ],
         }
+    }
+
+    pub fn current_dir(&self) -> &PathBuf {
+        &self.current_dir
     }
 }
 

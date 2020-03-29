@@ -8,7 +8,7 @@ use d4d::exec::ExecCtx;
 use d4d::project::{CurrentProject, Projects};
 use std::env;
 use std::env::current_dir;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::exit;
 use utils::error::Error;
 use utils::result::Result;
@@ -151,9 +151,13 @@ fn r#use(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
 fn add(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
     if let Some(args) = args.values_of_lossy("add_project") {
         if let (Some(project_name), Some(path_to_yaml)) = (args.get(0), args.get(1)) {
-            projects.add(project_name, path_to_yaml)?;
+            let path_to_yaml = get_entry_abs(path_to_yaml)?;
+            let project = projects.add(project_name, &path_to_yaml)?;
             println!("project name : {} ", project_name);
-            println!("path to template : {}", path_to_yaml);
+            println!(
+                "path to template : {}",
+                project.template_path_rel()?.to_string_lossy()
+            );
         } else {
             return Err(Error::from(
                 "incorrect arguments : project name or path to yaml is missing",
@@ -194,6 +198,17 @@ fn reach_directories() -> Result<(PathBuf, PathBuf)> {
             "fail to reach home directory, please check your $HOME (linux,osx) or FOLDERID_Profile (windows)",
         )),
     }
+}
+
+// return absolute path of entry
+fn get_entry_abs<P: AsRef<Path>>(path: P) -> Result<PathBuf> {
+    let (current_dir, _) = reach_directories()?;
+    current_dir.join(&path).canonicalize().map_err(|err| {
+        Error::wrap(
+            format!("{} not found", path.as_ref().to_string_lossy()),
+            Error::from(err),
+        )
+    })
 }
 
 fn env(args: &ArgMatches, projects: &Projects) -> Result<()> {
