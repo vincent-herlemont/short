@@ -1,5 +1,5 @@
 ---
-source: cli/tests/init.rs
+source: cli/tests/add.rs
 expression: content_dir
 ---
 [
