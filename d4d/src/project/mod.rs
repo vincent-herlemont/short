@@ -84,19 +84,14 @@ impl Projects {
         CD: AsRef<Path>,
         HD: AsRef<Path>,
     {
-        match (
-            LocalProjects::load(current_dir),
-            GlobalProjects::load(home_dir),
-        ) {
-            (Ok(local), Ok(global)) => Ok(Projects {
-                local,
-                global,
-                temp_current_project: None,
-            }),
-            (Err(err), Ok(_)) => Err(Error::from(err)),
-            (Ok(_), Err(err)) => Err(Error::from(err)),
-            (Err(err), Err(_)) => Err(Error::from(err)),
-        }
+        let local = LocalProjects::load(current_dir)?;
+        let mut global = GlobalProjects::load(home_dir)?;
+        global.sync(&local)?;
+        Ok(Projects {
+            local,
+            global,
+            temp_current_project: None,
+        })
     }
 
     pub fn init(current_dir: &PathBuf) -> Result<()> {

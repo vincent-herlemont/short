@@ -1,3 +1,4 @@
+use crate::project::local::LocalProjects;
 use serde::{Deserialize, Serialize};
 use std::fs::{create_dir, File, OpenOptions};
 use std::io::{BufReader, BufWriter};
@@ -274,6 +275,20 @@ impl GlobalProjects {
         self.current_project.as_ref().ok_or(err())
     }
 
+    pub fn sync(&mut self, local_projects: &LocalProjects) -> Result<()> {
+        for local_project in local_projects.get_all() {
+            if self.get(local_project.name()).is_some() {
+                continue;
+            } else {
+                self.add(
+                    local_project.name(),
+                    local_projects.current_dir().to_path_buf(),
+                )?;
+            }
+        }
+        Ok(())
+    }
+
     pub fn fake() -> Self {
         Self {
             home_dir: PathBuf::from("/path/to/global"),
@@ -305,6 +320,7 @@ mod tests {
         create_global_directory, global_file_path, read_global_file, save_global_file,
         GlobalProject, GlobalProjects,
     };
+    
     use insta::assert_yaml_snapshot;
     use std::collections::HashMap;
     use std::fs::read_to_string;

@@ -3,7 +3,6 @@ use clap::ArgMatches;
 use d4d::exec::ExecCtx;
 use d4d::project::{CurrentProject, Projects};
 
-
 use utils::result::Result;
 
 /// Return the execution context.
@@ -20,7 +19,6 @@ pub fn init_exec_ctx(app: &ArgMatches) -> ExecCtx {
 /// Return global project object, it's use as context repository for the most command.
 pub fn init_projects(args: &ArgMatches) -> Result<Projects> {
     let (current_dir, home_dir) = reach_directories()?;
-
     let mut projects = Projects::load(current_dir, home_dir)?;
 
     if let Some(project_name) = args.value_of_lossy("project") {

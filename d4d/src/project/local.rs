@@ -3,7 +3,7 @@ use serde::export::Formatter;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::Display;
-use std::fs::{OpenOptions};
+use std::fs::OpenOptions;
 use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 
@@ -153,6 +153,10 @@ impl LocalProjects {
         Ok(local_projects)
     }
 
+    pub fn get_all(&self) -> &Vec<Box<LocalProject>> {
+        self.all.as_ref()
+    }
+
     pub fn add<N, PED>(
         &mut self,
         name: N,
@@ -205,6 +209,9 @@ impl LocalProjects {
         let mut aws_cfg_2 = AwsCfg::new("us-east-1");
         aws_cfg_2.set_template_path("./project_test_bis.tpl");
 
+        let mut aws_cfg_3 = AwsCfg::new("us-east-1");
+        aws_cfg_3.set_template_path("./project_test_bis.tpl");
+
         Self {
             current_dir: PathBuf::from("/path/to/local"),
             all: vec![
@@ -217,6 +224,11 @@ impl LocalProjects {
                     name: String::from("project_test_bis"),
                     public_env_directory: None,
                     provider: ProviderCfg::ConfAws(aws_cfg_2),
+                }),
+                Box::new(LocalProject {
+                    name: String::from("only_local_project_test"),
+                    public_env_directory: None,
+                    provider: ProviderCfg::ConfAws(aws_cfg_3),
                 }),
             ],
         }
@@ -278,6 +290,11 @@ projects:
       region: us-east-1
       template_path: "./project_test.tpl"
   - name: project_test_bis
+    provider:
+      name: aws
+      region: us-east-1
+      template_path: "./project_test_bis.tpl"
+  - name: only_local_project_test
     provider:
       name: aws
       region: us-east-1
