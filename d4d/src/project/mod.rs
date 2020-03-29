@@ -40,6 +40,17 @@ impl<'a> Project<'a> {
         self.global.private_env_directory()
     }
 
+    pub fn aws(&self) -> Result<&AwsCfg> {
+        if let ProviderCfg::ConfAws(aws_cfg) = self.local.provider() {
+            Ok(aws_cfg)
+        } else {
+            Err(Error::new(format!(
+                "aws provider not found for {}",
+                self.name()
+            )))
+        }
+    }
+
     pub fn project_path(&self) -> Result<PathBuf> {
         self.global.path()
     }

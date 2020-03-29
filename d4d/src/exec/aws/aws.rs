@@ -1,32 +1,33 @@
 use crate::exec::aws::capabilities::Capabilities;
 use crate::exec::{ExecCtx, Runner, Software};
+use crate::project::provider::AwsCfg;
 use std::path::Path;
 use utils::result::Result;
 
 #[derive(Debug)]
-pub struct Aws<'s> {
+pub struct Aws<'s, 'a> {
     software: Software<'s>,
-    region: String,
+    aws_cfg: &'a AwsCfg,
 }
 
-impl<'s> Aws<'s> {
-    pub fn new(exec_ctx: &'s ExecCtx) -> Result<Self> {
+impl<'s, 'a> Aws<'s, 'a> {
+    pub fn new(aws_cfg: &'a AwsCfg, exec_ctx: &'s ExecCtx) -> Result<Self> {
         Ok(Self {
             software: Software::new("aws", exec_ctx)?,
             // TODO: provide region from global configuration
-            region: String::from("eu-west-3"),
+            aws_cfg,
         })
     }
 
-    pub fn fake(exec_ctx: &'s ExecCtx) -> Self {
+    pub fn fake(aws_cfg: &'a AwsCfg, exec_ctx: &'s ExecCtx) -> Self {
         Self {
             software: Software::fake("aws", exec_ctx),
-            region: String::from("test-region"),
+            aws_cfg,
         }
     }
 
     fn cli_set_region(&mut self) {
-        self.software.args(&["--region", self.region.as_str()])
+        self.software.args(&["--region", self.aws_cfg.region()])
     }
 
     pub fn cli_version(mut self) -> Runner<'s> {
@@ -92,18 +93,20 @@ mod tests {
 
     use crate::exec::aws::capabilities::{Capabilities, Capability};
     use crate::exec::{ExecCtx, Software};
+    use crate::project::provider::AwsCfg;
 
-    fn new_fake_aws(exec_ctx: &ExecCtx) -> Aws {
+    fn new_fake_aws<'a>(aws_cfg: &'a AwsCfg, exec_ctx: &'a ExecCtx) -> Aws<'a, 'a> {
         Aws {
             software: Software::fake("aws", exec_ctx),
-            region: String::from("test-region"),
+            aws_cfg,
         }
     }
 
     #[test]
     fn version() {
         let exec_ctx = ExecCtx::new();
-        let aws = new_fake_aws(&exec_ctx);
+        let aws_cfg = AwsCfg::new("test-region");
+        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
         let runner = aws.cli_version();
         let args = runner.args();
         assert_eq!(args, &vec!["--version"])
@@ -112,7 +115,8 @@ mod tests {
     #[test]
     fn cloudformation_package() {
         let exec_ctx = ExecCtx::new();
-        let aws = new_fake_aws(&exec_ctx);
+        let aws_cfg = AwsCfg::new("test-region");
+        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
         let runner = aws.cli_cloudformation_package(
             "./template_name_file.yaml",
             "deploy_bucket_1",
@@ -139,7 +143,8 @@ mod tests {
     #[test]
     fn cloudformation_deploy() {
         let exec_ctx = ExecCtx::new();
-        let aws = new_fake_aws(&exec_ctx);
+        let aws_cfg = AwsCfg::new("test-region");
+        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
         let runner = aws.cli_cloudformation_deploy(
             "./template_name_file.yaml",
             "stack_name",
@@ -162,7 +167,8 @@ mod tests {
         );
 
         let exec_ctx = ExecCtx::new();
-        let aws = new_fake_aws(&exec_ctx);
+        let aws_cfg = AwsCfg::new("test-region");
+        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
         let mut capabilities = Capabilities::new();
         capabilities.add(Capability::CAPABILITY_IAM);
         capabilities.add(Capability::CAPABILITY_NAMED_IAM);

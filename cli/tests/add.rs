@@ -95,11 +95,7 @@ projects: []"#,
         .arg("my_project")
         .arg("./template.yaml");
 
-    //dbg!(config.tree());
-
     let output = command.output().unwrap();
-    config.println(&output);
-
     assert_eq!(
         "project name : my_project \npath to template : sub_directory/template.yaml\n\n",
         String::from_utf8(output.stdout).unwrap()

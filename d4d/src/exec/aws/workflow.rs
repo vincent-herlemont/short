@@ -13,21 +13,23 @@ const AWS_S3_BUCKET_DEPLOY: &'static str = "AWS_S3_BUCKET_DEPLOY";
 #[derive(Debug)]
 pub struct AwsWorkflow<'a, 'b> {
     project: &'a Project<'a>,
-    aws: Aws<'b>,
+    aws: Aws<'b, 'a>,
 }
 
 impl<'a, 'b> AwsWorkflow<'a, 'b> {
     pub fn new(project: &'a Project, exec_ctx: &'b ExecCtx) -> Result<Self> {
+        let aws_cfg = project.aws()?;
         Ok(Self {
             project,
-            aws: Aws::new(exec_ctx)?,
+            aws: Aws::new(aws_cfg, exec_ctx)?,
         })
     }
 
     pub fn fake(project: &'a Project, exec_ctx: &'b ExecCtx) -> Self {
+        let aws_cfg = project.aws().unwrap();
         Self {
             project,
-            aws: Aws::fake(exec_ctx),
+            aws: Aws::fake(aws_cfg, exec_ctx),
         }
     }
 
@@ -122,7 +124,7 @@ mod tests {
         let project = projects.current_project().unwrap();
         let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
         let runner = aws_workflow.package(&env).unwrap();
-        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation package --template-file /path/to/local/./project_test.tpl --s3-bucket test_deploy_bucket --output-template-file /path/to/local/project_test.pkg.tpl");
+        assert_eq!(format!("{}",runner),"aws --region us-east-1 cloudformation package --template-file /path/to/local/./project_test.tpl --s3-bucket test_deploy_bucket --output-template-file /path/to/local/project_test.pkg.tpl");
     }
 
     #[test]
@@ -132,14 +134,14 @@ mod tests {
         let project = projects.current_project().unwrap();
         let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
         let runner = aws_workflow.deploy(&env).unwrap();
-        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test");
+        assert_eq!(format!("{}",runner),"aws --region us-east-1 cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test");
 
         // Test capabilities
         let (aws_workflow, mut env) = aws_workflow_env(&project, &exec_ctx);
         env.add("AWS_CAPABILITY_IAM", "true");
         env.add("AWS_CAPABILITY_NAMED_IAM", "true");
         let runner = aws_workflow.deploy(&env).unwrap();
-        assert_eq!(format!("{}", runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM");
+        assert_eq!(format!("{}", runner),"aws --region us-east-1 cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM");
     }
 
     #[test]

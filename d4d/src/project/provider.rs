@@ -50,4 +50,8 @@ impl AwsCfg {
             "template_path missing", // TODO: set template name
         )))
     }
+
+    pub fn region(&self) -> &str {
+        self.region.as_ref()
+    }
 }

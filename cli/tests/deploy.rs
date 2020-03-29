@@ -1,11 +1,11 @@
 use std::fs::read_to_string;
 use utils::asset::Assets;
-use utils::test::{before};
+use utils::test::before;
 
 const CRATE_NAME: &'static str = env!("CARGO_PKG_NAME");
 
 #[test]
-fn run_deploy() {
+fn deploy_aws() {
     let config = before("env", Assets::None).cli(CRATE_NAME);
 
     // Project : p1
@@ -52,8 +52,8 @@ projects:
     assert_eq!(
         String::from_utf8(output.stdout).unwrap(),
         format!(
-            r#"aws --region eu-west-3 cloudformation package --template-file {p}/./template.yaml --s3-bucket bucket_1 --output-template-file {p}/template.pkg.yaml
-aws --region eu-west-3 cloudformation deploy --template-file {p}/template.pkg.yaml --stack-name p1-dev
+            r#"aws --region us-east-3 cloudformation package --template-file {p}/./template.yaml --s3-bucket bucket_1 --output-template-file {p}/template.pkg.yaml
+aws --region us-east-3 cloudformation deploy --template-file {p}/template.pkg.yaml --stack-name p1-dev
 
 "#,
             p = config.tmp_project_dir.to_string_lossy().trim()
@@ -62,7 +62,7 @@ aws --region eu-west-3 cloudformation deploy --template-file {p}/template.pkg.ya
 }
 
 #[test]
-fn run_deploy_sync() {
+fn deploy_aws_sync() {
     let config = before("env", Assets::None).cli(CRATE_NAME);
 
     // Project : p1
