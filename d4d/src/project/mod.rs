@@ -32,39 +32,36 @@ impl<'a> Project<'a> {
         self.local.name()
     }
 
-    pub fn public_env_directory(&self) -> Result<PathBuf> {
-        self.local.public_env_directory()
+    /// Return public env directory as an absolute path
+    pub fn public_env_directory_abs(&self) -> Result<PathBuf> {
+        let public_env_directory = self.local.public_env_directory()?;
+        let path = self.global.path()?;
+        Ok(path.join(public_env_directory))
     }
 
-    pub fn private_env_directory(&self) -> Result<PathBuf> {
-        self.global.private_env_directory()
+    /// Return private env directory as an absolute path
+    pub fn private_env_directory_abs(&self) -> Result<PathBuf> {
+        let private_env_directory = self.global.private_env_directory()?;
+        let path = self.global.path()?;
+        Ok(path.join(private_env_directory))
     }
 
-    pub fn aws(&self) -> Result<&AwsCfg> {
-        if let ProviderCfg::ConfAws(aws_cfg) = self.local.provider() {
-            Ok(aws_cfg)
-        } else {
-            Err(Error::new(format!(
-                "aws provider not found for {}",
-                self.name()
-            )))
-        }
-    }
-
-    pub fn project_path(&self) -> Result<PathBuf> {
+    /// Return project directory as an absolute path
+    pub fn project_directory_abs(&self) -> Result<PathBuf> {
         self.global.path()
     }
 
-    /// Return the absolute path of the current project
-    pub fn template_file(&self) -> Result<PathBuf> {
-        let project_path = self.project_path()?;
+    /// Return template file as an absolute path
+    pub fn template_file_abs(&self) -> Result<PathBuf> {
+        let project_path = self.project_directory_abs()?;
         let template_path = self.local.provider().aws()?.template_path()?;
         Ok(project_path.join(template_path))
     }
 
-    pub fn template_path_rel(&self) -> Result<PathBuf> {
-        let project_path = self.project_path()?;
-        let template_file = self.template_file()?;
+    /// Return template file relative to project path
+    pub fn template_file_rel(&self) -> Result<PathBuf> {
+        let project_path = self.project_directory_abs()?;
+        let template_file = self.template_file_abs()?;
         Ok(template_file
             .strip_prefix(project_path)
             .map_err(|err| {
@@ -80,6 +77,17 @@ impl<'a> Project<'a> {
                 )
             })?
             .to_path_buf())
+    }
+
+    pub fn aws(&self) -> Result<&AwsCfg> {
+        if let ProviderCfg::ConfAws(aws_cfg) = self.local.provider() {
+            Ok(aws_cfg)
+        } else {
+            Err(Error::new(format!(
+                "aws provider not found for {}",
+                self.name()
+            )))
+        }
     }
 }
 
@@ -213,7 +221,11 @@ mod tests {
     #[test]
     fn current_template() {
         let projects = Projects::fake();
-        let current_template_file = projects.current_project().unwrap().template_file().unwrap();
+        let current_template_file = projects
+            .current_project()
+            .unwrap()
+            .template_file_abs()
+            .unwrap();
         assert_eq!(
             current_template_file,
             PathBuf::from("/path/to/local/project_test.tpl")

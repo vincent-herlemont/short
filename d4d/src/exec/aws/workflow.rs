@@ -34,7 +34,7 @@ impl<'a, 'b> AwsWorkflow<'a, 'b> {
     }
 
     fn template_pkg_file(&self) -> Result<PathBuf> {
-        let mut template_file = self.project.template_file()?;
+        let mut template_file = self.project.template_file_abs()?;
         let file_name = template_file
             .file_name()
             .ok_or(Error::new(format!(
@@ -74,7 +74,7 @@ impl<'a, 'b> AwsWorkflow<'a, 'b> {
     }
 
     pub fn package(self, env: &Env) -> Result<Runner<'b>> {
-        let template_file = self.project.template_file()?;
+        let template_file = self.project.template_file_abs()?;
         let template_pkg_file = self.template_pkg_file()?;
         let deploy_bucket_name = self.s3_bucket_name(&env)?;
 

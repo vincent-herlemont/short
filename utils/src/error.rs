@@ -82,7 +82,7 @@ impl StdError for Error {
             Wrap(_, error) => Some(error),
             Other(_) => None,
             StripPrefixError(e) => Some(e),
-            ExitStatus(e) => None,
+            ExitStatus(_) => None,
             RustyLine(e) => Some(e),
         }
     }

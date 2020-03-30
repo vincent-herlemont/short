@@ -55,14 +55,14 @@ fn read_env_file(env_file: &PathBuf) -> Result<Env> {
 
 pub fn get(project: &Project, env: &String) -> Result<Env> {
     let env_file_name = env_file_name(&env);
-    let env_public_path = project.public_env_directory().ok();
-    let env_private_path = project.private_env_directory().ok();
+    let env_public_path = project.public_env_directory_abs().ok();
+    let env_private_path = project.private_env_directory_abs().ok();
     match (
         get_public(&env_public_path, &env_file_name),
         get_private(&env_private_path, &env_file_name),
     ) {
         (Some(_), Some(_)) => Err(Error::new(format!(
-            r#"environement {} is on conflit for {} : two versions of {} exists
+            r#"environment {} is on conflit for {} : two versions of {} exists
 please delete one of theses :
    - {}
    - {}
@@ -76,7 +76,7 @@ please delete one of theses :
         (Some(public_env_file), None) => read_env_file(&public_env_file),
         (None, Some(private_env_file)) => read_env_file(&private_env_file),
         (None, None) => Err(Error::new(format!(
-            r#"environement {} is not available for {} : {} not found
+            r#"environment {} is not available for {} : {} not found
  - please check your env directories
 "#,
             env,

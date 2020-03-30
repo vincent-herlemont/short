@@ -88,7 +88,7 @@ pub fn add_command(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
             println!("project name : {} ", project_name);
             println!(
                 "path to template : {}",
-                project.template_path_rel()?.to_string_lossy()
+                project.template_file_rel()?.to_string_lossy()
             );
         } else {
             return Err(Error::from(
