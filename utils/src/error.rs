@@ -5,13 +5,13 @@ use promptly::ReadlineError;
 /// Inspiration from : https://github.com/brson/basic-http-server/blob/1ab052719a88e41822b2955d7d72bf161457d47c/src/main.rs#L468
 use serde::export::fmt::Debug;
 use serde_yaml;
-use std::borrow::Borrow;
+
 use std::error::Error as StdError;
 use std::fmt::Result as FmtResult;
 use std::fmt::{Display, Formatter};
 use std::io;
 use std::path::StripPrefixError;
-use std::process::{exit, ExitStatus};
+use std::process::{ExitStatus};
 
 // TODO: Add PartialEq to Error type.
 #[derive(Debug)]

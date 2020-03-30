@@ -200,7 +200,7 @@ mod tests {
         let runner = aws_workflow.s3_create_bucket(&env).unwrap();
         assert_eq!(
             format!("{}", runner),
-            "aws --region us-east-1 s3api create-bucket --bucket test_deploy_bucket"
+            "aws --region us-east-1 s3 mb s3://test_deploy_bucket"
         );
     }
 }

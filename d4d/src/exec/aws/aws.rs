@@ -95,12 +95,9 @@ impl<'s, 'a> Aws<'s, 'a> {
     pub fn cli_s3_create_bucket<B: AsRef<str>>(mut self, bucket_name: B) -> Runner<'s> {
         self.cli_set_region();
         self.software.args(&[
-            "s3api",
-            "create-bucket",
-            "--bucket",
-            bucket_name.as_ref(),
-            // "--create-bucket-configuration",
-            // format!("LocationConstraint={}", self.aws_cfg.region()).as_ref(),
+            "s3",
+            "mb",
+            format!("s3://{}", bucket_name.as_ref()).as_str(),
         ]);
         self.software.runner()
     }
@@ -235,14 +232,7 @@ mod tests {
         let args = runner.args();
         assert_eq!(
             args,
-            &vec![
-                "--region",
-                "test-region",
-                "s3api",
-                "create-bucket",
-                "--bucket",
-                "test-bucket",
-            ]
+            &vec!["--region", "test-region", "s3", "mb", "s3://test-bucket",]
         )
     }
 }

@@ -4,7 +4,7 @@ use serde::export::Formatter;
 use std::fmt;
 use std::fmt::Display;
 use std::path::PathBuf;
-use std::process::{Command, ExitStatus, Output};
+use std::process::{Command, Output};
 use utils::error::Error;
 use utils::result::Result;
 use which;
