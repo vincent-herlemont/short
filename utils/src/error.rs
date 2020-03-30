@@ -1,13 +1,17 @@
 //! D4d specific Error type
 //! Allow to embedded multiple error type.
+use super::result::Result;
+use promptly::ReadlineError;
 /// Inspiration from : https://github.com/brson/basic-http-server/blob/1ab052719a88e41822b2955d7d72bf161457d47c/src/main.rs#L468
 use serde::export::fmt::Debug;
 use serde_yaml;
+use std::borrow::Borrow;
 use std::error::Error as StdError;
 use std::fmt::Result as FmtResult;
 use std::fmt::{Display, Formatter};
 use std::io;
 use std::path::StripPrefixError;
+use std::process::{exit, ExitStatus};
 
 // TODO: Add PartialEq to Error type.
 #[derive(Debug)]
@@ -18,6 +22,8 @@ pub enum Error {
     SerdeYaml(serde_yaml::Error),
     Which(which::Error),
     StripPrefixError(StripPrefixError),
+    ExitStatus(ExitStatus),
+    RustyLine(ReadlineError),
 }
 
 impl Error {
@@ -76,6 +82,8 @@ impl StdError for Error {
             Wrap(_, error) => Some(error),
             Other(_) => None,
             StripPrefixError(e) => Some(e),
+            ExitStatus(e) => None,
+            RustyLine(e) => Some(e),
         }
     }
 }
@@ -113,6 +121,30 @@ impl From<which::Error> for Error {
 impl From<StripPrefixError> for Error {
     fn from(error: StripPrefixError) -> Error {
         Error::StripPrefixError(error)
+    }
+}
+
+impl From<ReadlineError> for Error {
+    fn from(error: ReadlineError) -> Error {
+        Error::RustyLine(error)
+    }
+}
+
+impl From<ExitStatus> for Error {
+    fn from(exit_status: ExitStatus) -> Error {
+        Error::ExitStatus(exit_status)
+    }
+}
+
+impl Error {
+    pub fn exit_code_eq(&self, code: i32) -> Result<bool> {
+        if let Error::ExitStatus(exit_status) = self {
+            let cmd_code = exit_status
+                .code()
+                .ok_or(Error::new("Process terminated by signal"))?;
+            return Ok(code == cmd_code);
+        }
+        Err(Error::new("no exit status")).unwrap()
     }
 }
 

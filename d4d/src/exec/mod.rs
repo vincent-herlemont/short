@@ -4,7 +4,7 @@ use serde::export::Formatter;
 use std::fmt;
 use std::fmt::Display;
 use std::path::PathBuf;
-use std::process::{Command, Output};
+use std::process::{Command, ExitStatus, Output};
 use utils::error::Error;
 use utils::result::Result;
 use which;
@@ -55,6 +55,11 @@ impl<'s> Runner<'s> {
                 String::from_utf8(output.stdout.clone()).expect("fail to read stdout")
             );
             println!("{}", output.status);
+            if output.status.success() {
+                return Ok(());
+            } else {
+                return Err(Error::from(output.status));
+            }
         }
         Ok(())
     }

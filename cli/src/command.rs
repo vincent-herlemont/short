@@ -5,6 +5,7 @@ use d4d::env::get;
 use d4d::exec::aws::workflow::AwsWorkflow;
 use d4d::exec::ExecCtx;
 use d4d::project::Projects;
+use promptly::prompt_default;
 use utils::error::Error;
 use utils::result::Result;
 
@@ -41,6 +42,22 @@ pub fn deploy_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let project = projects.current_project()?;
     let env = projects.current_env()?;
     let env = get(&project, &env)?;
+    let runner = AwsWorkflow::new(&project, &exec_ctx)?.s3_exists(&env)?;
+    if let Err(err) = runner.run() {
+        if !prompt_default(
+            "s3 deployment bucket is missing : do you want to create it ?",
+            true,
+        )? {
+            return Err(err);
+        }
+        if err.exit_code_eq(255)? {
+            let runner = AwsWorkflow::new(&project, &exec_ctx)?.s3_create_bucket(&env)?;
+            runner.run()?;
+        } else {
+            return Err(err);
+        }
+    }
+
     let runner = AwsWorkflow::new(&project, &exec_ctx)?.package(&env)?;
     runner.run()?;
     let runner = AwsWorkflow::new(&project, &exec_ctx)?.deploy(&env)?;

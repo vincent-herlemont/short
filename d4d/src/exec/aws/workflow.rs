@@ -63,15 +63,21 @@ impl<'a, 'b> AwsWorkflow<'a, 'b> {
         Ok(format!("{}-{}", project_name, project_env))
     }
 
-    pub fn package(self, env: &Env) -> Result<Runner<'b>> {
-        let template_file = self.project.template_file()?;
-        let template_pkg_file = self.template_pkg_file()?;
+    fn s3_bucket_name(&self, env: &Env) -> Result<String> {
         let (_, deploy_bucket_name) = env.get(AWS_S3_BUCKET_DEPLOY).map_err(|err| {
             Error::wrap(
                 format!("fail to package project {}", self.project.name()),
                 Error::from(err),
             )
         })?;
+        Ok(deploy_bucket_name)
+    }
+
+    pub fn package(self, env: &Env) -> Result<Runner<'b>> {
+        let template_file = self.project.template_file()?;
+        let template_pkg_file = self.template_pkg_file()?;
+        let deploy_bucket_name = self.s3_bucket_name(&env)?;
+
         Ok(self.aws.cli_cloudformation_package(
             template_file,
             deploy_bucket_name,
@@ -95,6 +101,16 @@ impl<'a, 'b> AwsWorkflow<'a, 'b> {
         Ok(self
             .aws
             .cli_cloudformation_deploy(template_pkg_file, stack_name, capabilities))
+    }
+
+    pub fn s3_exists(self, env: &Env) -> Result<Runner<'b>> {
+        let bucket_name = self.s3_bucket_name(env)?;
+        Ok(self.aws.cli_s3_bucket_exists(bucket_name))
+    }
+
+    pub fn s3_create_bucket(self, env: &Env) -> Result<Runner<'b>> {
+        let bucket_name = self.s3_bucket_name(env)?;
+        Ok(self.aws.cli_s3_create_bucket(bucket_name))
     }
 }
 
@@ -164,6 +180,27 @@ mod tests {
         assert_eq!(
             template_pkg_file,
             PathBuf::from("/path/to/local/project_test.pkg.tpl")
+        );
+    }
+
+    #[test]
+    fn s3_exists_and_create() {
+        let projects = Projects::fake();
+        let exec_ctx = ExecCtx::new();
+        let project = projects.current_project().unwrap();
+
+        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
+        let runner = aws_workflow.s3_exists(&env).unwrap();
+        assert_eq!(
+            format!("{}", runner),
+            "aws s3api head-bucket --bucket test_deploy_bucket"
+        );
+
+        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
+        let runner = aws_workflow.s3_create_bucket(&env).unwrap();
+        assert_eq!(
+            format!("{}", runner),
+            "aws --region us-east-1 s3api create-bucket --bucket test_deploy_bucket"
         );
     }
 }

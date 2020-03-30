@@ -85,6 +85,25 @@ impl<'s, 'a> Aws<'s, 'a> {
         }
         self.software.runner()
     }
+
+    pub fn cli_s3_bucket_exists<B: AsRef<str>>(mut self, bucket_name: B) -> Runner<'s> {
+        self.software.args(&["s3api", "head-bucket"]);
+        self.software.args(&["--bucket", bucket_name.as_ref()]);
+        self.software.runner()
+    }
+
+    pub fn cli_s3_create_bucket<B: AsRef<str>>(mut self, bucket_name: B) -> Runner<'s> {
+        self.cli_set_region();
+        self.software.args(&[
+            "s3api",
+            "create-bucket",
+            "--bucket",
+            bucket_name.as_ref(),
+            // "--create-bucket-configuration",
+            // format!("LocationConstraint={}", self.aws_cfg.region()).as_ref(),
+        ]);
+        self.software.runner()
+    }
 }
 
 #[cfg(test)]
@@ -192,5 +211,38 @@ mod tests {
                 "CAPABILITY_NAMED_IAM"
             ]
         );
+    }
+
+    #[test]
+    fn s3_bucket_exists() {
+        let exec_ctx = ExecCtx::new();
+        let aws_cfg = AwsCfg::new("test-region");
+        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
+        let runner = aws.cli_s3_bucket_exists("test-bucket");
+        let args = runner.args();
+        assert_eq!(
+            args,
+            &vec!["s3api", "head-bucket", "--bucket", "test-bucket"]
+        )
+    }
+
+    #[test]
+    fn create_bucket() {
+        let exec_ctx = ExecCtx::new();
+        let aws_cfg = AwsCfg::new("test-region");
+        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
+        let runner = aws.cli_s3_create_bucket("test-bucket");
+        let args = runner.args();
+        assert_eq!(
+            args,
+            &vec![
+                "--region",
+                "test-region",
+                "s3api",
+                "create-bucket",
+                "--bucket",
+                "test-bucket",
+            ]
+        )
     }
 }
