@@ -17,7 +17,6 @@ projects:
     public_env_directory: "."
     provider:
         name: aws
-        region: us-east-3
 "#,
         )
         .unwrap();
@@ -70,7 +69,6 @@ projects:
   - name: p1
     provider:
         name: aws
-        region: us-east-3
 "#,
         )
         .unwrap();

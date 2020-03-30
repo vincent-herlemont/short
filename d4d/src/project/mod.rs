@@ -145,7 +145,7 @@ impl Projects {
             ))?
             .to_path_buf();
 
-        let mut aws_cfg = AwsCfg::new("us-east-1");
+        let mut aws_cfg = AwsCfg::new();
         aws_cfg.set_template_path(template_path);
 
         let global = self.global.add(&project_name, self.local.current_dir())?;

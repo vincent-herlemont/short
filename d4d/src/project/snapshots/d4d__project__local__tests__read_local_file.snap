@@ -6,9 +6,7 @@ projects:
   - name: test_1
     provider:
       name: aws
-      region: us-east-3
   - name: test_2
     provider:
       name: aws
-      region: us-east-3
       template_path: "./test_template.yaml"

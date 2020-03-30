@@ -26,16 +26,13 @@ impl ProviderCfg {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AwsCfg {
-    region: String,
-
     #[serde(skip_serializing_if = "Option::is_none")]
     template_path: Option<PathBuf>,
 }
 
 impl AwsCfg {
-    pub fn new<N: AsRef<str>>(region: N) -> Self {
+    pub fn new() -> Self {
         Self {
-            region: region.as_ref().to_string(),
             template_path: None,
         }
     }
@@ -49,9 +46,5 @@ impl AwsCfg {
         self.template_path.clone().ok_or(Error::from(format!(
             "template_path missing", // TODO: set template name
         )))
-    }
-
-    pub fn region(&self) -> &str {
-        self.region.as_ref()
     }
 }

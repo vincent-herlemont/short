@@ -30,7 +30,6 @@ projects:
     public_env_directory: "."
     provider:
         name: aws
-        region: us-east-3
 "#;
     config
         .add_asset_project("./d4d.yaml", PROJECT_FILE_CONTENT)

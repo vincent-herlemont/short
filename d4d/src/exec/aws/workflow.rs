@@ -11,25 +11,23 @@ use utils::result::Result;
 const AWS_S3_BUCKET_DEPLOY: &'static str = "AWS_S3_BUCKET_DEPLOY";
 
 #[derive(Debug)]
-pub struct AwsWorkflow<'a, 'b> {
-    project: &'a Project<'a>,
-    aws: Aws<'b, 'a>,
+pub struct AwsWorkflow<'p, 'e, 'c> {
+    project: &'p Project<'p>,
+    aws: Aws<'e, 'c>,
 }
 
-impl<'a, 'b> AwsWorkflow<'a, 'b> {
-    pub fn new(project: &'a Project, exec_ctx: &'b ExecCtx) -> Result<Self> {
-        let aws_cfg = project.aws()?;
+impl<'a, 'b, 'c> AwsWorkflow<'a, 'b, 'c> {
+    pub fn new(project: &'a Project, env: &'c Env, exec_ctx: &'b ExecCtx) -> Result<Self> {
         Ok(Self {
             project,
-            aws: Aws::new(aws_cfg, exec_ctx)?,
+            aws: Aws::new(env, exec_ctx)?,
         })
     }
 
-    pub fn fake(project: &'a Project, exec_ctx: &'b ExecCtx) -> Self {
-        let aws_cfg = project.aws().unwrap();
+    pub fn fake(project: &'a Project, env: &'c Env, exec_ctx: &'b ExecCtx) -> Self {
         Self {
             project,
-            aws: Aws::fake(aws_cfg, exec_ctx),
+            aws: Aws::fake(env, exec_ctx),
         }
     }
 
@@ -78,11 +76,8 @@ impl<'a, 'b> AwsWorkflow<'a, 'b> {
         let template_pkg_file = self.template_pkg_file()?;
         let deploy_bucket_name = self.s3_bucket_name(&env)?;
 
-        Ok(self.aws.cli_cloudformation_package(
-            template_file,
-            deploy_bucket_name,
-            template_pkg_file,
-        ))
+        self.aws
+            .cli_cloudformation_package(template_file, deploy_bucket_name, template_pkg_file)
     }
 
     pub fn deploy(self, env: &Env) -> Result<Runner<'b>> {
@@ -98,9 +93,8 @@ impl<'a, 'b> AwsWorkflow<'a, 'b> {
             capabilities.add(Capability::CAPABILITY_IAM);
         }
 
-        Ok(self
-            .aws
-            .cli_cloudformation_deploy(template_pkg_file, stack_name, capabilities))
+        self.aws
+            .cli_cloudformation_deploy(template_pkg_file, stack_name, capabilities)
     }
 
     pub fn s3_exists(self, env: &Env) -> Result<Runner<'b>> {
@@ -110,7 +104,7 @@ impl<'a, 'b> AwsWorkflow<'a, 'b> {
 
     pub fn s3_create_bucket(self, env: &Env) -> Result<Runner<'b>> {
         let bucket_name = self.s3_bucket_name(env)?;
-        Ok(self.aws.cli_s3_create_bucket(bucket_name))
+        self.aws.cli_s3_create_bucket(bucket_name)
     }
 }
 
@@ -122,15 +116,20 @@ mod tests {
     use env::Env;
     use std::path::PathBuf;
 
-    fn aws_workflow_env<'a, 'b>(
-        project: &'a Project,
-        exec_ctx: &'b ExecCtx,
-    ) -> (AwsWorkflow<'a, 'b>, Env) {
-        let aws_workflow = AwsWorkflow::fake(&project, exec_ctx);
+    fn env() -> Env {
         let mut env = Env::new();
         env.add(AWS_S3_BUCKET_DEPLOY, "test_deploy_bucket");
+        env.add("AWS_REGION", "test-region");
         env.set_name("env_test");
-        (aws_workflow, env)
+        env
+    }
+
+    fn aws_workflow_env<'pec>(
+        project: &'pec Project,
+        env: &'pec Env,
+        exec_ctx: &'pec ExecCtx,
+    ) -> AwsWorkflow<'pec, 'pec, 'pec> {
+        AwsWorkflow::fake(project, env, exec_ctx)
     }
 
     #[test]
@@ -138,9 +137,10 @@ mod tests {
         let projects = Projects::fake();
         let exec_ctx = ExecCtx::new();
         let project = projects.current_project().unwrap();
-        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
+        let env = env();
+        let aws_workflow = aws_workflow_env(&project, &env, &exec_ctx);
         let runner = aws_workflow.package(&env).unwrap();
-        assert_eq!(format!("{}",runner),"aws --region us-east-1 cloudformation package --template-file /path/to/local/./project_test.tpl --s3-bucket test_deploy_bucket --output-template-file /path/to/local/project_test.pkg.tpl");
+        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation package --template-file /path/to/local/./project_test.tpl --s3-bucket test_deploy_bucket --output-template-file /path/to/local/project_test.pkg.tpl");
     }
 
     #[test]
@@ -148,16 +148,18 @@ mod tests {
         let projects = Projects::fake();
         let exec_ctx = ExecCtx::new();
         let project = projects.current_project().unwrap();
-        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
+        let env = env();
+        let aws_workflow = aws_workflow_env(&project, &env, &exec_ctx);
         let runner = aws_workflow.deploy(&env).unwrap();
-        assert_eq!(format!("{}",runner),"aws --region us-east-1 cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test");
+        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test");
 
         // Test capabilities
-        let (aws_workflow, mut env) = aws_workflow_env(&project, &exec_ctx);
+        let mut env = self::env();
         env.add("AWS_CAPABILITY_IAM", "true");
         env.add("AWS_CAPABILITY_NAMED_IAM", "true");
+        let aws_workflow = aws_workflow_env(&project, &env, &exec_ctx);
         let runner = aws_workflow.deploy(&env).unwrap();
-        assert_eq!(format!("{}", runner),"aws --region us-east-1 cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM");
+        assert_eq!(format!("{}", runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM");
     }
 
     #[test]
@@ -165,7 +167,8 @@ mod tests {
         let projects = Projects::fake();
         let exec_ctx = ExecCtx::new();
         let project = projects.current_project().unwrap();
-        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
+        let env = self::env();
+        let aws_workflow = aws_workflow_env(&project, &env, &exec_ctx);
         let stack_name = aws_workflow.stack_name(&env).unwrap();
         assert_eq!(stack_name, "project_test-env_test");
     }
@@ -175,7 +178,8 @@ mod tests {
         let projects = Projects::fake();
         let exec_ctx = ExecCtx::new();
         let project = projects.current_project().unwrap();
-        let (aws_workflow, _) = aws_workflow_env(&project, &exec_ctx);
+        let env = self::env();
+        let aws_workflow = aws_workflow_env(&project, &env, &exec_ctx);
         let template_pkg_file = aws_workflow.template_pkg_file().unwrap();
         assert_eq!(
             template_pkg_file,
@@ -189,18 +193,19 @@ mod tests {
         let exec_ctx = ExecCtx::new();
         let project = projects.current_project().unwrap();
 
-        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
+        let env = self::env();
+        let aws_workflow = aws_workflow_env(&project, &env, &exec_ctx);
         let runner = aws_workflow.s3_exists(&env).unwrap();
         assert_eq!(
             format!("{}", runner),
             "aws s3api head-bucket --bucket test_deploy_bucket"
         );
 
-        let (aws_workflow, env) = aws_workflow_env(&project, &exec_ctx);
+        let aws_workflow = aws_workflow_env(&project, &env, &exec_ctx);
         let runner = aws_workflow.s3_create_bucket(&env).unwrap();
         assert_eq!(
             format!("{}", runner),
-            "aws --region us-east-1 s3 mb s3://test_deploy_bucket"
+            "aws --region test-region s3 mb s3://test_deploy_bucket"
         );
     }
 }

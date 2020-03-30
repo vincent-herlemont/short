@@ -1,36 +1,39 @@
 use crate::exec::aws::capabilities::Capabilities;
 use crate::exec::{ExecCtx, Runner, Software};
-use crate::project::provider::AwsCfg;
+
+use env::Env;
 use std::path::Path;
 use utils::result::Result;
 
 #[derive(Debug)]
-pub struct Aws<'s, 'a> {
-    software: Software<'s>,
-    aws_cfg: &'a AwsCfg,
+pub struct Aws<'c, 'e> {
+    software: Software<'c>,
+    env: &'e Env,
 }
 
-impl<'s, 'a> Aws<'s, 'a> {
-    pub fn new(aws_cfg: &'a AwsCfg, exec_ctx: &'s ExecCtx) -> Result<Self> {
+impl<'c, 'e> Aws<'c, 'e> {
+    pub fn new(env: &'e Env, exec_ctx: &'c ExecCtx) -> Result<Self> {
         Ok(Self {
             software: Software::new("aws", exec_ctx)?,
             // TODO: provide region from global configuration
-            aws_cfg,
+            env,
         })
     }
 
-    pub fn fake(aws_cfg: &'a AwsCfg, exec_ctx: &'s ExecCtx) -> Self {
+    pub fn fake(env: &'e Env, exec_ctx: &'c ExecCtx) -> Self {
         Self {
             software: Software::fake("aws", exec_ctx),
-            aws_cfg,
+            env,
         }
     }
 
-    fn cli_set_region(&mut self) {
-        self.software.args(&["--region", self.aws_cfg.region()])
+    fn cli_set_region(&mut self) -> Result<()> {
+        let (_, region) = self.env.get("AWS_REGION")?;
+        self.software.args(&["--region", region.as_str()]);
+        Ok(())
     }
 
-    pub fn cli_version(mut self) -> Runner<'s> {
+    pub fn cli_version(mut self) -> Runner<'c> {
         self.software.arg("--version");
         self.software.runner()
     }
@@ -40,13 +43,13 @@ impl<'s, 'a> Aws<'s, 'a> {
         template_file: IT,
         deploy_bucket_name: B,
         template_pkg_file: OT,
-    ) -> Runner<'s>
+    ) -> Result<Runner<'c>>
     where
         IT: AsRef<Path>,
         B: AsRef<str>,
         OT: AsRef<Path>,
     {
-        self.cli_set_region();
+        self.cli_set_region()?;
         self.software.args(&[
             "cloudformation",
             "package",
@@ -57,7 +60,7 @@ impl<'s, 'a> Aws<'s, 'a> {
             "--output-template-file",
             template_pkg_file.as_ref().to_string_lossy().trim(),
         ]);
-        self.software.runner()
+        Ok(self.software.runner())
     }
 
     pub fn cli_cloudformation_deploy<T, S>(
@@ -65,12 +68,12 @@ impl<'s, 'a> Aws<'s, 'a> {
         template_file: T,
         stack_name: S,
         capabilities: Capabilities,
-    ) -> Runner<'s>
+    ) -> Result<Runner<'c>>
     where
         T: AsRef<Path>,
         S: AsRef<str>,
     {
-        self.cli_set_region();
+        self.cli_set_region()?;
         self.software.args(&[
             "cloudformation",
             "deploy",
@@ -83,23 +86,23 @@ impl<'s, 'a> Aws<'s, 'a> {
             self.software.arg("--capabilities");
             self.software.args(capabilities);
         }
-        self.software.runner()
+        Ok(self.software.runner())
     }
 
-    pub fn cli_s3_bucket_exists<B: AsRef<str>>(mut self, bucket_name: B) -> Runner<'s> {
+    pub fn cli_s3_bucket_exists<B: AsRef<str>>(mut self, bucket_name: B) -> Runner<'c> {
         self.software.args(&["s3api", "head-bucket"]);
         self.software.args(&["--bucket", bucket_name.as_ref()]);
         self.software.runner()
     }
 
-    pub fn cli_s3_create_bucket<B: AsRef<str>>(mut self, bucket_name: B) -> Runner<'s> {
-        self.cli_set_region();
+    pub fn cli_s3_create_bucket<B: AsRef<str>>(mut self, bucket_name: B) -> Result<Runner<'c>> {
+        self.cli_set_region()?;
         self.software.args(&[
             "s3",
             "mb",
             format!("s3://{}", bucket_name.as_ref()).as_str(),
         ]);
-        self.software.runner()
+        Ok(self.software.runner())
     }
 }
 
@@ -109,20 +112,27 @@ mod tests {
 
     use crate::exec::aws::capabilities::{Capabilities, Capability};
     use crate::exec::{ExecCtx, Software};
-    use crate::project::provider::AwsCfg;
+    
+    use env::Env;
 
-    fn new_fake_aws<'a>(aws_cfg: &'a AwsCfg, exec_ctx: &'a ExecCtx) -> Aws<'a, 'a> {
+    fn env() -> Env {
+        let mut env = Env::new();
+        env.add("AWS_REGION", "test-region");
+        env
+    }
+
+    fn new_fake_aws<'ec>(env: &'ec Env, exec_ctx: &'ec ExecCtx) -> Aws<'ec, 'ec> {
         Aws {
             software: Software::fake("aws", exec_ctx),
-            aws_cfg,
+            env,
         }
     }
 
     #[test]
     fn version() {
         let exec_ctx = ExecCtx::new();
-        let aws_cfg = AwsCfg::new("test-region");
-        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
+        let env = self::env();
+        let aws = new_fake_aws(&env, &exec_ctx);
         let runner = aws.cli_version();
         let args = runner.args();
         assert_eq!(args, &vec!["--version"])
@@ -131,13 +141,15 @@ mod tests {
     #[test]
     fn cloudformation_package() {
         let exec_ctx = ExecCtx::new();
-        let aws_cfg = AwsCfg::new("test-region");
-        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
-        let runner = aws.cli_cloudformation_package(
-            "./template_name_file.yaml",
-            "deploy_bucket_1",
-            "template_name_file",
-        );
+        let env = self::env();
+        let aws = new_fake_aws(&env, &exec_ctx);
+        let runner = aws
+            .cli_cloudformation_package(
+                "./template_name_file.yaml",
+                "deploy_bucket_1",
+                "template_name_file",
+            )
+            .unwrap();
         let args = runner.args();
         assert_eq!(
             args,
@@ -159,13 +171,15 @@ mod tests {
     #[test]
     fn cloudformation_deploy() {
         let exec_ctx = ExecCtx::new();
-        let aws_cfg = AwsCfg::new("test-region");
-        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
-        let runner = aws.cli_cloudformation_deploy(
-            "./template_name_file.yaml",
-            "stack_name",
-            Capabilities::new(),
-        );
+        let env = self::env();
+        let aws = new_fake_aws(&env, &exec_ctx);
+        let runner = aws
+            .cli_cloudformation_deploy(
+                "./template_name_file.yaml",
+                "stack_name",
+                Capabilities::new(),
+            )
+            .unwrap();
 
         let args = runner.args();
         assert_eq!(
@@ -183,13 +197,14 @@ mod tests {
         );
 
         let exec_ctx = ExecCtx::new();
-        let aws_cfg = AwsCfg::new("test-region");
-        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
+        let env = self::env();
+        let aws = new_fake_aws(&env, &exec_ctx);
         let mut capabilities = Capabilities::new();
         capabilities.add(Capability::CAPABILITY_IAM);
         capabilities.add(Capability::CAPABILITY_NAMED_IAM);
-        let runner =
-            aws.cli_cloudformation_deploy("./template_name_file.yaml", "stack_name", capabilities);
+        let runner = aws
+            .cli_cloudformation_deploy("./template_name_file.yaml", "stack_name", capabilities)
+            .unwrap();
 
         let args = runner.args();
         assert_eq!(
@@ -213,8 +228,8 @@ mod tests {
     #[test]
     fn s3_bucket_exists() {
         let exec_ctx = ExecCtx::new();
-        let aws_cfg = AwsCfg::new("test-region");
-        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
+        let env = self::env();
+        let aws = new_fake_aws(&env, &exec_ctx);
         let runner = aws.cli_s3_bucket_exists("test-bucket");
         let args = runner.args();
         assert_eq!(
@@ -226,9 +241,9 @@ mod tests {
     #[test]
     fn create_bucket() {
         let exec_ctx = ExecCtx::new();
-        let aws_cfg = AwsCfg::new("test-region");
-        let aws = new_fake_aws(&aws_cfg, &exec_ctx);
-        let runner = aws.cli_s3_create_bucket("test-bucket");
+        let env = self::env();
+        let aws = new_fake_aws(&env, &exec_ctx);
+        let runner = aws.cli_s3_create_bucket("test-bucket").unwrap();
         let args = runner.args();
         assert_eq!(
             args,

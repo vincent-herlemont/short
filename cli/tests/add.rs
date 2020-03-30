@@ -34,7 +34,6 @@ projects:
     public_env_directory: ""
     provider:
       name: aws
-      region: us-east-1
       template_path: template.yaml"#;
     let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
     let content = read_to_string(local_project_file).unwrap();
@@ -107,7 +106,6 @@ projects:
     public_env_directory: sub_directory
     provider:
       name: aws
-      region: us-east-1
       template_path: sub_directory/template.yaml"#;
     let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
     let content = read_to_string(local_project_file).unwrap();

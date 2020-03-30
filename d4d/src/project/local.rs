@@ -203,13 +203,13 @@ impl LocalProjects {
     }
 
     pub fn fake() -> Self {
-        let mut aws_cfg_1 = AwsCfg::new("us-east-1");
+        let mut aws_cfg_1 = AwsCfg::new();
         aws_cfg_1.set_template_path("./project_test.tpl");
 
-        let mut aws_cfg_2 = AwsCfg::new("us-east-1");
+        let mut aws_cfg_2 = AwsCfg::new();
         aws_cfg_2.set_template_path("./project_test_bis.tpl");
 
-        let mut aws_cfg_3 = AwsCfg::new("us-east-1");
+        let mut aws_cfg_3 = AwsCfg::new();
         aws_cfg_3.set_template_path("./project_test_bis.tpl");
 
         Self {
@@ -259,11 +259,9 @@ projects:
     - name: test_1
       provider:
         name: aws
-        region: us-east-3
     - name: test_2
       provider:
         name: aws
-        region: us-east-3
         template_path: "./test_template.yaml"
         "#,
         );
@@ -287,17 +285,14 @@ projects:
   - name: project_test
     provider:
       name: aws
-      region: us-east-1
       template_path: "./project_test.tpl"
   - name: project_test_bis
     provider:
       name: aws
-      region: us-east-1
       template_path: "./project_test_bis.tpl"
   - name: only_local_project_test
     provider:
       name: aws
-      region: us-east-1
       template_path: "./project_test_bis.tpl""#
         );
 

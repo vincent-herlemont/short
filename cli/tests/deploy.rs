@@ -18,13 +18,16 @@ projects:
     public_env_directory: "."
     provider:
         name: aws
-        region: us-east-3
         template_path: "./template.yaml"
 "#,
         )
         .unwrap();
     config
-        .add_asset_project("./.dev", r#"AWS_S3_BUCKET_DEPLOY=bucket_1"#)
+        .add_asset_project(
+            "./.dev",
+            r#"AWS_S3_BUCKET_DEPLOY=bucket_1
+AWS_REGION=us-east-3"#,
+        )
         .unwrap();
 
     config
@@ -126,13 +129,14 @@ projects:
         )
         .unwrap();
     config
-        .add_asset_project("sub_project/.dev", r#"AWS_S3_BUCKET_DEPLOY=bucket_1"#)
+        .add_asset_project(
+            "sub_project/.dev",
+            r#"AWS_S3_BUCKET_DEPLOY=bucket_1
+AWS_REGION=us-east-3"#,
+        )
         .unwrap();
     config
-        .add_asset_project(
-            "sub_project/template.yaml",
-            r#"AWS_S3_BUCKET_DEPLOY=bucket_1"#,
-        )
+        .add_asset_project("sub_project/template.yaml", r#""#)
         .unwrap();
 
     let mut command = config.command();
