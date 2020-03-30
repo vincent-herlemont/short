@@ -1,6 +1,6 @@
 # Maintainer: Vincent Herlemont <vincentherl@leszeros.com>
 pkgname=d4d-git
-pkgver=v0.0.1.r0.g59d9de5
+pkgver=v0.0.1.r16.gd935654
 pkgrel=1
 source=("${pkgname}::git+https://github.com/vincent-herlemont/d4d.git")
 makedepends=('git' 'rust' 'cargo')
@@ -14,7 +14,6 @@ pkgver() {
 }
 
 build() {
-    echo "PWD = $(pwd)"
     cd ${pkgname};
     cargo build --release --frozen --all-features
 }
