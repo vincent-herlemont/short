@@ -42,7 +42,9 @@ pub fn deploy_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let project = projects.current_project()?;
     let env = projects.current_env()?;
     let env = get(&project, &env)?;
-    let runner = AwsWorkflow::new(&project, &env, &exec_ctx)?.s3_exists(&env)?;
+    let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
+        .cli_aws()?
+        .s3_bucket_exists()?;
     if let Err(err) = runner.run() {
         if !prompt_default(
             "s3 deployment bucket is missing : do you want to create it ?",
@@ -51,16 +53,22 @@ pub fn deploy_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
             return Err(err);
         }
         if err.exit_code_eq(255)? {
-            let runner = AwsWorkflow::new(&project, &env, &exec_ctx)?.s3_create_bucket(&env)?;
+            let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
+                .cli_aws()?
+                .s3_create_bucket()?;
             runner.run()?;
         } else {
             return Err(err);
         }
     }
 
-    let runner = AwsWorkflow::new(&project, &env, &exec_ctx)?.package(&env)?;
+    let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
+        .cli_aws()?
+        .cloudformation_package()?;
     runner.run()?;
-    let runner = AwsWorkflow::new(&project, &env, &exec_ctx)?.deploy(&env)?;
+    let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
+        .cli_aws()?
+        .cloudformation_deploy()?;
     runner.run()?;
     Ok(())
 }
