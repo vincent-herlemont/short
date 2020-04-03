@@ -1,10 +1,12 @@
 pub mod aws;
+pub mod output;
 
+use crate::exec::output::Output;
 use serde::export::Formatter;
 use std::fmt;
 use std::fmt::Display;
 use std::path::PathBuf;
-use std::process::{Command, Output};
+use std::process::{Command};
 use utils::error::Error;
 use utils::result::Result;
 use which;
@@ -39,7 +41,7 @@ impl<'s> Runner<'s> {
 
     pub fn output(self) -> Result<Output> {
         let output = self.command()?.output().map_err(|e| Error::from(e))?;
-        Ok(output)
+        Ok(Output::new(output))
     }
 
     pub fn run(self) -> Result<()> {
@@ -54,14 +56,29 @@ impl<'s> Runner<'s> {
                 "{}",
                 String::from_utf8(output.stdout.clone()).expect("fail to read stdout")
             );
-            println!("{}", output.status);
-            if output.status.success() {
-                return Ok(());
-            } else {
-                return Err(Error::from(output.status));
+            if let Some(err) = output.fail {
+                return Err(err);
             }
         }
         Ok(())
+    }
+
+    pub fn run2(self) -> Result<Option<Output>> {
+        println!("{}", &self);
+        if !self.exec_ctx.dry_run() {
+            let output = self.output()?;
+            println!(
+                "{}",
+                String::from_utf8(output.stderr.clone()).expect("fail to read stderr")
+            );
+            println!(
+                "{}",
+                String::from_utf8(output.stdout.clone()).expect("fail to read stdout")
+            );
+            Ok(Some(output))
+        } else {
+            Ok(None)
+        }
     }
 
     pub fn args(&self) -> &Vec<String> {
@@ -162,6 +179,7 @@ impl ExecCtx {
 #[cfg(test)]
 mod tests {
     use crate::exec::{ExecCtx, Software};
+    
 
     #[test]
     fn new() {

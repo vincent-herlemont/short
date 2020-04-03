@@ -11,7 +11,10 @@ use std::fmt::Result as FmtResult;
 use std::fmt::{Display, Formatter};
 use std::io;
 use std::path::StripPrefixError;
-use std::process::{ExitStatus};
+
+use std::string::FromUtf8Error;
+
+pub type ExitStatusCode = Option<i32>;
 
 // TODO: Add PartialEq to Error type.
 #[derive(Debug)]
@@ -22,8 +25,9 @@ pub enum Error {
     SerdeYaml(serde_yaml::Error),
     Which(which::Error),
     StripPrefixError(StripPrefixError),
-    ExitStatus(ExitStatus),
+    ExitStatus(ExitStatusCode),
     RustyLine(ReadlineError),
+    StringUtf8(FromUtf8Error),
 }
 
 impl Error {
@@ -84,6 +88,7 @@ impl StdError for Error {
             StripPrefixError(e) => Some(e),
             ExitStatus(_) => None,
             RustyLine(e) => Some(e),
+            StringUtf8(e) => Some(e),
         }
     }
 }
@@ -130,18 +135,22 @@ impl From<ReadlineError> for Error {
     }
 }
 
-impl From<ExitStatus> for Error {
-    fn from(exit_status: ExitStatus) -> Error {
+impl From<ExitStatusCode> for Error {
+    fn from(exit_status: ExitStatusCode) -> Error {
         Error::ExitStatus(exit_status)
+    }
+}
+
+impl From<FromUtf8Error> for Error {
+    fn from(error: FromUtf8Error) -> Error {
+        Error::StringUtf8(error)
     }
 }
 
 impl Error {
     pub fn exit_code_eq(&self, code: i32) -> Result<bool> {
         if let Error::ExitStatus(exit_status) = self {
-            let cmd_code = exit_status
-                .code()
-                .ok_or(Error::new("Process terminated by signal"))?;
+            let cmd_code = exit_status.ok_or(Error::new("Process terminated by signal"))?;
             return Ok(code == cmd_code);
         }
         Err(Error::new("no exit status")).unwrap()

@@ -2,6 +2,7 @@ use crate::helper::{get_entry_abs, reach_directories};
 use clap::ArgMatches;
 
 use d4d::env::get;
+use d4d::exec::aws::aws_output::AwsOutPutS3Exists;
 use d4d::exec::aws::workflow::AwsWorkflow;
 use d4d::exec::ExecCtx;
 use d4d::project::Projects;
@@ -45,21 +46,28 @@ pub fn deploy_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
         .cli_aws()?
         .s3_bucket_exists()?;
-    if let Err(err) = runner.run() {
-        if !prompt_default(
-            "s3 deployment bucket is missing : do you want to create it ?",
-            true,
-        )? {
-            return Err(err);
-        }
-        if err.exit_code_eq(255)? {
+    if let Some(output) = runner.run2()? {
+        let output: Result<AwsOutPutS3Exists> = output.into();
+        let s3exit = output?;
+
+        if !s3exit.is_exists() {
+            if !prompt_default(
+                "s3 deployment bucket is missing : do you want to create it ?",
+                true,
+            )? {
+                return Err(Error::from("we have to create one before deployment"));
+            }
             let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
                 .cli_aws()?
                 .s3_create_bucket()?;
             runner.run()?;
-        } else {
-            return Err(err);
         }
+
+        // if err.exit_code_eq(255)? {
+
+        // } else {
+        //     return Err(err);
+        // }
     }
 
     let runner = AwsWorkflow::new(&project, &env, &exec_ctx)

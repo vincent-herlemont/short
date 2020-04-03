@@ -106,7 +106,7 @@ impl<'p, 'e, 'c> CliAws<'p, 'e, 'c> {
 mod tests {
     use crate::exec::aws::workflow::{AwsWorkflow, ENV_AWS_REGION, ENV_AWS_S3_BUCKET_DEPLOY};
     use crate::exec::ExecCtx;
-    use crate::project::{Projects};
+    use crate::project::Projects;
     use env::Env;
 
     fn env() -> Env {
