@@ -2,8 +2,7 @@ use crate::exec::aws::capabilities::{Capabilities, Capability};
 use crate::exec::aws::workflow::{
     AwsWorkflow, ENV_AWS_CAPABILITY_IAM, ENV_AWS_CAPABILITY_NAMED_IAM, ENV_AWS_REGION,
 };
-use crate::exec::{Runner, Software};
-
+use crate::exec::{EmptyCtx, Runner, Software};
 
 use utils::result::Result;
 
@@ -28,12 +27,12 @@ impl<'p, 'e, 'c> CliAws<'p, 'e, 'c> {
         Ok(())
     }
 
-    pub fn version(mut self) -> Runner<'c> {
+    pub fn version(mut self) -> Runner<'c, EmptyCtx> {
         self.software.arg("--version");
-        self.software.runner()
+        self.software.runner(EmptyCtx {})
     }
 
-    pub fn cloudformation_package(mut self) -> Result<Runner<'c>> {
+    pub fn cloudformation_package(mut self) -> Result<Runner<'c, EmptyCtx>> {
         let aws_workflow = &self.aws_workflow;
         let template_file = aws_workflow.project().template_file_abs()?;
         let template_pkg_file = aws_workflow.template_pkg_file()?;
@@ -50,10 +49,10 @@ impl<'p, 'e, 'c> CliAws<'p, 'e, 'c> {
             "--output-template-file",
             template_pkg_file.to_string_lossy().trim(),
         ]);
-        Ok(self.software.runner())
+        Ok(self.software.runner(EmptyCtx {}))
     }
 
-    pub fn cloudformation_deploy(mut self) -> Result<Runner<'c>> {
+    pub fn cloudformation_deploy(mut self) -> Result<Runner<'c, EmptyCtx>> {
         let aws_workflow = &self.aws_workflow;
         let template_pkg_file = aws_workflow.template_pkg_file()?;
         let stack_name = aws_workflow.stack_name()?;
@@ -83,23 +82,27 @@ impl<'p, 'e, 'c> CliAws<'p, 'e, 'c> {
             self.software.arg("--capabilities");
             self.software.args(capabilities);
         }
-        Ok(self.software.runner())
+        Ok(self.software.runner(EmptyCtx {}))
     }
 
-    pub fn s3_bucket_exists(mut self) -> Result<Runner<'c>> {
+    pub fn s3_bucket_exists(mut self) -> Result<Runner<'c, EmptyCtx>> {
         let bucket_name = self.aws_workflow.s3_bucket_name()?;
         self.software.args(&["s3api", "head-bucket"]);
         self.software.args(&["--bucket", bucket_name.as_ref()]);
-        Ok(self.software.runner())
+        Ok(self.software.runner(EmptyCtx {}))
     }
 
-    pub fn s3_create_bucket(mut self) -> Result<Runner<'c>> {
+    pub fn s3_create_bucket(mut self) -> Result<Runner<'c, EmptyCtx>> {
         let bucket_name = self.aws_workflow.s3_bucket_name()?;
         self.set_region()?;
         self.software
             .args(&["s3", "mb", format!("s3://{}", bucket_name).as_str()]);
-        Ok(self.software.runner())
+        Ok(self.software.runner(EmptyCtx {}))
     }
+}
+
+pub struct AwsCtxS3BucketLocation {
+    pub region: String,
 }
 
 #[cfg(test)]

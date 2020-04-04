@@ -6,7 +6,7 @@ use serde::export::Formatter;
 use std::fmt;
 use std::fmt::Display;
 use std::path::PathBuf;
-use std::process::{Command};
+use std::process::Command;
 use utils::error::Error;
 use utils::result::Result;
 use which;
@@ -18,14 +18,17 @@ pub struct Software<'s> {
     exec_ctx: &'s ExecCtx,
 }
 
-pub struct Runner<'s> {
+pub struct EmptyCtx {}
+
+pub struct Runner<'s, C> {
     path: PathBuf,
     args: Vec<String>,
+    ctx: C,
     exec_ctx: &'s ExecCtx,
 }
 
-impl<'s> Runner<'s> {
-    pub fn command(self) -> Result<Command> {
+impl<'s, C> Runner<'s, C> {
+    pub fn command(&self) -> Result<Command> {
         let mut command = Command::new(
             self.path
                 .to_str()
@@ -35,13 +38,13 @@ impl<'s> Runner<'s> {
                 ))?
                 .trim(),
         );
-        command.args(self.args);
+        command.args(self.args.clone());
         Ok(command)
     }
 
-    pub fn output(self) -> Result<Output> {
+    pub fn output(self) -> Result<Output<C>> {
         let output = self.command()?.output().map_err(|e| Error::from(e))?;
-        Ok(Output::new(output))
+        Ok(Output::new(self.ctx, output))
     }
 
     pub fn run(self) -> Result<()> {
@@ -63,7 +66,7 @@ impl<'s> Runner<'s> {
         Ok(())
     }
 
-    pub fn run2(self) -> Result<Option<Output>> {
+    pub fn run2(self) -> Result<Option<Output<C>>> {
         println!("{}", &self);
         if !self.exec_ctx.dry_run() {
             let output = self.output()?;
@@ -86,7 +89,7 @@ impl<'s> Runner<'s> {
     }
 }
 
-impl<'s> Display for Runner<'s> {
+impl<'s, C> Display for Runner<'s, C> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.path.to_string_lossy())?;
         for arg in &self.args {
@@ -136,10 +139,11 @@ impl<'s> Software<'s> {
         &self.args
     }
 
-    pub fn runner(self) -> Runner<'s> {
+    pub fn runner<C>(self, ctx: C) -> Runner<'s, C> {
         Runner {
             path: self.path,
             args: self.args,
+            ctx: ctx,
             exec_ctx: self.exec_ctx,
         }
     }
@@ -178,8 +182,7 @@ impl ExecCtx {
 
 #[cfg(test)]
 mod tests {
-    use crate::exec::{ExecCtx, Software};
-    
+    use crate::exec::{EmptyCtx, ExecCtx, Software};
 
     #[test]
     fn new() {
@@ -214,7 +217,7 @@ mod tests {
         let exec_ctx = ExecCtx::new();
         let mut soft = Software::new("rustc", &exec_ctx).unwrap();
         soft.arg("--version");
-        let output = soft.runner().output();
+        let output = soft.runner(EmptyCtx {}).output();
         assert!(output.is_ok());
     }
 
@@ -223,7 +226,7 @@ mod tests {
         let exec_ctx = ExecCtx::new();
         let mut soft = Software::new("echo", &exec_ctx).unwrap();
         soft.args(&["a b", "b", ""]);
-        let runner = soft.runner();
+        let runner = soft.runner(EmptyCtx {});
         assert!(format!("{}", &runner).ends_with("echo \"a b\" b "));
         let output = runner.output().unwrap();
         assert_eq!(String::from_utf8(output.stdout).unwrap(), "a b b \n");
