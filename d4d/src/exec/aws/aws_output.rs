@@ -24,13 +24,45 @@ impl From<Output> for Result<AwsOutputS3Exists> {
     }
 }
 
+use serde::Deserialize;
+use utils::error::Error;
+
+#[derive(Debug, Deserialize)]
+pub struct AwsOutputS3BucketLocation {
+    #[serde(rename = "LocationConstraint")]
+    location_constraint: String,
+}
+
+impl From<Output> for Result<AwsOutputS3BucketLocation> {
+    fn from(output: Output) -> Self {
+        let aws_output_s3bucket_location =
+            serde_yaml::from_slice(output.stdout.as_slice()).map_err(|e| Error::from(e))?;
+        Ok(aws_output_s3bucket_location)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::exec::aws::aws_output::AwsOutputS3Exists;
+    use crate::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
     use crate::exec::output::Output;
-
     use utils::error::Error;
     use utils::result::Result;
+
+    #[test]
+    fn aws_output_s3bucket_location() {
+        let output = Output {
+            fail: None,
+            stderr: vec![],
+            stdout: br#"{
+    "LocationConstraint": "us-west-1"
+}"#
+            .to_vec(),
+        };
+
+        let aws_output_s3bucket_location: Result<AwsOutputS3BucketLocation> = output.into();
+        let aws_output_s3bucket_location = aws_output_s3bucket_location.unwrap();
+        dbg!(&aws_output_s3bucket_location);
+    }
 
     #[test]
     fn aws_out_put_s3exists() {
