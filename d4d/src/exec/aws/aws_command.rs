@@ -1,6 +1,6 @@
 use crate::exec::aws::capabilities::{Capabilities, Capability};
 use crate::exec::aws::workflow::{
-    AwsWorkflow, ENV_AWS_CAPABILITY_IAM, ENV_AWS_CAPABILITY_NAMED_IAM, ENV_AWS_REGION,
+    AwsWorkflow, ENV_AWS_CAPABILITY_IAM, ENV_AWS_CAPABILITY_NAMED_IAM,
 };
 use crate::exec::{EmptyCtx, Runner, Software};
 
@@ -22,7 +22,7 @@ impl<'p, 'e, 'c> CliAws<'p, 'e, 'c> {
     }
 
     fn set_region(&mut self) -> Result<()> {
-        let (_, region) = self.aws_workflow.env().get(ENV_AWS_REGION)?;
+        let region = self.aws_workflow.region()?;
         self.software.args(&["--region", region.as_str()]);
         Ok(())
     }
@@ -36,7 +36,7 @@ impl<'p, 'e, 'c> CliAws<'p, 'e, 'c> {
         let aws_workflow = &self.aws_workflow;
         let template_file = aws_workflow.project().template_file_abs()?;
         let template_pkg_file = aws_workflow.template_pkg_file()?;
-        let deploy_bucket_name = aws_workflow.s3_bucket_name()?;
+        let deploy_bucket_name = aws_workflow.bucket_deploy_name()?;
 
         self.set_region()?;
         self.software.args(&[
@@ -86,14 +86,14 @@ impl<'p, 'e, 'c> CliAws<'p, 'e, 'c> {
     }
 
     pub fn s3_bucket_exists(mut self) -> Result<Runner<'c, EmptyCtx>> {
-        let bucket_name = self.aws_workflow.s3_bucket_name()?;
+        let bucket_name = self.aws_workflow.bucket_deploy_name()?;
         self.software.args(&["s3api", "head-bucket"]);
         self.software.args(&["--bucket", bucket_name.as_ref()]);
         Ok(self.software.runner(EmptyCtx {}))
     }
 
     pub fn s3_create_bucket(mut self) -> Result<Runner<'c, EmptyCtx>> {
-        let bucket_name = self.aws_workflow.s3_bucket_name()?;
+        let bucket_name = self.aws_workflow.bucket_deploy_name()?;
         self.set_region()?;
         self.software
             .args(&["s3", "mb", format!("s3://{}", bucket_name).as_str()]);

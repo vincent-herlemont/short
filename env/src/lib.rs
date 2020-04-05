@@ -266,9 +266,10 @@ impl Env {
     }
 
     pub fn name(&self) -> Result<String> {
-        self.name
-            .clone()
-            .ok_or(Error::new(ErrorKind::Interrupted, "env has not name"))
+        self.name.clone().ok_or(Error::new(
+            ErrorKind::Interrupted,
+            "env file has not name \".unknown\"",
+        ))
     }
 
     pub fn dot_name(&self) -> Result<String> {

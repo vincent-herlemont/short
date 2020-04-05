@@ -11,12 +11,14 @@ serde = { version = "1.0.104", features = ["derive"] }
 serde_yaml = "0.8.11"
 dirs = "2.0.2"
 which = "3.1.1"
+voca_rs = "1.10.0"
 utils = { path = "../utils" }
 env = {path = "../env"}
 
 [dev-dependencies]
 walkdir = "2.3.1"
 insta = "0.15.0"
+
 
 [build-dependencies]
 include_walk = "0.3.0"
