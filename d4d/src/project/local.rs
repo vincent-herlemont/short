@@ -9,6 +9,8 @@ use std::path::{Path, PathBuf};
 
 use utils::error::Error;
 
+use std::collections::HashSet;
+use std::hash::{Hash, Hasher};
 use utils::result::Result;
 
 const PROJECT_FILE_NAME: &'static str = "d4d.yaml";
@@ -86,7 +88,7 @@ fn read_local_file<P: AsRef<Path>>(root: P) -> Result<LocalProjects> {
         })
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Eq)]
 pub struct LocalProject {
     name: String,
 
@@ -110,6 +112,18 @@ impl LocalProject {
 
     pub fn provider(&self) -> &ProviderCfg {
         &self.provider
+    }
+}
+
+impl PartialEq for LocalProject {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Hash for LocalProject {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
     }
 }
 
@@ -140,7 +154,21 @@ impl Display for LocalProjects {
 impl LocalProjects {
     pub fn load<P: AsRef<Path>>(current_dir: P) -> Result<LocalProjects> {
         let current_dir = current_dir.as_ref().to_path_buf();
-        read_local_file(&current_dir)
+        let local_projects = read_local_file(&current_dir)?;
+        local_projects.has_unique_project()?;
+        Ok(local_projects)
+    }
+
+    fn has_unique_project(&self) -> Result<()> {
+        let mut uniq = HashSet::new();
+        let b = self.all.iter().all(|x| uniq.insert(x));
+        if b {
+            Ok(())
+        } else {
+            Err(Error::new(
+                "some project(s) are duplicate on configuration file",
+            ))
+        }
     }
 
     pub fn new<P: AsRef<Path>>(current_dir: P) -> Result<LocalProjects> {

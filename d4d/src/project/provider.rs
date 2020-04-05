@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use utils::error::Error;
 use utils::result::Result;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(tag = "name")]
 pub enum ProviderCfg {
     #[serde(rename = "aws")]
@@ -24,7 +24,7 @@ impl ProviderCfg {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub struct AwsCfg {
     #[serde(skip_serializing_if = "Option::is_none")]
     template_path: Option<PathBuf>,
