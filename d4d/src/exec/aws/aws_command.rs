@@ -99,6 +99,21 @@ impl<'p, 'e, 'c> CliAws<'p, 'e, 'c> {
             .args(&["s3", "mb", format!("s3://{}", bucket_name).as_str()]);
         Ok(self.software.runner(EmptyCtx {}))
     }
+
+    pub fn s3_bucket_location(mut self) -> Result<Runner<'c, AwsCtxS3BucketLocation>> {
+        self.set_region()?;
+
+        self.software.args(&[
+            "s3api",
+            "get-bucket-location",
+            "--bucket",
+            self.aws_workflow.bucket_deploy_name()?.as_str(),
+        ]);
+
+        Ok(self.software.runner(AwsCtxS3BucketLocation {
+            region: self.aws_workflow.region()?,
+        }))
+    }
 }
 
 pub struct AwsCtxS3BucketLocation {

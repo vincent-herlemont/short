@@ -2,7 +2,7 @@ use crate::helper::{get_entry_abs, reach_directories};
 use clap::ArgMatches;
 
 use d4d::env::get;
-use d4d::exec::aws::aws_output::AwsOutputS3Exists;
+use d4d::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
 use d4d::exec::aws::workflow::AwsWorkflow;
 use d4d::exec::ExecCtx;
 use d4d::project::Projects;
@@ -62,12 +62,15 @@ pub fn deploy_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
                 .s3_create_bucket()?;
             runner.run()?;
         }
+    }
 
-        // if err.exit_code_eq(255)? {
+    let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
+        .cli_aws()?
+        .s3_bucket_location()?;
 
-        // } else {
-        //     return Err(err);
-        // }
+    if let Some(output) = runner.run2()? {
+        let output: Result<AwsOutputS3BucketLocation> = output.into();
+        output?;
     }
 
     let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
