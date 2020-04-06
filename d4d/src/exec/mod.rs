@@ -5,8 +5,9 @@ use crate::exec::output::Output;
 use serde::export::Formatter;
 use std::fmt;
 use std::fmt::Display;
+use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use utils::error::Error;
 use utils::result::Result;
 use which;
@@ -18,6 +19,7 @@ pub struct Software<'s> {
     exec_ctx: &'s ExecCtx,
 }
 
+#[derive(Debug)]
 pub struct EmptyCtx {}
 
 pub struct Runner<'s, C> {
@@ -45,6 +47,31 @@ impl<'s, C> Runner<'s, C> {
     pub fn output(self) -> Result<Output<C>> {
         let output = self.command()?.output().map_err(|e| Error::from(e))?;
         Ok(Output::new(self.ctx, output))
+    }
+
+    pub fn spawn(self) -> Result<()> {
+        println!("{}", &self);
+        // TODO : See https://github.com/oconnor663/duct.rs
+        //      Also print stderr
+        if !self.exec_ctx.dry_run() {
+            let mut child = self.command()?.stdout(Stdio::piped()).spawn()?;
+
+            {
+                let stdout = child
+                    .stdout
+                    .as_mut()
+                    .ok_or(Error::new("fail to read stdout"))?;
+                let stdout_reader = BufReader::new(stdout);
+                let stdout_lines = stdout_reader.lines();
+                for line in stdout_lines {
+                    if let Ok(line) = line {
+                        println!("{}", line);
+                    }
+                }
+            }
+            child.wait()?;
+        }
+        Ok(())
     }
 
     pub fn run(self) -> Result<()> {
@@ -238,5 +265,16 @@ mod tests {
         assert!(!exec_ctx.dry_run());
         let exec_ctx = exec_ctx.set_dry_run(true);
         assert!(exec_ctx.dry_run());
+    }
+
+    #[test]
+    fn stream_command() {
+        let exec_ctx = ExecCtx::new();
+        let mut soft = Software::new("echo", &exec_ctx).unwrap();
+        soft.args(&["a b", "b", ""]);
+        let runner = soft.runner(EmptyCtx {});
+        let output = runner.spawn();
+        assert!(output.is_ok());
+        // TODO : test stdoutput, stderror
     }
 }

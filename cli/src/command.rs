@@ -80,7 +80,7 @@ pub fn deploy_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
         .cli_aws()?
         .cloudformation_deploy()?;
-    runner.run()?;
+    runner.spawn()?;
     Ok(())
 }
 
