@@ -8,6 +8,7 @@ edition = "2018"
 clap = "2.33.0"
 dirs = "2.0.2"
 promptly = "0.3.0"
+indicatif = "0.14.0"
 utils = { path = "../utils" }
 d4d = { path = "../d4d" }
 

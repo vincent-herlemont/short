@@ -1,11 +1,13 @@
 use crate::helper::{get_entry_abs, reach_directories};
 use clap::ArgMatches;
 
+use crate::{BIN_NAME, VERSION};
 use d4d::env::get;
 use d4d::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
 use d4d::exec::aws::workflow::AwsWorkflow;
 use d4d::exec::ExecCtx;
 use d4d::project::Projects;
+use indicatif::{ProgressBar, ProgressStyle};
 use promptly::prompt_default;
 use utils::error::Error;
 use utils::result::Result;
@@ -116,4 +118,18 @@ pub fn add_command(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
         }
     }
     Ok(())
+}
+
+use std::thread;
+use std::time::Duration;
+
+pub fn demo_command() {
+    let p = ProgressBar::new(1);
+    p.set_style(ProgressStyle::default_spinner().template(" [{spinner:.cyan/blue}] {msg}"));
+    p.enable_steady_tick(10);
+    p.set_message("loading ...");
+    thread::sleep(Duration::from_secs(1));
+    p.set_style(ProgressStyle::default_spinner().template(" [x] {msg:.green}"));
+    p.finish_with_message("ok");
+    println!("{} - {}", BIN_NAME, VERSION);
 }

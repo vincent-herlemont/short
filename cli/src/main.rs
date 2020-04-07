@@ -3,7 +3,9 @@ use clap::{App, Arg, ArgMatches};
 
 use d4d::exec::ExecCtx;
 
-use crate::command::{add_command, deploy_command, env_command, init_command, use_command};
+use crate::command::{
+    add_command, demo_command, deploy_command, env_command, init_command, use_command,
+};
 use crate::init::{init_exec_ctx, init_projects};
 use d4d::project::Projects;
 use std::env;
@@ -17,8 +19,8 @@ mod command;
 mod helper;
 mod init;
 
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-const BIN_NAME: &'static str = "d4d";
+pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+pub const BIN_NAME: &'static str = "d4d";
 
 fn main() {
     let app = App::new(BIN_NAME)
@@ -49,6 +51,7 @@ fn main() {
                 .global(true)
                 .help("Disable all executions"),
         )
+        .subcommand(App::new("demo"))
         .subcommand(
             App::new("add")
                 .about("Add new project")
@@ -73,6 +76,12 @@ fn main() {
                 ),
         )
         .get_matches();
+
+    // Display version
+    if app.is_present("demo") {
+        demo_command();
+        return;
+    }
 
     // Match init command first in order to allow him to create project file
     // before any other execution.
