@@ -42,7 +42,7 @@ AWS_REGION=us-east-3"#,
     let mut command = config.command();
     let output = command
         .current_dir(config.tmp_project_dir.join("sub_project"))
-        .arg("deploy")
+        .arg("run")
         .args(&["-p", "p1"])
         .args(&["-e", "dev"])
         .arg("--dry-run")

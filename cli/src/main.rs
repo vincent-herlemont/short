@@ -1,11 +1,9 @@
-use clap::AppSettings::{ArgRequiredElseHelp, VersionlessSubcommands};
+use clap::AppSettings::{ArgRequiredElseHelp, DeriveDisplayOrder, VersionlessSubcommands};
 use clap::{App, Arg, ArgMatches};
 
 use d4d::exec::ExecCtx;
 
-use crate::command::{
-    add_command, demo_command, deploy_command, env_command, init_command, use_command,
-};
+use crate::command::{add_command, demo_command, init_command, run_command, use_command};
 use crate::init::{init_exec_ctx, init_projects};
 use d4d::project::Projects;
 use std::env;
@@ -26,6 +24,7 @@ fn main() {
     let app = App::new(BIN_NAME)
         .setting(ArgRequiredElseHelp)
         .setting(VersionlessSubcommands)
+        .setting(DeriveDisplayOrder)
         .bin_name(BIN_NAME)
         .version(VERSION)
         .about("Cloud environment deployment")
@@ -51,30 +50,19 @@ fn main() {
                 .global(true)
                 .help("Disable all executions"),
         )
-        .subcommand(App::new("demo"))
+        .subcommand(App::new("init").about("Create en empty configuration file"))
         .subcommand(
             App::new("add")
-                .about("Add new project")
+                .about("[project_name] [template_file] Add new project")
                 .arg(Arg::with_name("add_project").multiple(true)),
         )
         .subcommand(
             App::new("use")
-                .about("Set an current project and environment")
+                .about("[project_name] [environment_name] Set an current project and environment")
                 .arg(Arg::with_name("use_project").multiple(true)),
         )
-        .subcommand(App::new("deploy").about("Deploy on the cloud"))
-        .subcommand(App::new("init").about("Create en empty configuration file"))
-        .subcommand(
-            App::new("env")
-                .setting(ArgRequiredElseHelp)
-                .about("Manage environment files")
-                .arg(
-                    Arg::with_name("check")
-                        .help("Verified env coherence and syntax")
-                        .long("check")
-                        .short("c"),
-                ),
-        )
+        .subcommand(App::new("run").about("Run project"))
+        .subcommand(App::new("ls").about("List projects"))
         .get_matches();
 
     // Display version
@@ -113,14 +101,12 @@ fn main() {
 }
 
 fn dispatch_commands(exec_ctx: ExecCtx, mut projects: Projects, app: ArgMatches) -> Result<()> {
-    if let Some(args) = app.subcommand_matches("env") {
-        return env_command(&args, &projects);
-    } else if let Some(args) = app.subcommand_matches("add") {
+    if let Some(args) = app.subcommand_matches("add") {
         return add_command(args, &mut projects);
     } else if let Some(args) = app.subcommand_matches("use") {
         return use_command(args, &mut projects);
-    } else if let Some(_) = app.subcommand_matches("deploy") {
-        return deploy_command(&exec_ctx, &projects);
+    } else if let Some(_) = app.subcommand_matches("run") {
+        return run_command(&exec_ctx, &projects);
     }
     Ok(())
 }

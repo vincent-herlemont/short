@@ -22,26 +22,7 @@ pub fn init_command() -> Result<()> {
     }
 }
 
-pub fn env_command(args: &ArgMatches, projects: &Projects) -> Result<()> {
-    if let (Some(_), Some(vp), Some(ve)) = (
-        args.values_of_lossy("check"),
-        args.values_of_lossy("project"),
-        args.values_of_lossy("env"),
-    ) {
-        if let (Some(project), Some(env)) = (vp.first(), ve.first()) {
-            let project = projects.found(project)?;
-            let env = get(&project, &env)?;
-            println!("{}", &project);
-            print!("{}", &env);
-            return Ok(());
-        } else {
-            return Err(Error::new("fail to get env or project"));
-        }
-    }
-    Ok(())
-}
-
-pub fn deploy_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
+pub fn run_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let project = projects.current_project()?;
     let env = projects.current_env()?;
     let env = get(&project, &env)?;

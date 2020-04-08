@@ -5,7 +5,7 @@ use utils::test::before;
 const CRATE_NAME: &'static str = env!("CARGO_PKG_NAME");
 
 #[test]
-fn deploy_aws() {
+fn run_aws() {
     let config = before("env", Assets::None).cli(CRATE_NAME);
 
     // Project : p1
@@ -45,7 +45,7 @@ projects:
 
     let mut command = config.command();
     let output = command
-        .arg("deploy")
+        .arg("run")
         .args(&["-p", "p1"])
         .args(&["-e", "dev"])
         .arg("--dry-run")
@@ -67,7 +67,7 @@ aws --region us-east-3 cloudformation deploy --template-file {p}/template.pkg.ya
 }
 
 #[test]
-fn deploy_aws_sync() {
+fn run_aws_sync() {
     let config = before("env", Assets::None).cli(CRATE_NAME);
 
     // Project : p1
@@ -86,12 +86,12 @@ projects:
         )
         .unwrap();
     config
-        .add_asset_project("./.dev", r#"AWS_S3_BUCKET_DEPLOY=bucket_1"#)
+        .add_asset_project("./.dev", r#"AWS_S3_BUCKET_run=bucket_1"#)
         .unwrap();
 
     let mut command = config.command();
     let _output = command
-        .arg("deploy")
+        .arg("run")
         .args(&["-p", "p1"])
         .args(&["-e", "dev"])
         .arg("--dry-run")
@@ -111,7 +111,7 @@ projects:
 }
 
 #[test]
-fn deploy_aws_sync_sub_command() {
+fn run_aws_sync_sub_command() {
     let config = before("env", Assets::None).cli(CRATE_NAME);
 
     // Project : p1
@@ -143,7 +143,7 @@ AWS_REGION=us-east-3"#,
     let mut command = config.command();
     let output = command
         .current_dir(config.tmp_project_dir.join("sub_project"))
-        .arg("deploy")
+        .arg("run")
         .args(&["-p", "p1"])
         .args(&["-e", "dev"])
         .arg("--dry-run")
