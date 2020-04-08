@@ -171,6 +171,23 @@ impl Projects {
         }
     }
 
+    pub fn list(&self) -> Vec<Project> {
+        self.local
+            .get_all()
+            .iter()
+            .filter_map(|local_project| {
+                let project_name = local_project.name();
+                if let Some(global_project) = self.global.get(&project_name) {
+                    return Some(Project {
+                        global: global_project,
+                        local: local_project,
+                    });
+                }
+                None
+            })
+            .collect()
+    }
+
     pub fn set_temporary_current_project(&mut self, current_project: CurrentProject) {
         self.temp_current_project = Some(current_project);
     }
@@ -260,5 +277,12 @@ mod tests {
             CurrentProject::new("project_test_bis").set_env("watever_env"),
         );
         assert_eq!(projects.current_env().unwrap(), String::from("watever_env"));
+    }
+
+    #[test]
+    fn list_projects() {
+        let projects = Projects::fake();
+        let lists = projects.list();
+        assert_eq!(lists.len(), 2);
     }
 }

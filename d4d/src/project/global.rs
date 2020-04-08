@@ -1,4 +1,5 @@
 use crate::project::local::LocalProjects;
+
 use serde::{Deserialize, Serialize};
 use std::fs::{create_dir, File, OpenOptions};
 use std::io::{BufReader, BufWriter};
@@ -320,7 +321,7 @@ mod tests {
         create_global_directory, global_file_path, read_global_file, save_global_file,
         GlobalProject, GlobalProjects,
     };
-    
+
     use insta::assert_yaml_snapshot;
     use std::collections::HashMap;
     use std::fs::read_to_string;

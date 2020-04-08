@@ -1,9 +1,14 @@
+#[macro_use]
+extern crate prettytable;
+
 use clap::AppSettings::{ArgRequiredElseHelp, DeriveDisplayOrder, VersionlessSubcommands};
 use clap::{App, Arg, ArgMatches};
 
 use d4d::exec::ExecCtx;
 
-use crate::command::{add_command, demo_command, init_command, run_command, use_command};
+use crate::command::{
+    add_command, demo_command, init_command, ls_command, run_command, use_command,
+};
 use crate::init::{init_exec_ctx, init_projects};
 use d4d::project::Projects;
 use std::env;
@@ -107,6 +112,8 @@ fn dispatch_commands(exec_ctx: ExecCtx, mut projects: Projects, app: ArgMatches)
         return use_command(args, &mut projects);
     } else if let Some(_) = app.subcommand_matches("run") {
         return run_command(&exec_ctx, &projects);
+    } else if let Some(_) = app.subcommand_matches("ls") {
+        return ls_command(&projects);
     }
     Ok(())
 }

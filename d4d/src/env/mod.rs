@@ -85,3 +85,41 @@ please delete one of theses :
         ))),
     }
 }
+
+use std::fs::read_dir;
+
+pub fn get_all(project: &Project) -> Vec<Env> {
+    let mut envs = vec![];
+
+    let load = |path: PathBuf| -> Option<Vec<Env>> {
+        if let Ok(read_dir) = read_dir(path) {
+            let envs: Vec<Env> = read_dir
+                .filter_map(|entry| {
+                    if let Ok(entry) = entry {
+                        if let Ok(env) = read_env_file(&entry.path()) {
+                            return Some(env);
+                        }
+                    }
+                    None
+                })
+                .collect();
+            Some(envs)
+        } else {
+            None
+        }
+    };
+
+    if let Ok(env_public_path) = project.public_env_directory_abs() {
+        if let Some(mut public_envs) = load(env_public_path) {
+            envs.append(&mut public_envs);
+        }
+    }
+
+    if let Ok(env_private_path) = project.private_env_directory_abs() {
+        if let Some(mut private_env) = load(env_private_path) {
+            envs.append(&mut private_env);
+        }
+    }
+
+    envs
+}

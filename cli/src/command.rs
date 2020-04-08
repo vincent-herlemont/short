@@ -2,7 +2,7 @@ use crate::helper::{get_entry_abs, reach_directories};
 use clap::ArgMatches;
 
 use crate::{BIN_NAME, VERSION};
-use d4d::env::get;
+use d4d::env;
 use d4d::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
 use d4d::exec::aws::workflow::AwsWorkflow;
 use d4d::exec::ExecCtx;
@@ -25,7 +25,7 @@ pub fn init_command() -> Result<()> {
 pub fn run_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let project = projects.current_project()?;
     let env = projects.current_env()?;
-    let env = get(&project, &env)?;
+    let env = env::get(&project, &env)?;
     let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
         .cli_aws()?
         .s3_bucket_exists()?;
@@ -98,6 +98,51 @@ pub fn add_command(args: &ArgMatches, projects: &mut Projects) -> Result<()> {
             ));
         }
     }
+    Ok(())
+}
+
+use prettytable::format::FormatBuilder;
+use prettytable::{color, Attr, Cell, Table};
+
+pub fn ls_command(projects: &Projects) -> Result<()> {
+    let current_project = projects.current_project().ok();
+    let list_projects = projects.list();
+    let mut table = Table::new();
+    let format = FormatBuilder::new().column_separator(' ').build();
+    table.set_format(format);
+    for project in list_projects {
+        let mut row = row!["", "", ""];
+
+        if let Some(current_project) = &current_project {
+            if current_project.name() == project.name() {
+                if let Ok(current_env) = projects.current_env() {
+                    row.set_cell(
+                        Cell::new(format!("> {}", current_env).as_str())
+                            .with_style(Attr::Bold)
+                            .with_style(Attr::ForegroundColor(color::GREEN)),
+                        0,
+                    );
+                }
+            }
+        }
+        row.set_cell(Cell::new(project.name().as_str()), 1);
+        if let Ok(template_file_rel) = project.template_file_rel() {
+            row.set_cell(Cell::new(template_file_rel.to_string_lossy().as_ref()), 2);
+        }
+        table.add_row(row);
+
+        // display env in projects
+        let envs: Vec<String> = env::get_all(&project)
+            .iter()
+            .filter_map(|env| env.name().ok())
+            .collect();
+        let envs: String = envs.join(" ");
+        if !envs.is_empty() {
+            table.add_row(row!["", "", envs.as_str()]);
+        }
+    }
+
+    table.printstd();
     Ok(())
 }
 
