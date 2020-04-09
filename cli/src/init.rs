@@ -8,12 +8,15 @@ use utils::result::Result;
 /// Return the execution context.
 /// It's control the execution behavior of externals commands.
 pub fn init_exec_ctx(app: &ArgMatches) -> ExecCtx {
-    let exec_ctx = ExecCtx::new();
+    let mut exec_ctx = ExecCtx::new();
     if app.is_present("dry-run") {
-        exec_ctx.set_dry_run(true)
-    } else {
-        exec_ctx
+        exec_ctx.set_dry_run(true);
     }
+    if app.is_present("verbose") {
+        exec_ctx.set_verbose(true);
+    }
+
+    exec_ctx
 }
 
 /// Return global project object, it's use as context repository for the most command.

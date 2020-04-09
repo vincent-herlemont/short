@@ -136,7 +136,9 @@ mod tests {
     }
 
     fn exec_ctx() -> ExecCtx {
-        ExecCtx::new().set_dry_run(true)
+        let mut exec_ctx = ExecCtx::new();
+        exec_ctx.set_dry_run(true);
+        exec_ctx
     }
 
     #[test]

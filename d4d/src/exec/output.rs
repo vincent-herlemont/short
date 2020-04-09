@@ -11,15 +11,15 @@ pub struct Output<C> {
 
 impl<C> Output<C> {
     pub fn new(ctx: C, output: StdOutPut) -> Self {
-        let mut exist_status_error = None;
+        let mut exit_status_error = None;
         if !output.status.success() {
-            exist_status_error = Some(Error::from(output.status.code()));
+            exit_status_error = Some(Error::from(output.status.code()));
         }
         Self {
             ctx,
             stdout: output.stdout,
             stderr: output.stderr,
-            fail: exist_status_error,
+            fail: exit_status_error,
         }
     }
 }

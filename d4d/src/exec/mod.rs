@@ -5,9 +5,13 @@ use crate::exec::output::Output;
 use serde::export::Formatter;
 use std::fmt;
 use std::fmt::Display;
-use std::io::{BufRead, BufReader};
+use std::fmt::Write as FmtWrite;
+use std::io::{BufRead, BufReader, Read};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use std::sync::mpsc;
+use std::thread;
+
 use utils::error::Error;
 use utils::result::Result;
 use which;
@@ -27,6 +31,7 @@ pub struct Runner<'s, C> {
     args: Vec<String>,
     ctx: C,
     exec_ctx: &'s ExecCtx,
+    display: Box<dyn Fn(String) -> () + Send + Sync>,
 }
 
 impl<'s, C> Runner<'s, C> {
@@ -42,6 +47,14 @@ impl<'s, C> Runner<'s, C> {
         );
         command.args(self.args.clone());
         Ok(command)
+    }
+
+    pub fn exec_ctx(&self) -> &ExecCtx {
+        self.exec_ctx
+    }
+
+    pub fn set_display<D: Fn(String) -> () + Send + Sync + 'static>(self, display: Box<D>) -> Self {
+        Self { display, ..self }
     }
 
     pub fn output(self) -> Result<Output<C>> {
@@ -72,6 +85,51 @@ impl<'s, C> Runner<'s, C> {
             child.wait()?;
         }
         Ok(())
+    }
+
+    pub fn spawn2(self) -> Result<Option<Output<C>>> {
+        if !self.exec_ctx.dry_run() {
+            let mut child = self
+                .command()?
+                .stderr(Stdio::piped())
+                .stdout(Stdio::piped())
+                .spawn()?;
+
+            // Collect and print stdout
+            let (stdout_tx, stdout_rx) = mpsc::channel();
+            let stdout = child.stdout.take().expect("fail to read stdout");
+            let display = self.display;
+            thread::spawn(move || {
+                let buffer = readline_std(stdout, display);
+                stdout_tx.send(buffer).unwrap();
+            });
+
+            // Collect and print stderr
+            let (stderr_tx, stderr_rx) = mpsc::channel();
+            let stderr = child.stderr.take().expect("fail to read stderr");
+            thread::spawn(move || {
+                let buffer = readline_std(stderr, Box::new(|_| ()));
+                stderr_tx.send(buffer).unwrap();
+            });
+
+            // Tread exit status
+            let exit_status = child.wait()?;
+            let mut exit_status_error = None;
+            if !exit_status.success() {
+                exit_status_error = Some(Error::from(exit_status.code()));
+            }
+
+            let stdout_received = stdout_rx.recv().unwrap();
+            let stderr_received = stderr_rx.recv().unwrap();
+            let output = Output {
+                ctx: self.ctx,
+                stderr: stderr_received.into_bytes(),
+                stdout: stdout_received.into_bytes(),
+                fail: exit_status_error,
+            };
+            return Ok(Some(output));
+        }
+        Ok(None)
     }
 
     pub fn run(self) -> Result<()> {
@@ -114,6 +172,22 @@ impl<'s, C> Runner<'s, C> {
     pub fn args(&self) -> &Vec<String> {
         &self.args
     }
+}
+
+fn readline_std<T: Read, F: Fn(String) -> ()>(std: T, output: F) -> String {
+    let stderr_reader = BufReader::new(std);
+    let stderr_lines = stderr_reader.lines();
+    let mut buffer = String::new();
+    // Fix: error read line by line and create buffer from it can corrupt the buffer.
+    for line in stderr_lines {
+        if let Ok(line) = line {
+            writeln!(&mut buffer, "{}", line.clone().as_str()).unwrap();
+            if !line.is_empty() {
+                output(line);
+            }
+        }
+    }
+    buffer
 }
 
 impl<'s, C> Display for Runner<'s, C> {
@@ -172,6 +246,7 @@ impl<'s> Software<'s> {
             args: self.args,
             ctx: ctx,
             exec_ctx: self.exec_ctx,
+            display: Box::new(|line| println!("{}", line)),
         }
     }
 
@@ -191,19 +266,31 @@ impl<'s> Software<'s> {
 #[derive(Debug)]
 pub struct ExecCtx {
     dry_run: bool,
+    verbose: bool,
 }
 
 impl ExecCtx {
     pub fn new() -> Self {
-        Self { dry_run: false }
+        Self {
+            dry_run: false,
+            verbose: false,
+        }
     }
 
-    pub fn set_dry_run(self, dry_run: bool) -> Self {
-        Self { dry_run }
+    pub fn set_dry_run(&mut self, dry_run: bool) {
+        self.dry_run = dry_run;
+    }
+
+    pub fn set_verbose(&mut self, verbose: bool) {
+        self.verbose = verbose;
     }
 
     pub fn dry_run(&self) -> bool {
         self.dry_run
+    }
+
+    pub fn verbose(&self) -> bool {
+        self.verbose
     }
 }
 
@@ -261,20 +348,29 @@ mod tests {
 
     #[test]
     fn exec_ctx() {
-        let exec_ctx = ExecCtx::new();
+        let mut exec_ctx = ExecCtx::new();
         assert!(!exec_ctx.dry_run());
-        let exec_ctx = exec_ctx.set_dry_run(true);
+        exec_ctx.set_dry_run(true);
         assert!(exec_ctx.dry_run());
     }
 
     #[test]
-    fn stream_command() {
+    fn spawn_command() {
         let exec_ctx = ExecCtx::new();
         let mut soft = Software::new("echo", &exec_ctx).unwrap();
         soft.args(&["a b", "b", ""]);
         let runner = soft.runner(EmptyCtx {});
         let output = runner.spawn();
         assert!(output.is_ok());
-        // TODO : test stdoutput, stderror
+    }
+
+    #[test]
+    fn spawn2_command() {
+        let exec_ctx = ExecCtx::new();
+        let mut soft = Software::new("sh", &exec_ctx).unwrap();
+        soft.args(&["-c", "echo out1 && echo err 1>&2 && echo out2"]);
+        let runner = soft.runner(EmptyCtx {});
+        let output = runner.spawn2();
+        assert!(output.is_ok());
     }
 }

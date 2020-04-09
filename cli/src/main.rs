@@ -55,6 +55,13 @@ fn main() {
                 .global(true)
                 .help("Disable all executions"),
         )
+        .arg(
+            Arg::with_name("verbose")
+                .long("verbose")
+                .short("v")
+                .global(true)
+                .help("Display all cammands"),
+        )
         .subcommand(App::new("init").about("Create en empty configuration file"))
         .subcommand(
             App::new("add")

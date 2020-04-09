@@ -1,7 +1,8 @@
-use crate::helper::{get_entry_abs, reach_directories};
+use crate::helper::{get_entry_abs, reach_directories, run_progress};
 use clap::ArgMatches;
 
 use crate::{BIN_NAME, VERSION};
+
 use d4d::env;
 use d4d::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
 use d4d::exec::aws::workflow::AwsWorkflow;
@@ -29,7 +30,7 @@ pub fn run_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
         .cli_aws()?
         .s3_bucket_exists()?;
-    if let Some(output) = runner.run2()? {
+    if let Some(output) = run_progress(runner, "check deploy bucket ...", "deploy bucket ok")? {
         let output: Result<AwsOutputS3Exists> = output.into();
         let s3exit = output?;
 
@@ -43,15 +44,22 @@ pub fn run_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
             let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
                 .cli_aws()?
                 .s3_create_bucket()?;
-            runner.run()?;
+            run_progress(
+                runner,
+                "creating bucket deploy ...",
+                "bucket deploy created ",
+            )?;
         }
     }
 
     let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
         .cli_aws()?
         .s3_bucket_location()?;
-
-    if let Some(output) = runner.run2()? {
+    if let Some(output) = run_progress(
+        runner,
+        "check deploy bucket location ...",
+        "deploy bucket location ok",
+    )? {
         let output: Result<AwsOutputS3BucketLocation> = output.into();
         output?;
     }
@@ -59,11 +67,12 @@ pub fn run_command(exec_ctx: &ExecCtx, projects: &Projects) -> Result<()> {
     let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
         .cli_aws()?
         .cloudformation_package()?;
-    runner.run()?;
+    run_progress(runner, "package ...", "package ok")?;
+
     let runner = AwsWorkflow::new(&project, &env, &exec_ctx)
         .cli_aws()?
         .cloudformation_deploy()?;
-    runner.spawn()?;
+    run_progress(runner, "", "deploy ok")?;
     Ok(())
 }
 
@@ -121,13 +130,16 @@ pub fn ls_command(projects: &Projects) -> Result<()> {
                             .with_style(Attr::Bold)
                             .with_style(Attr::ForegroundColor(color::GREEN)),
                         0,
-                    );
+                    )
+                    .unwrap_or_default();
                 }
             }
         }
-        row.set_cell(Cell::new(project.name().as_str()), 1);
+        row.set_cell(Cell::new(project.name().as_str()), 1)
+            .unwrap_or_default();
         if let Ok(template_file_rel) = project.template_file_rel() {
-            row.set_cell(Cell::new(template_file_rel.to_string_lossy().as_ref()), 2);
+            row.set_cell(Cell::new(template_file_rel.to_string_lossy().as_ref()), 2)
+                .unwrap_or_default();
         }
         table.add_row(row);
 

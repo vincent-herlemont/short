@@ -10,6 +10,7 @@ dirs = "2.0.2"
 promptly = "0.3.0"
 indicatif = "0.14.0"
 prettytable-rs = "0.8.0"
+colored = "1.9"
 utils = { path = "../utils" }
 d4d = { path = "../d4d" }
 

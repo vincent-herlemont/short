@@ -142,6 +142,7 @@ name = "cli"
 version = "0.0.1"
 dependencies = [
  "clap",
+ "colored",
  "d4d",
  "dirs 2.0.2",
  "include_walk",
@@ -162,6 +163,17 @@ dependencies = [
  "atty",
  "lazy_static",
  "libc",
+ "winapi",
+]
+
+[[package]]
+name = "colored"
+version = "1.9.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4ffc801dacf156c5854b9df4f425a626539c3a6ef7893cc0c5084a23f0b6c59"
+dependencies = [
+ "atty",
+ "lazy_static",
  "winapi",
 ]
 
@@ -231,6 +243,7 @@ name = "d4d"
 version = "0.1.0"
 dependencies = [
  "dirs 2.0.2",
+ "duct",
  "env",
  "include_walk",
  "insta",
@@ -286,6 +299,18 @@ name = "dtoa"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4358a9e11b9a09cf52383b451b49a169e8d797b68aa02301ff586d70d9661ea3"
+
+[[package]]
+name = "duct"
+version = "0.13.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1607fa68d55be208e83bcfbcfffbc1ec65c9fbcf9eb1a5d548dc3ac0100743b0"
+dependencies = [
+ "libc",
+ "once_cell",
+ "os_pipe",
+ "shared_child",
+]
 
 [[package]]
 name = "encode_unicode"
@@ -425,6 +450,22 @@ name = "number_prefix"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "17b02fc0ff9a9e4b35b3342880f48e896ebf69f2967921fe8646bf5b7125956a"
+
+[[package]]
+name = "once_cell"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1c601810575c99596d4afc46f78a678c80105117c379eb3650cf99b8a21ce5b"
+
+[[package]]
+name = "os_pipe"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db4d06355a7090ce852965b2d08e11426c315438462638c6d721448d0b47aa22"
+dependencies = [
+ "libc",
+ "winapi",
+]
 
 [[package]]
 name = "prettytable-rs"
@@ -649,6 +690,16 @@ dependencies = [
  "linked-hash-map",
  "serde",
  "yaml-rust",
+]
+
+[[package]]
+name = "shared_child"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8cebcf3a403e4deafaf34dc882c4a1b6a648b43e5670aa2e4bb985914eaeb2d2"
+dependencies = [
+ "libc",
+ "winapi",
 ]
 
 [[package]]
