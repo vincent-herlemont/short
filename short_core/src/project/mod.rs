@@ -1,11 +1,11 @@
 use crate::project::global::{GlobalProject, GlobalProjects};
 use crate::project::local::{LocalProject, LocalProjects};
 use serde::export::Formatter;
+use short_utils::error::Error;
+use short_utils::result::Result;
 use std::fmt;
 use std::fmt::Display;
 use std::path::{Path, PathBuf};
-use utils::error::Error;
-use utils::result::Result;
 
 pub use super::project::global::CurrentProject;
 use crate::project::provider::{AwsCfg, ProviderCfg};

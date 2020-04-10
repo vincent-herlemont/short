@@ -150,7 +150,7 @@ dependencies = [
  "prettytable-rs",
  "promptly",
  "short_core",
- "utils",
+ "short_utils",
  "walkdir",
 ]
 
@@ -692,7 +692,7 @@ dependencies = [
  "serde",
  "serde_yaml",
  "short_env",
- "utils",
+ "short_utils",
  "voca_rs",
  "walkdir",
  "which",
@@ -701,6 +701,19 @@ dependencies = [
 [[package]]
 name = "short_env"
 version = "0.0.1"
+
+[[package]]
+name = "short_utils"
+version = "0.0.1"
+dependencies = [
+ "include_walk",
+ "promptly",
+ "serde",
+ "serde_yaml",
+ "tempdir",
+ "walkdir",
+ "which",
+]
 
 [[package]]
 name = "stfu8"
@@ -806,19 +819,6 @@ name = "utf8parse"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "936e4b492acfd135421d8dca4b1aa80a7bfc26e702ef3af710e0752684df5372"
-
-[[package]]
-name = "utils"
-version = "0.0.1"
-dependencies = [
- "include_walk",
- "promptly",
- "serde",
- "serde_yaml",
- "tempdir",
- "walkdir",
- "which",
-]
 
 [[package]]
 name = "vec_map"

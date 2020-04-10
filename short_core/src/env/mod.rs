@@ -1,9 +1,9 @@
 use crate::project::Project;
 use short_env::Env;
+use short_utils::error::Error;
+use short_utils::result::Result;
 use std::fs;
 use std::path::PathBuf;
-use utils::error::Error;
-use utils::result::Result;
 
 pub fn env_file_name(env: &String) -> String {
     format!(".{}", env)

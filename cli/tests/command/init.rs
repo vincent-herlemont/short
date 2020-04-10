@@ -1,7 +1,7 @@
 use insta::assert_debug_snapshot;
+use short_utils::asset::Assets;
+use short_utils::test::{before, ConfigPath};
 use std::fs::read_to_string;
-use utils::asset::Assets;
-use utils::test::{before, ConfigPath};
 
 const CRATE_NAME: &'static str = env!("CARGO_PKG_NAME");
 

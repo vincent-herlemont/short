@@ -1,11 +1,11 @@
 //! Provide in the same struct [`ContentFile`] and Cloudformation [`Template`]
 use crate::cloudformation::template::{ContentTemplate, Template};
+use short_utils::error::Error;
+use short_utils::fs::ContentFile;
+use short_utils::path::filter_extensions;
+use short_utils::result::unwrap_partition;
 use std::cmp::Ordering;
 use std::path::PathBuf;
-use utils::error::Error;
-use utils::fs::ContentFile;
-use utils::path::filter_extensions;
-use utils::result::unwrap_partition;
 
 #[allow(dead_code)]
 pub static YAML_EXTENSIONS: [&str; 2] = ["yaml", "yml"];
@@ -76,12 +76,12 @@ mod tests {
     use crate::assets::get_all;
     use crate::cloudformation::template::{ContentTemplate, Template};
     use crate::cloudformation::template_file::{from_paths, TemplateFile};
-    use utils::assert_find;
-    use utils::assert_not_find;
-    use utils::asset::default_assets;
-    use utils::error::Error;
-    use utils::path::retrieve;
-    use utils::test::before;
+    use short_utils::assert_find;
+    use short_utils::assert_not_find;
+    use short_utils::asset::default_assets;
+    use short_utils::error::Error;
+    use short_utils::path::retrieve;
+    use short_utils::test::before;
 
     #[allow(unreachable_patterns)]
     #[test]

@@ -15,7 +15,7 @@ use std::env;
 
 use std::process::exit;
 
-use utils::result::Result;
+use short_utils::result::Result;
 
 mod assets;
 mod command;

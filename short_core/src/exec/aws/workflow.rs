@@ -3,9 +3,9 @@ use crate::exec::ExecCtx;
 
 use crate::project::Project;
 use short_env::Env;
+use short_utils::error::Error;
+use short_utils::result::Result;
 use std::path::PathBuf;
-use utils::error::Error;
-use utils::result::Result;
 use voca_rs::case::kebab_case;
 
 /// Required environment variables

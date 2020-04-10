@@ -7,11 +7,11 @@ use std::fs::OpenOptions;
 use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 
-use utils::error::Error;
+use short_utils::error::Error;
 
+use short_utils::result::Result;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
-use utils::result::Result;
 
 const PROJECT_FILE_NAME: &'static str = "short.yaml";
 
@@ -271,11 +271,11 @@ impl LocalProjects {
 mod tests {
     use crate::project::local::{local_file_path, read_local_file, save_local_file, LocalProjects};
     use insta::assert_yaml_snapshot;
+    use short_utils::asset::Assets;
+    use short_utils::test::before;
     use std::collections::HashMap;
     use std::fs::read_to_string;
     use std::path::PathBuf;
-    use utils::asset::Assets;
-    use utils::test::before;
 
     #[test]
     fn test_read_local_file() {

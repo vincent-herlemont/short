@@ -5,7 +5,7 @@ use crate::exec::aws::workflow::{
 use crate::exec::{EmptyCtx, Runner, Software};
 
 use crate::exec::aws::parameter_overrides::ParameterOverrides;
-use utils::result::Result;
+use short_utils::result::Result;
 
 #[derive(Debug)]
 pub struct CliAws<'p, 'e, 'c> {

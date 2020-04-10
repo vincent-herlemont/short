@@ -2,11 +2,11 @@ use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use short_core::exec::output::Output;
 use short_core::exec::Runner;
+use short_utils::error::Error;
+use short_utils::result::Result;
 use std::env::current_dir;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use utils::error::Error;
-use utils::result::Result;
 
 /// return (current_dir,home_dir)
 pub fn reach_directories() -> Result<(PathBuf, PathBuf)> {

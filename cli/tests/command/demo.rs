@@ -1,9 +1,5 @@
-
-
-
-
-use utils::asset::Assets;
-use utils::test::{before};
+use short_utils::asset::Assets;
+use short_utils::test::before;
 
 const CRATE_NAME: &'static str = env!("CARGO_PKG_NAME");
 

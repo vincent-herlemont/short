@@ -36,7 +36,7 @@ impl Error {
     /// Usually use [`format!`] as string parameter for pass context information.
     ///
     /// ```
-    /// use utils::error::Error;
+    /// use short_utils::error::Error;
     /// let url = "http://.....";
     /// Error::new(format!("fail to get url {}",url));
     /// ```

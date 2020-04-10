@@ -1,5 +1,5 @@
 use crate::exec::output::Output;
-use utils::result::Result;
+use short_utils::result::Result;
 
 #[derive(Debug)]
 pub struct AwsOutputS3Exists {
@@ -27,7 +27,7 @@ impl<C> From<Output<C>> for Result<AwsOutputS3Exists> {
 use crate::exec::aws::aws_command::AwsCtxS3BucketLocation;
 
 use serde::Deserialize;
-use utils::error::Error;
+use short_utils::error::Error;
 
 #[derive(Debug, Deserialize)]
 pub struct AwsOutputS3BucketLocation {
@@ -56,8 +56,8 @@ mod tests {
     use crate::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
     use crate::exec::output::Output;
     use crate::exec::EmptyCtx;
-    use utils::error::Error;
-    use utils::result::Result;
+    use short_utils::error::Error;
+    use short_utils::result::Result;
 
     #[test]
     fn aws_output_s3bucket_location() {

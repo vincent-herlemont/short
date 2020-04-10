@@ -11,7 +11,7 @@ promptly = "0.3.0"
 indicatif = "0.14.0"
 prettytable-rs = "0.8.0"
 colored = "1.9"
-utils = { path = "../utils" }
+short_utils = { path = "../short_utils" }
 short_core = { path = "../short_core" }
 
 [dev-dependencies]

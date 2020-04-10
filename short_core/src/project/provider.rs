@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-use utils::error::Error;
-use utils::result::Result;
+use short_utils::error::Error;
+use short_utils::result::Result;
 
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(tag = "name")]

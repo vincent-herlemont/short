@@ -12,8 +12,8 @@ use std::process::{Command, Stdio};
 use std::sync::mpsc;
 use std::thread;
 
-use utils::error::Error;
-use utils::result::Result;
+use short_utils::error::Error;
+use short_utils::result::Result;
 use which;
 
 #[derive(Debug)]

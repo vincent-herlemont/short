@@ -13,7 +13,7 @@ dirs = "2.0.2"
 which = "3.1.1"
 voca_rs = "1.10.0"
 duct = "0.13.3"
-utils = { path = "../utils" }
+short_utils = { path = "../short_utils" }
 short_env = {path = "../short_env"}
 
 [dev-dependencies]

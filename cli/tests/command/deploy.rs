@@ -1,6 +1,6 @@
+use short_utils::asset::Assets;
+use short_utils::test::before;
 use std::fs::read_to_string;
-use utils::asset::Assets;
-use utils::test::before;
 
 const CRATE_NAME: &'static str = env!("CARGO_PKG_NAME");
 

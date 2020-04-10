@@ -1,5 +1,5 @@
+use short_utils::error::Error;
 use std::process::Output as StdOutPut;
-use utils::error::Error;
 
 #[derive(Debug)]
 pub struct Output<C> {

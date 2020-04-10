@@ -10,8 +10,8 @@ use short_core::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Ex
 use short_core::exec::aws::workflow::AwsWorkflow;
 use short_core::exec::ExecCtx;
 use short_core::project::Projects;
-use utils::error::Error;
-use utils::result::Result;
+use short_utils::error::Error;
+use short_utils::result::Result;
 
 pub fn init_command() -> Result<()> {
     match reach_directories() {

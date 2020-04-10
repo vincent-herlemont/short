@@ -3,7 +3,7 @@ use clap::ArgMatches;
 use short_core::exec::ExecCtx;
 use short_core::project::{CurrentProject, Projects};
 
-use utils::result::Result;
+use short_utils::result::Result;
 
 /// Return the execution context.
 /// It's control the execution behavior of externals commands.
