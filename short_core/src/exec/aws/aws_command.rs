@@ -130,7 +130,7 @@ mod tests {
     use crate::exec::aws::workflow::{AwsWorkflow, ENV_AWS_REGION, ENV_AWS_S3_BUCKET_DEPLOY};
     use crate::exec::ExecCtx;
     use crate::project::Projects;
-    use env::Env;
+    use short_env::Env;
 
     fn env() -> Env {
         let mut env = Env::new();

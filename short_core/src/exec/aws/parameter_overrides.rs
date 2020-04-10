@@ -1,8 +1,7 @@
-
 use crate::exec::aws::workflow::{
     ENV_AWS_CAPABILITY_IAM, ENV_AWS_CAPABILITY_NAMED_IAM, ENV_AWS_REGION, ENV_AWS_S3_BUCKET_DEPLOY,
 };
-use env::Env;
+use short_env::Env;
 
 use voca_rs::case::pascal_case;
 
@@ -45,7 +44,7 @@ impl<'e, 'sn> ParameterOverrides<'e, 'sn> {
 mod tests {
     use crate::exec::aws::parameter_overrides::ParameterOverrides;
     use crate::exec::aws::workflow::ENV_AWS_REGION;
-    use env::Env;
+    use short_env::Env;
 
     #[test]
     fn display() {

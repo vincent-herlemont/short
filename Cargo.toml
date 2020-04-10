@@ -3,5 +3,5 @@ members = [
     "utils",
     "short_core",
     "cli",
-    "env",
+    "short_env",
 ]

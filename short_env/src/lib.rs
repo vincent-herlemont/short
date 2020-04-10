@@ -142,7 +142,7 @@ impl Env {
     }
 
     /// ```
-    /// use env::Env;
+    /// use short_env::Env;
     /// let mut env = Env::new();
     ///
     /// env.add("var1","test");
@@ -165,7 +165,7 @@ impl Env {
     }
 
     /// ```
-    /// use env::Env;
+    /// use short_env::Env;
     /// let mut env = Env::new();
     ///
     /// env.add("var1","test");

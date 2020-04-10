@@ -1,4 +1,4 @@
-use env::Env;
+use short_env::Env;
 use std::io::Cursor;
 
 #[test]

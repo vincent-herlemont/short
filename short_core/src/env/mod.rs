@@ -1,5 +1,5 @@
 use crate::project::Project;
-use env::Env;
+use short_env::Env;
 use std::fs;
 use std::path::PathBuf;
 use utils::error::Error;

@@ -2,7 +2,7 @@ use crate::exec::aws::aws_command::CliAws;
 use crate::exec::ExecCtx;
 
 use crate::project::Project;
-use env::Env;
+use short_env::Env;
 use std::path::PathBuf;
 use utils::error::Error;
 use utils::result::Result;
@@ -96,7 +96,7 @@ mod tests {
     use crate::exec::aws::workflow::{AwsWorkflow, ENV_AWS_REGION, ENV_AWS_S3_BUCKET_DEPLOY};
     use crate::exec::ExecCtx;
     use crate::project::Projects;
-    use env::Env;
+    use short_env::Env;
     use std::path::PathBuf;
 
     fn env() -> Env {

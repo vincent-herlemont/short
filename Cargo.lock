@@ -302,10 +302,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a357d28ed41a50f9c765dbfe56cbc04a64e53e5fc58ba79fbc34c10ef3df831f"
 
 [[package]]
-name = "env"
-version = "0.0.1"
-
-[[package]]
 name = "failure"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -691,16 +687,20 @@ version = "0.0.1"
 dependencies = [
  "dirs 2.0.2",
  "duct",
- "env",
  "include_walk",
  "insta",
  "serde",
  "serde_yaml",
+ "short_env",
  "utils",
  "voca_rs",
  "walkdir",
  "which",
 ]
+
+[[package]]
+name = "short_env"
+version = "0.0.1"
 
 [[package]]
 name = "stfu8"
