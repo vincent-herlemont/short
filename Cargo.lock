@@ -138,23 +138,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cli"
-version = "0.0.1"
-dependencies = [
- "clap",
- "colored",
- "dirs 2.0.2",
- "include_walk",
- "indicatif",
- "insta",
- "prettytable-rs",
- "promptly",
- "short_core",
- "short_utils",
- "walkdir",
-]
-
-[[package]]
 name = "clicolors-control"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -679,6 +662,23 @@ checksum = "8cebcf3a403e4deafaf34dc882c4a1b6a648b43e5670aa2e4bb985914eaeb2d2"
 dependencies = [
  "libc",
  "winapi",
+]
+
+[[package]]
+name = "short"
+version = "0.0.1"
+dependencies = [
+ "clap",
+ "colored",
+ "dirs 2.0.2",
+ "include_walk",
+ "indicatif",
+ "insta",
+ "prettytable-rs",
+ "promptly",
+ "short_core",
+ "short_utils",
+ "walkdir",
 ]
 
 [[package]]

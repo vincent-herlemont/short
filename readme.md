@@ -1,6 +1,8 @@
-# Short
+# Short ![](https://github.com/vincent-herlemont/short/workflows/Rust/badge.svg)
 
-![](https://github.com/vincent-herlemont/short/workflows/Rust/badge.svg)
+:construction: *Disclaimer : It's an experimental project that I used for learn rust. Most of the code are dirty and need to be rewrite.*
+
+Short allow to manage easily **multiple cloudformation projects** with **multiple environments** on .env files.
 
 ## Install
 
