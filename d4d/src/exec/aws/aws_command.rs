@@ -4,6 +4,7 @@ use crate::exec::aws::workflow::{
 };
 use crate::exec::{EmptyCtx, Runner, Software};
 
+use crate::exec::aws::parameter_overrides::ParameterOverrides;
 use utils::result::Result;
 
 #[derive(Debug)]
@@ -78,6 +79,10 @@ impl<'p, 'e, 'c> CliAws<'p, 'e, 'c> {
             "--stack-name",
             stack_name.as_ref(),
         ]);
+
+        let parameter_overrides = ParameterOverrides::new(self.aws_workflow.env(), &stack_name);
+        self.software.args(parameter_overrides.args().as_slice());
+
         if let Some(capabilities) = capabilities.to_strings() {
             self.software.arg("--capabilities");
             self.software.args(capabilities);
@@ -168,7 +173,7 @@ mod tests {
             .unwrap()
             .cloudformation_deploy()
             .unwrap();
-        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test");
+        assert_eq!(format!("{}",runner),"aws --region test-region cloudformation deploy --template-file /path/to/local/project_test.pkg.tpl --stack-name project_test-env_test --parameter-overrides StackName=project_test-env_test");
     }
 
     #[test]

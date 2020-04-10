@@ -52,15 +52,13 @@ projects:
         .output()
         .unwrap();
 
-    config.println(&output);
-
     assert_eq!(
         String::from_utf8(output.stdout).unwrap(),
         format!(
             r#"aws s3api head-bucket --bucket bucket_1
 aws --region us-east-3 s3api get-bucket-location --bucket bucket_1
 aws --region us-east-3 cloudformation package --template-file {p}/./template.yaml --s3-bucket bucket_1 --output-template-file {p}/template.pkg.yaml
-aws --region us-east-3 cloudformation deploy --template-file {p}/template.pkg.yaml --stack-name p1-dev
+aws --region us-east-3 cloudformation deploy --template-file {p}/template.pkg.yaml --stack-name p1-dev --parameter-overrides StackName=p1-dev
 
 "#,
             p = config.tmp_project_dir.to_string_lossy().trim()
@@ -158,7 +156,7 @@ AWS_REGION=us-east-3"#,
             r#"aws s3api head-bucket --bucket bucket_1
 aws --region us-east-3 s3api get-bucket-location --bucket bucket_1
 aws --region us-east-3 cloudformation package --template-file {p}/sub_project/template.yaml --s3-bucket bucket_1 --output-template-file {p}/sub_project/template.pkg.yaml
-aws --region us-east-3 cloudformation deploy --template-file {p}/sub_project/template.pkg.yaml --stack-name p1-dev
+aws --region us-east-3 cloudformation deploy --template-file {p}/sub_project/template.pkg.yaml --stack-name p1-dev --parameter-overrides StackName=p1-dev
 
 "#,
             p = config.tmp_project_dir.to_string_lossy().trim()
