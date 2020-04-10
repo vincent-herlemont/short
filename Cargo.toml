@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "utils",
-    "short",
+    "short_core",
     "cli",
     "env",
 ]

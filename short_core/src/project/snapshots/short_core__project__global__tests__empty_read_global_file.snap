@@ -1,0 +1,5 @@
+---
+source: short-core/src/project/global.rs
+expression: projects
+---
+projects: []

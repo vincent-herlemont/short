@@ -5,11 +5,11 @@ use crate::{BIN_NAME, VERSION};
 
 use indicatif::{ProgressBar, ProgressStyle};
 use promptly::prompt_default;
-use short::env;
-use short::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
-use short::exec::aws::workflow::AwsWorkflow;
-use short::exec::ExecCtx;
-use short::project::Projects;
+use short_core::env;
+use short_core::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
+use short_core::exec::aws::workflow::AwsWorkflow;
+use short_core::exec::ExecCtx;
+use short_core::project::Projects;
 use utils::error::Error;
 use utils::result::Result;
 

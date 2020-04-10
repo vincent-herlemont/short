@@ -4,13 +4,13 @@ extern crate prettytable;
 use clap::AppSettings::{ArgRequiredElseHelp, DeriveDisplayOrder, VersionlessSubcommands};
 use clap::{App, Arg, ArgMatches};
 
-use short::exec::ExecCtx;
+use short_core::exec::ExecCtx;
 
 use crate::command::{
     add_command, demo_command, init_command, ls_command, run_command, use_command,
 };
 use crate::init::{init_exec_ctx, init_projects};
-use short::project::Projects;
+use short_core::project::Projects;
 use std::env;
 
 use std::process::exit;

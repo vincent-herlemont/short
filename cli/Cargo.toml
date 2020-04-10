@@ -12,7 +12,7 @@ indicatif = "0.14.0"
 prettytable-rs = "0.8.0"
 colored = "1.9"
 utils = { path = "../utils" }
-short = { path = "../short" }
+short_core = { path = "../short_core" }
 
 [dev-dependencies]
 walkdir = "2.3.1"

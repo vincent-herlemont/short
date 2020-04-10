@@ -149,7 +149,7 @@ dependencies = [
  "insta",
  "prettytable-rs",
  "promptly",
- "short",
+ "short_core",
  "utils",
  "walkdir",
 ]
@@ -686,7 +686,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "short"
+name = "short_core"
 version = "0.0.1"
 dependencies = [
  "dirs 2.0.2",

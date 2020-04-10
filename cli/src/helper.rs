@@ -1,7 +1,7 @@
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
-use short::exec::output::Output;
-use short::exec::Runner;
+use short_core::exec::output::Output;
+use short_core::exec::Runner;
 use std::env::current_dir;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;

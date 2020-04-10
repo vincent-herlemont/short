@@ -1,7 +1,7 @@
 use crate::helper::reach_directories;
 use clap::ArgMatches;
-use short::exec::ExecCtx;
-use short::project::{CurrentProject, Projects};
+use short_core::exec::ExecCtx;
+use short_core::project::{CurrentProject, Projects};
 
 use utils::result::Result;
 
