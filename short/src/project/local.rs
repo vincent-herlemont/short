@@ -13,7 +13,7 @@ use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 use utils::result::Result;
 
-const PROJECT_FILE_NAME: &'static str = "d4d.yaml";
+const PROJECT_FILE_NAME: &'static str = "short.yaml";
 
 fn local_file_path<P: AsRef<Path>>(root: P) -> PathBuf {
     root.as_ref().join(PROJECT_FILE_NAME)
@@ -281,7 +281,7 @@ mod tests {
     fn test_read_local_file() {
         let mut assets = HashMap::new();
         assets.insert(
-            "d4d.yaml",
+            "short.yaml",
             r#"
 projects:
     - name: test_1

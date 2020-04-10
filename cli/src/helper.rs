@@ -1,7 +1,7 @@
 use colored::*;
-use d4d::exec::output::Output;
-use d4d::exec::Runner;
 use indicatif::{ProgressBar, ProgressStyle};
+use short::exec::output::Output;
+use short::exec::Runner;
 use std::env::current_dir;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;

@@ -1,7 +1,7 @@
 use crate::helper::reach_directories;
 use clap::ArgMatches;
-use d4d::exec::ExecCtx;
-use d4d::project::{CurrentProject, Projects};
+use short::exec::ExecCtx;
+use short::project::{CurrentProject, Projects};
 
 use utils::result::Result;
 

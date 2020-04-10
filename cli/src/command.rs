@@ -3,13 +3,13 @@ use clap::ArgMatches;
 
 use crate::{BIN_NAME, VERSION};
 
-use d4d::env;
-use d4d::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
-use d4d::exec::aws::workflow::AwsWorkflow;
-use d4d::exec::ExecCtx;
-use d4d::project::Projects;
 use indicatif::{ProgressBar, ProgressStyle};
 use promptly::prompt_default;
+use short::env;
+use short::exec::aws::aws_output::{AwsOutputS3BucketLocation, AwsOutputS3Exists};
+use short::exec::aws::workflow::AwsWorkflow;
+use short::exec::ExecCtx;
+use short::project::Projects;
 use utils::error::Error;
 use utils::result::Result;
 

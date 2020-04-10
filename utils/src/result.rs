@@ -1,4 +1,4 @@
-//! D4d specific Result type
+//! short specific Result type
 /// Inspiration from : https://github.com/brson/basic-http-server/blob/1ab052719a88e41822b2955d7d72bf161457d47c/src/main.rs#L447
 use super::error::Error;
 use serde::export::fmt::Debug;

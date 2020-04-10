@@ -1,8 +1,8 @@
 # Maintainer: Vincent Herlemont <vincentherl@leszeros.com>
-pkgname=d4d-git
+pkgname=short-git
 pkgver=v0.0.1.r16.gd935654
 pkgrel=1
-source=("${pkgname}::git+https://github.com/vincent-herlemont/d4d.git")
+source=("${pkgname}::git+https://github.com/vincent-herlemont/short.git")
 makedepends=('git' 'rust' 'cargo')
 provides=()
 replaces=()
@@ -21,5 +21,5 @@ build() {
 package() {
    cd ${pkgname};
    install -Dm 755 target/release/cli -t "${pkgdir}/usr/bin"
-   mv "${pkgdir}/usr/bin/cli" "${pkgdir}/usr/bin/d4d"
+   mv "${pkgdir}/usr/bin/cli" "${pkgdir}/usr/bin/short"
 }

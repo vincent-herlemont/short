@@ -11,7 +11,7 @@ fn run_use() {
     // Project : p1
     config
         .add_asset_project(
-            "./d4d.yaml",
+            "./short.yaml",
             r#"---
 projects: []
 "#,
@@ -23,7 +23,7 @@ projects: []
 
     config
         .add_asset_home(
-            ".d4d/projects.yaml",
+            ".short/projects.yaml",
             format!(
                 r#"---
 projects: []"#
@@ -34,7 +34,7 @@ projects: []"#
     let mut command = config.command();
     let _output = command.arg("use").arg("p1").arg("dev").output().unwrap();
 
-    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
+    let global_project_file = &config.tmp_home_dir.join(".short/projects.yaml");
     let content = read_to_string(global_project_file).unwrap();
     assert_eq!(
         r#"---

@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use utils::error::Error;
 use utils::result::Result;
 
-const PROJECT_CONFIG_DIRECTORY: &'static str = ".d4d";
+const PROJECT_CONFIG_DIRECTORY: &'static str = ".short";
 const PROJECT_CURRENT_FILE_NAME: &'static str = "projects.yaml";
 
 fn global_directory_path<P: AsRef<Path>>(home: P) -> PathBuf {
@@ -373,7 +373,7 @@ mod tests {
     fn test_empty_read_global_file() {
         let mut assets: HashMap<&str, &str> = HashMap::new();
         assets.insert(
-            ".d4d/projects.yaml",
+            ".short/projects.yaml",
             r#"
 projects: []
 "#,
@@ -392,7 +392,7 @@ projects: []
     fn test_read_global_file() {
         let mut assets: HashMap<&str, &str> = HashMap::new();
         assets.insert(
-            ".d4d/projects.yaml",
+            ".short/projects.yaml",
             r#"
 projects:
     - name: project_1

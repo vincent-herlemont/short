@@ -15,7 +15,7 @@ fn init() {
     let content_dir = config.tree();
     assert_debug_snapshot!(content_dir);
 
-    let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
+    let local_project_file = &config.tmp_project_dir.join("short.yaml");
     let content = read_to_string(local_project_file).unwrap();
     assert_eq!(
         r#"---
@@ -32,10 +32,10 @@ projects:
         name: aws
 "#;
     config
-        .add_asset_project("./d4d.yaml", PROJECT_FILE_CONTENT)
+        .add_asset_project("./short.yaml", PROJECT_FILE_CONTENT)
         .unwrap();
     let _output = config.command().arg("init").output().unwrap();
-    let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
+    let local_project_file = &config.tmp_project_dir.join("short.yaml");
     let content = read_to_string(local_project_file).unwrap();
     assert_eq!(PROJECT_FILE_CONTENT, content.as_str());
 }

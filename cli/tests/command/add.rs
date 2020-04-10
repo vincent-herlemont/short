@@ -12,7 +12,7 @@ fn add() {
     // Project : empty
     config
         .add_asset_project(
-            "./d4d.yaml",
+            "./short.yaml",
             r#"---
 projects: []"#,
         )
@@ -35,7 +35,7 @@ projects:
     provider:
       name: aws
       template_path: template.yaml"#;
-    let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
+    let local_project_file = &config.tmp_project_dir.join("short.yaml");
     let content = read_to_string(local_project_file).unwrap();
     assert_eq!(PROJECT_FILE_CONTENT, content.as_str());
 
@@ -46,7 +46,7 @@ projects:
     path: {}"#,
         config.tmp_project_dir.to_string_lossy()
     );
-    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
+    let global_project_file = &config.tmp_home_dir.join(".short/projects.yaml");
     let content = read_to_string(global_project_file).unwrap();
     assert_eq!(global_project_file_content, content.as_str());
 
@@ -63,11 +63,11 @@ projects:
         String::from_utf8(output.stderr).unwrap()
     );
 
-    let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
+    let local_project_file = &config.tmp_project_dir.join("short.yaml");
     let content = read_to_string(local_project_file).unwrap();
     assert_eq!(PROJECT_FILE_CONTENT, content.as_str());
 
-    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
+    let global_project_file = &config.tmp_home_dir.join(".short/projects.yaml");
     let content = read_to_string(global_project_file).unwrap();
     assert_eq!(global_project_file_content, content.as_str());
 }
@@ -78,7 +78,7 @@ fn add_in_sub_directory() {
     // Project : empty
     config
         .add_asset_project(
-            "./d4d.yaml",
+            "./short.yaml",
             r#"---
 projects: []"#,
         )
@@ -107,7 +107,7 @@ projects:
     provider:
       name: aws
       template_path: sub_directory/template.yaml"#;
-    let local_project_file = &config.tmp_project_dir.join("d4d.yaml");
+    let local_project_file = &config.tmp_project_dir.join("short.yaml");
     let content = read_to_string(local_project_file).unwrap();
     assert_eq!(PROJECT_FILE_CONTENT, content.as_str());
 
@@ -118,7 +118,7 @@ projects:
     path: {}"#,
         config.tmp_project_dir.to_string_lossy()
     );
-    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
+    let global_project_file = &config.tmp_home_dir.join(".short/projects.yaml");
     let content = read_to_string(global_project_file).unwrap();
     assert_eq!(global_project_file_content, content.as_str());
 }

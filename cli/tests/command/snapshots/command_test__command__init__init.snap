@@ -10,5 +10,5 @@ expression: content_dir
     "private_env/.keep",
     "project",
     "project/.keep",
-    "project/d4d.yaml",
+    "project/short.yaml",
 ]

@@ -1,4 +1,4 @@
-//! Input/Ouput manipulation operations related of d4d domain.
+//! Input/Ouput manipulation operations related of short domain.
 use crate::error::Error;
 use crate::result::Result;
 use std::io;

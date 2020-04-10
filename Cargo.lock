@@ -143,13 +143,13 @@ version = "0.0.1"
 dependencies = [
  "clap",
  "colored",
- "d4d",
  "dirs 2.0.2",
  "include_walk",
  "indicatif",
  "insta",
  "prettytable-rs",
  "promptly",
+ "short",
  "utils",
  "walkdir",
 ]
@@ -239,23 +239,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "d4d"
-version = "0.1.0"
-dependencies = [
- "dirs 2.0.2",
- "duct",
- "env",
- "include_walk",
- "insta",
- "serde",
- "serde_yaml",
- "utils",
- "voca_rs",
- "walkdir",
- "which",
-]
-
-[[package]]
 name = "difference"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -320,7 +303,7 @@ checksum = "a357d28ed41a50f9c765dbfe56cbc04a64e53e5fc58ba79fbc34c10ef3df831f"
 
 [[package]]
 name = "env"
-version = "0.1.0"
+version = "0.0.1"
 
 [[package]]
 name = "failure"
@@ -703,6 +686,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "short"
+version = "0.0.1"
+dependencies = [
+ "dirs 2.0.2",
+ "duct",
+ "env",
+ "include_walk",
+ "insta",
+ "serde",
+ "serde_yaml",
+ "utils",
+ "voca_rs",
+ "walkdir",
+ "which",
+]
+
+[[package]]
 name = "stfu8"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -809,7 +809,7 @@ checksum = "936e4b492acfd135421d8dca4b1aa80a7bfc26e702ef3af710e0752684df5372"
 
 [[package]]
 name = "utils"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "include_walk",
  "promptly",

@@ -1,4 +1,4 @@
-//! Helper for test related of d4d domain.
+//! Helper for test related of short domain.
 use crate::asset::{to_dir, Assets};
 use crate::result::Result;
 use std::collections::HashMap;
@@ -183,7 +183,7 @@ impl ConfigPath for ConfigCli {
 /// The temporary directory is owned by [`InspectorConfig.path`].
 ///
 pub fn before(test_name: &str, assets: Assets) -> Config {
-    let test_name = format!("{}.{}", "d4d", test_name);
+    let test_name = format!("{}.{}", "short", test_name);
 
     // Create temporary directory.
     let temp_dir = TempDir::new(test_name.as_str()).expect("fail to create temporary directory");

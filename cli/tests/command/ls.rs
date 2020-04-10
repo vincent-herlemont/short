@@ -1,7 +1,5 @@
-
-
 use utils::asset::Assets;
-use utils::test::{before};
+use utils::test::before;
 
 const CRATE_NAME: &'static str = env!("CARGO_PKG_NAME");
 
@@ -12,7 +10,7 @@ fn ls_empty() {
     // Project : empty
     config
         .add_asset_project(
-            "./d4d.yaml",
+            "./short.yaml",
             r#"---
 projects: []"#,
         )
@@ -33,7 +31,7 @@ fn ls() {
     // Project : empty
     config
         .add_asset_project(
-            "./d4d.yaml",
+            "./short.yaml",
             r#"projects:
   - name: p1
     public_env_directory: sub_project
@@ -60,7 +58,7 @@ AWS_REGION=us-east-3"#,
 
     config
         .add_asset_home(
-            ".d4d/projects.yaml",
+            ".short/projects.yaml",
             format!(
                 r#"---
 current_project:

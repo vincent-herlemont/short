@@ -1,4 +1,4 @@
-//! File manipulation operations related of d4d domain.
+//! File manipulation operations related of short domain.
 use super::io;
 use crate::error::Error;
 use crate::result::{unwrap_partition, Result};

@@ -11,7 +11,7 @@ fn run_aws() {
     // Project : p1
     config
         .add_asset_project(
-            "./d4d.yaml",
+            "./short.yaml",
             r#"---
 projects:
   - name: p1
@@ -32,7 +32,7 @@ AWS_REGION=us-east-3"#,
 
     config
         .add_asset_home(
-            ".d4d/projects.yaml",
+            ".short/projects.yaml",
             format!(
                 r#"---
 projects:
@@ -73,7 +73,7 @@ fn run_aws_sync() {
     // Project : p1
     config
         .add_asset_project(
-            "./d4d.yaml",
+            "./short.yaml",
             r#"---
 projects:
   - name: p1
@@ -105,7 +105,7 @@ projects:
     path: {}"#,
         config.tmp_project_dir.to_string_lossy()
     );
-    let global_project_file = &config.tmp_home_dir.join(".d4d/projects.yaml");
+    let global_project_file = &config.tmp_home_dir.join(".short/projects.yaml");
     let content = read_to_string(global_project_file).unwrap();
     assert_eq!(global_project_file_content, content.as_str());
 }
@@ -117,7 +117,7 @@ fn run_aws_sync_sub_command() {
     // Project : p1
     config
         .add_asset_project(
-            "./d4d.yaml",
+            "./short.yaml",
             r#"---
 projects:
   - name: p1

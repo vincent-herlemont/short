@@ -10,7 +10,7 @@ fn deploy_duplicate_project() {
     // Project : p1
     config
         .add_asset_project(
-            "./d4d.yaml",
+            "./short.yaml",
             r#"---
 projects:
   - name: p1

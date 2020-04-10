@@ -1,3 +1,3 @@
-# D4D
+# Short
 
-![](https://github.com/vincent-herlemont/d4d/workflows/Rust/badge.svg)
+![](https://github.com/vincent-herlemont/short/workflows/Rust/badge.svg)

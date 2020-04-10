@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "utils",
-    "d4d",
+    "short",
     "cli",
     "env",
 ]

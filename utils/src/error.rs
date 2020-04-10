@@ -1,4 +1,4 @@
-//! D4d specific Error type
+//! short specific Error type
 //! Allow to embedded multiple error type.
 use super::result::Result;
 use promptly::ReadlineError;

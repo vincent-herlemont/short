@@ -1,5 +1,5 @@
 ---
-source: d4d/src/project/local.rs
+source: short/src/project/local.rs
 expression: local_projects
 ---
 projects:

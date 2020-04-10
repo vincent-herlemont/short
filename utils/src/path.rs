@@ -1,4 +1,4 @@
-//! Path manipulation operations related of d4d domain.
+//! Path manipulation operations related of short domain.
 use std::fs;
 use std::io;
 use std::path::PathBuf;

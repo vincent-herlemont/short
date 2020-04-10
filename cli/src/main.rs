@@ -4,13 +4,13 @@ extern crate prettytable;
 use clap::AppSettings::{ArgRequiredElseHelp, DeriveDisplayOrder, VersionlessSubcommands};
 use clap::{App, Arg, ArgMatches};
 
-use d4d::exec::ExecCtx;
+use short::exec::ExecCtx;
 
 use crate::command::{
     add_command, demo_command, init_command, ls_command, run_command, use_command,
 };
 use crate::init::{init_exec_ctx, init_projects};
-use d4d::project::Projects;
+use short::project::Projects;
 use std::env;
 
 use std::process::exit;
@@ -23,7 +23,7 @@ mod helper;
 mod init;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-pub const BIN_NAME: &'static str = "d4d";
+pub const BIN_NAME: &'static str = "short";
 
 fn main() {
     let app = App::new(BIN_NAME)
