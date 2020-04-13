@@ -23,4 +23,4 @@ name = "short"
 path = "src/main.rs"
 
 [build-dependencies]
-include_walk = "0.3.0"
+include_walk = "0.3.1"

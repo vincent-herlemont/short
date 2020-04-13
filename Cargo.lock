@@ -321,9 +321,9 @@ dependencies = [
 
 [[package]]
 name = "include_walk"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bfc892ffcaf309f35bfaf0694dbf9c5115ca739f2a087d97c1b094d889f77a0"
+checksum = "e0c4985ddc7c03e6e69191d1d02a3d58f7eb5c455699046983299711343a60f6"
 dependencies = [
  "common-path",
  "walkdir",
