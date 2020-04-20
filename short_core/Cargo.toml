@@ -18,7 +18,7 @@ short_env = {path = "../short_env"}
 
 [dev-dependencies]
 walkdir = "2.3.1"
-insta = "0.15.0"
+insta = "0.16.0"
 
 
 [build-dependencies]
