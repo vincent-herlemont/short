@@ -15,4 +15,4 @@ which = "3.1.1"
 promptly = "0.3.0"
 
 [build-dependencies]
-include_walk = "0.3.0"
+include_walk = "0.3.1"
