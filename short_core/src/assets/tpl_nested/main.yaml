@@ -1,9 +1,0 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "main stack"
-Resources:
-  ParentStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: ./parent.yaml
-      TimeoutInMinutes: 1
-

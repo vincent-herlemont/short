@@ -1,18 +1,12 @@
 [package]
 name = "short"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Vincent Herlemont <vincentherl@leszeros.com>"]
 edition = "2018"
 
 [dependencies]
 clap = "2.33.0"
-dirs = "2.0.2"
-promptly = "0.3.0"
-indicatif = "0.14.0"
-prettytable-rs = "0.8.0"
-colored = "1.9"
-short_utils = { path = "../short_utils" }
-short_core = { path = "../short_core" }
+
 
 [dev-dependencies]
 walkdir = "2.3.1"
