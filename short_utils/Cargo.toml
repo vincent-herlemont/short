@@ -1,0 +1,15 @@
+[package]
+name = "short_utils"
+version = "0.1.0"
+authors = ["Vincent Herlemont <vincentherl@leszeros.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tempdir = "0.3.7"
+fs_extra = "1.1.0"
+walkdir = "2.3.1"
+
+[dev-dependencies]
+predicates = "1.0.4"
