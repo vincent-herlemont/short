@@ -51,6 +51,7 @@ fn run() -> Result<(), failure::Error> {
         )
         .subcommand(
             SubCommand::with_name("add")
+                .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::SubcommandRequiredElseHelp)
                 .about("Add set up provider (cloudformation,...)")
                 .subcommand(
@@ -74,14 +75,37 @@ fn run() -> Result<(), failure::Error> {
         .subcommand(
             SubCommand::with_name("env")
                 .setting(AppSettings::SubcommandRequiredElseHelp)
+                .setting(AppSettings::DeriveDisplayOrder)
                 .about("Manage environment")
                 .subcommand(
-                    SubCommand::with_name("new").arg(
-                        Arg::with_name("name")
-                            .help("name of your environment")
-                            .index(1)
-                            .required(true),
-                    ),
+                    SubCommand::with_name("new")
+                        .about("Add new environment")
+                        .arg(
+                            Arg::with_name("name")
+                                .help("name of your environment")
+                                .index(1)
+                                .required(true),
+                        ),
+                )
+                .subcommand(
+                    SubCommand::with_name("dir")
+                        .about("Change env directory")
+                        .arg(
+                            Arg::with_name("env_directory")
+                                .help("Env directory path, must be inside of your project")
+                                .index(1)
+                                .required(true),
+                        ),
+                )
+                .subcommand(
+                    SubCommand::with_name("pdir")
+                        .about("Add or change private env directory")
+                        .arg(
+                            Arg::with_name("private_env_directory")
+                                .help("Private env directory path, must be outside of your project")
+                                .index(1)
+                                .required(true),
+                        ),
                 ),
         )
         .subcommand(SubCommand::with_name("deploy").about("Deploy your set up"))
