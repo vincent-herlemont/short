@@ -1,8 +1,10 @@
 #[macro_use]
 extern crate log;
+mod settings;
 mod terminal;
 
-use clap::{App, AppSettings, Arg, SubCommand};
+use crate::settings::Settings;
+use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use exitfailure::ExitFailure;
 use std::env;
 use terminal::emoji;
@@ -18,7 +20,7 @@ fn main() -> Result<(), ExitFailure> {
 }
 
 fn run() -> Result<(), failure::Error> {
-    App::new(format!("{} short", emoji::PARASOL))
+    let app = App::new(format!("{} short", emoji::PARASOL))
         .version(VERSION)
         .author("Vincent Herlemont <vincentherl@leszeros.com>")
         .setting(AppSettings::ArgRequiredElseHelp)
@@ -67,7 +69,7 @@ fn run() -> Result<(), failure::Error> {
                             Arg::with_name("name")
                                 .help("Name of your setup")
                                 .long("name")
-                                .long("n")
+                                .short("n")
                                 .takes_value(true),
                         ),
                 ),
@@ -127,5 +129,21 @@ fn run() -> Result<(), failure::Error> {
         )
         .subcommand(SubCommand::with_name("ls").about("List set up and environments"))
         .get_matches();
+
+    let settings = settings(app);
+
     Ok(())
+}
+
+fn settings(app: ArgMatches) -> Settings {
+    let mut settings = Settings::new();
+    if let Some(setup) = app.value_of_lossy("setup") {
+        settings.set_setup(setup.to_string());
+    }
+    info!("setup {:?}", settings.setup());
+    if let Some(env) = app.value_of_lossy("env") {
+        settings.set_env(env.to_string());
+    }
+    info!("env {:?}", settings.env());
+    settings
 }
