@@ -96,6 +96,10 @@ impl IntegrationTestEnvironment {
         command.current_dir(&self.tmp_dir.path());
         command
     }
+
+    pub fn path(&self) -> &Path {
+        self.tmp_dir.path()
+    }
 }
 
 impl Display for IntegrationTestEnvironment {

@@ -1,0 +1,19 @@
+var: 1
+
+object:
+ toto: "dsa"
+ tota: "dsaas"
+
+array:
+ - 1
+ - 2
+ - 3
+
+array: [ 1 , 2 , 3 ]
+
+array:
+ - name: "orion"
+   jambes: 2
+ - name: "vincent"
+   jambes: 3
+

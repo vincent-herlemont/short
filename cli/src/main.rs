@@ -1,25 +1,30 @@
 #[macro_use]
 extern crate log;
+#[macro_use]
+extern crate anyhow;
+
+mod cfg;
+mod commands;
 mod settings;
 mod terminal;
 
 use crate::settings::Settings;
+use anyhow::Result;
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
-use exitfailure::ExitFailure;
 use std::env;
 use terminal::emoji;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const BIN_NAME: &'static str = "short";
 
-fn main() -> Result<(), ExitFailure> {
+fn main() -> Result<()> {
     env_logger::init();
     info!("BIN_NAME {}", BIN_NAME);
     info!("VERSION v{}", VERSION);
     Ok(run()?)
 }
 
-fn run() -> Result<(), failure::Error> {
+fn run() -> Result<()> {
     let app = App::new(format!("{} short", emoji::PARASOL))
         .version(VERSION)
         .author("Vincent Herlemont <vincentherl@leszeros.com>")
@@ -130,12 +135,16 @@ fn run() -> Result<(), failure::Error> {
         .subcommand(SubCommand::with_name("ls").about("List set up and environments"))
         .get_matches();
 
-    let settings = settings(app);
+    let settings = settings(&app);
+
+    if let Some(_) = app.subcommand_matches("ls") {
+        commands::ls()?;
+    }
 
     Ok(())
 }
 
-fn settings(app: ArgMatches) -> Settings {
+fn settings(app: &ArgMatches) -> Settings {
     let mut settings = Settings::new();
     if let Some(setup) = app.value_of_lossy("setup") {
         settings.set_setup(setup.to_string());
