@@ -11,18 +11,18 @@ use fs_extra::file::read_to_string;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
+use short_utils::write_all::write_all_dir;
+
 use crate::cfg::file::find::find_local_cfg;
 use crate::cfg::global::GLOCAL_FILE_NAME;
-use crate::cfg::new::NewCfg;
 use crate::cfg::{GlobalCfg, LocalCfg};
-use short_utils::write_all::write_all_dir;
 
 mod find;
 
 #[derive(Debug)]
 pub struct FileCfg<C>
 where
-    C: Serialize + DeserializeOwned + NewCfg,
+    C: Serialize + DeserializeOwned,
 {
     path: Option<PathBuf>,
     cfg: C,
@@ -30,7 +30,7 @@ where
 
 impl<C> FileCfg<C>
 where
-    C: Serialize + DeserializeOwned + NewCfg,
+    C: Serialize + DeserializeOwned,
 {
     pub fn load(path: &PathBuf) -> Result<FileCfg<C>> {
         let str = read_to_string(&path)?;
@@ -129,7 +129,7 @@ impl From<GlobalCfg> for FileCfg<GlobalCfg> {
 
 impl<C> Display for FileCfg<C>
 where
-    C: Serialize + DeserializeOwned + NewCfg,
+    C: Serialize + DeserializeOwned,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         if let Ok(content) = serde_yaml::to_string(&self.cfg).map_err(|err| fmt::Error {}) {
@@ -151,7 +151,6 @@ mod test {
     use short_utils::integration_test::environment::IntegrationTestEnvironment;
 
     use crate::cfg::file::{load_local_cfg, FileCfg};
-    use crate::cfg::NewCfg;
     use crate::cfg::{EnvPathsCfg, LocalCfg};
 
     fn init_env() -> IntegrationTestEnvironment {
@@ -162,7 +161,7 @@ mod test {
             r"#---
 setups:
   - name: setup_1'
-    public_env_directory: 'setup_1/'
+    public_env_dir: 'setup_1/'
     provider:
       name: cloudformation
       template: setup_1/template.yml

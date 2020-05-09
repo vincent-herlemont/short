@@ -104,7 +104,7 @@ With custom public env directory
 ```yaml
 setups:  
   - name: 'setup_1'
-    public_env_directory: './env/'
+    public_env_dir: './env/'
     provider:
       name: cloudformation
       template: "./template.yaml"
@@ -117,10 +117,10 @@ It's store configuration that not allowed in local configuration the path of pri
 
 ```yaml
 projects:
-  - path: "/home/perichon/project/my_project"
+  - dir: "/home/perichon/project/my_project"
     setups:
       - name: 'setup_1'
-        private_env_directory: "/home/perichon/private_envs/"
+        private_env_dir: "/home/perichon/private_envs/"
 ```
 
 

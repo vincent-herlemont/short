@@ -10,7 +10,7 @@ pub trait EnvPathCfg {
 
     fn env_path_op(&self) -> Option<&PathBuf>;
 
-    fn set_env_path_op(&mut self, directory: Option<PathBuf>);
+    fn set_env_path_op(&mut self, dir: Option<PathBuf>);
 }
 
 pub trait EnvPathsCfg {

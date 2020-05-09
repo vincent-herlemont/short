@@ -10,11 +10,11 @@ pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
 pub use local::LocalSetupProviderCfg;
-pub use new::NewCfg;
+pub use project::ProjectCfg;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
 
-use crate::cfg::file::{load_or_new_global_cfg, load_or_new_local_cfg, FileCfg};
+use crate::cfg::file::{FileCfg, load_or_new_global_cfg, load_or_new_local_cfg};
 use crate::cfg::global::GLOCAL_FILE_NAME;
 use crate::cfg::setup::Setup;
 
@@ -22,7 +22,7 @@ mod env;
 mod file;
 mod global;
 mod local;
-mod new;
+mod project;
 mod setup;
 
 #[derive(Debug)]
@@ -55,12 +55,14 @@ impl Cfg {
 
 #[cfg(test)]
 mod test {
+    use std::path::PathBuf;
+
     use predicates::path::exists;
+    use predicates::prelude::Predicate;
+
     use short_utils::integration_test::environment::IntegrationTestEnvironment;
 
     use crate::cfg::Cfg;
-    use predicates::prelude::Predicate;
-    use std::path::PathBuf;
 
     const HOME: &'static str = "home";
     const PROJECT: &'static str = "project";

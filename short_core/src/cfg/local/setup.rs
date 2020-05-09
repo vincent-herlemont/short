@@ -9,7 +9,7 @@ use crate::cfg::setup::SetupCfg;
 pub struct LocalSetupCfg {
     name: String,
 
-    public_env_directory: Option<PathBuf>,
+    public_env_dir: Option<PathBuf>,
 
     provider: LocalSetupProviderCfg,
 }
@@ -18,7 +18,7 @@ impl LocalSetupCfg {
     pub fn new(name: String, provider: LocalSetupProviderCfg) -> Self {
         Self {
             name,
-            public_env_directory: None,
+            public_env_dir: None,
             provider,
         }
     }
@@ -32,10 +32,10 @@ impl SetupCfg for LocalSetupCfg {
 
 impl EnvPathCfg for LocalSetupCfg {
     fn env_path_op(&self) -> Option<&PathBuf> {
-        self.public_env_directory.as_ref()
+        self.public_env_dir.as_ref()
     }
 
-    fn set_env_path_op(&mut self, directory: Option<PathBuf>) {
-        self.public_env_directory = directory
+    fn set_env_path_op(&mut self, dir: Option<PathBuf>) {
+        self.public_env_dir = dir
     }
 }
