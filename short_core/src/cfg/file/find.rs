@@ -1,6 +1,7 @@
-use anyhow::{Context, Result};
 use std::env::current_dir;
 use std::path::PathBuf;
+
+use anyhow::{Context, Result};
 
 pub fn find_local_cfg(dir: PathBuf, file_name: String) -> Result<PathBuf> {
     let file_path = dir.join(&file_name);
@@ -21,12 +22,15 @@ pub fn find_global_cfg() -> Result<()> {
 
 #[cfg(test)]
 mod test {
-    use crate::cfg::file::find::find_local_cfg;
+    use std::path::Path;
+
     use fs_extra::file::read_to_string;
     use predicates::prelude::Predicate;
     use predicates::str::contains;
+
     use short_utils::integration_test::environment::IntegrationTestEnvironment;
-    use std::path::Path;
+
+    use crate::cfg::file::find::find_local_cfg;
 
     #[test]
     fn find_local_cfg_file_on_root() {
@@ -43,7 +47,7 @@ mod test {
     #[test]
     fn find_local_cfg_file_on_child() {
         let mut e = IntegrationTestEnvironment::new("find_local_cfg");
-        let child_dirs = Path::new("dir1/dir2/dir3/");
+        let child_dirs = Path::new("dir1/dir2/dir3");
         e.add_dir(child_dirs);
         e.add_file("file1", "test");
         e.setup();

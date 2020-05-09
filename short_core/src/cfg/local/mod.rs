@@ -1,23 +1,27 @@
-use crate::cfg::setup::{Setup, SetupsCfg};
-use crate::cfg::{EnvPathCfg, EnvPathsCfg};
-use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-mod setup;
-mod setup_provider;
+use serde::{Deserialize, Serialize};
 
 pub use setup::LocalSetupCfg;
 pub use setup_provider::LocalSetupProviderCfg;
 pub use setup_provider::LocalSetupProviderCloudformationCfg;
+
+use crate::cfg::{EnvPathCfg, EnvPathsCfg};
+use crate::cfg::new::NewCfg;
+use crate::cfg::setup::{SetupCfg, SetupsCfg};
+
+mod setup;
+mod setup_provider;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalCfg {
     setups: Vec<Rc<RefCell<LocalSetupCfg>>>,
 }
 
-impl LocalCfg {
-    pub fn new() -> Self {
+impl NewCfg for LocalCfg {
+    type T = Self;
+    fn new() -> Self {
         Self { setups: vec![] }
     }
 }
@@ -55,12 +59,14 @@ impl EnvPathsCfg for LocalCfg {
 
 #[cfg(test)]
 mod test {
-    use crate::cfg::setup::SetupsCfg;
-    use crate::cfg::{EnvPathCfg, EnvPathsCfg};
-    use crate::cfg::{LocalCfg, LocalSetupCfg, LocalSetupProviderCfg};
     use std::cell::RefCell;
     use std::path::PathBuf;
     use std::rc::Rc;
+
+    use crate::cfg::{EnvPathCfg, EnvPathsCfg};
+    use crate::cfg::{LocalCfg, LocalSetupCfg, LocalSetupProviderCfg};
+    use crate::cfg::NewCfg;
+    use crate::cfg::setup::SetupsCfg;
 
     #[test]
     fn local_update_public_env_directory() {

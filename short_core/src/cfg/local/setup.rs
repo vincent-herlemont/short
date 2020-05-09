@@ -1,7 +1,9 @@
-use crate::cfg::setup::Setup;
-use crate::cfg::{EnvPathCfg, LocalSetupProviderCfg};
-use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+
+use serde::{Deserialize, Serialize};
+
+use crate::cfg::{EnvPathCfg, LocalSetupProviderCfg};
+use crate::cfg::setup::SetupCfg;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalSetupCfg {
@@ -22,7 +24,7 @@ impl LocalSetupCfg {
     }
 }
 
-impl Setup for LocalSetupCfg {
+impl SetupCfg for LocalSetupCfg {
     fn name(&self) -> String {
         self.name.to_owned()
     }

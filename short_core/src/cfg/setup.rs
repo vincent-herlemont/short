@@ -1,5 +1,7 @@
 use std::cell::RefCell;
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
+
+use crate::cfg::{GlobalCfg, LocalCfg};
 
 pub trait SetupsCfg {
     type Setup;
@@ -11,6 +13,21 @@ pub trait SetupsCfg {
     fn get_setup(&self, name: String) -> Option<Rc<RefCell<Self::Setup>>>;
 }
 
-pub trait Setup {
+pub trait SetupCfg {
     fn name(&self) -> String;
+}
+
+#[derive(Debug)]
+pub struct Setup {
+    local_setup: Weak<RefCell<LocalCfg>>,
+    global_setup: Weak<RefCell<GlobalCfg>>,
+}
+
+impl Setup {
+    pub fn new() -> Self {
+        Self {
+            local_setup: Weak::default(),
+            global_setup: Weak::default(),
+        }
+    }
 }
