@@ -128,7 +128,6 @@ mod test {
         assert!(contains("file1").eval(display.as_str()));
         assert!(contains("dir/file2").eval(display.as_str()));
         assert!(contains("emptry_dir").eval(display.as_str()));
-
         assert!(contains("test 1").eval(e.read_file("file1").as_str()));
     }
 }

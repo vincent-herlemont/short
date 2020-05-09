@@ -7,14 +7,15 @@ use std::fmt::{Display, Formatter};
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
-use fs_extra::file::{read_to_string, write_all};
-use serde::{Deserialize, Serialize};
+use fs_extra::file::read_to_string;
 use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 
-use crate::cfg::{GlobalCfg, LocalCfg};
 use crate::cfg::file::find::find_local_cfg;
 use crate::cfg::global::GLOCAL_FILE_NAME;
 use crate::cfg::new::NewCfg;
+use crate::cfg::{GlobalCfg, LocalCfg};
+use short_utils::write_all::write_all_dir;
 
 mod find;
 
@@ -49,6 +50,13 @@ where
             cfg,
         })
     }
+
+    pub fn save(&self) -> Result<()> {
+        let path = self.path.as_ref().context("cfg file has not path")?;
+        let str = serde_yaml::to_string(&self.cfg).context("fail to parse cfg")?;
+        write_all_dir(path, &str).context("fail to write cfg file")?;
+        Ok(())
+    }
 }
 
 pub fn load_or_new_local_cfg(dir: &PathBuf) -> Result<FileCfg<LocalCfg>> {
@@ -56,8 +64,10 @@ pub fn load_or_new_local_cfg(dir: &PathBuf) -> Result<FileCfg<LocalCfg>> {
     let local_cfg_file = dir.join(local_cfg_file);
 
     let local = load_local_cfg(&local_cfg_file).map_or(
-        FileCfg::new(&local_cfg_file, LocalCfg::new())
-            .context("fail to create new local cfg file")?,
+        FileCfg::new(&local_cfg_file, LocalCfg::new()).context(format!(
+            "fail to create new local cfg file {}",
+            local_cfg_file.to_string_lossy()
+        ))?,
         |v| v,
     );
 
@@ -69,8 +79,13 @@ pub fn load_or_new_global_cfg(dir: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
     let global_dir = dir.join(global_cfg_dir);
     let global_cfg_file = global_dir.join(GLOCAL_FILE_NAME.to_string());
 
-    let global = load_global_cfg(&global_cfg_file)
-        .map_or(FileCfg::new(&global_cfg_file, GlobalCfg::new())?, |v| v);
+    let global = load_global_cfg(&global_cfg_file).map_or(
+        FileCfg::new(&global_cfg_file, GlobalCfg::new()).context(format!(
+            "fail to create new global cfg file {}",
+            global_cfg_file.to_string_lossy()
+        ))?,
+        |v| v,
+    );
 
     Ok(global)
 }
@@ -135,13 +150,13 @@ mod test {
 
     use short_utils::integration_test::environment::IntegrationTestEnvironment;
 
-    use crate::cfg::{EnvPathsCfg, LocalCfg};
-    use crate::cfg::file::{FileCfg, load_local_cfg};
+    use crate::cfg::file::{load_local_cfg, FileCfg};
     use crate::cfg::NewCfg;
+    use crate::cfg::{EnvPathsCfg, LocalCfg};
 
     fn init_env() -> IntegrationTestEnvironment {
         let mut e = IntegrationTestEnvironment::new("cmd_help");
-        e.add_file("setup_1/template.yaml", "");
+        e.add_file("setup_1/template.yml", "");
         e.add_file(
             "short.yml",
             r"#---
@@ -150,7 +165,7 @@ setups:
     public_env_directory: 'setup_1/'
     provider:
       name: cloudformation
-      template: setup_1/template.yaml
+      template: setup_1/template.yml
 #",
         );
         e.setup();
@@ -185,10 +200,5 @@ setups:
         let local_cfg = LocalCfg::new();
         let file_cfg_local =
             FileCfg::new(&e.path().join(PathBuf::from("toto")), local_cfg).unwrap();
-    }
-
-    #[test]
-    fn load_file() {
-        let e = init_env();
     }
 }
