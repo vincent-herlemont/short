@@ -24,15 +24,19 @@ impl GlobalProjectSetupCfg {
 impl From<&LocalSetupCfg> for GlobalProjectSetupCfg {
     fn from(local_setup: &LocalSetupCfg) -> Self {
         Self {
-            name: local_setup.name(),
+            name: local_setup.name().clone(),
             private_env_dir: None,
         }
     }
 }
 
 impl SetupCfg for GlobalProjectSetupCfg {
-    fn name(&self) -> String {
-        self.name.to_owned()
+    fn name(&self) -> &String {
+        &self.name
+    }
+
+    fn rename(&mut self, name: &String) {
+        self.name = name.clone();
     }
 }
 

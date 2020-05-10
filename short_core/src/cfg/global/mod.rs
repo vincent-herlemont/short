@@ -1,7 +1,10 @@
 mod project;
 mod setup;
 
+use crate::cfg::file::FileCfg;
 use crate::cfg::project::ProjectCfg;
+use crate::cfg::{LocalCfg, LocalSetupCfg, SetupsCfg};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::path::PathBuf;
@@ -44,6 +47,36 @@ impl GlobalCfg {
                 file == project
             })
             .map(|project| Rc::clone(project))
+    }
+
+    pub fn sync_local_project(
+        &mut self,
+        file_local_cfg: &FileCfg<LocalCfg>,
+    ) -> Result<Rc<RefCell<GlobalProjectCfg>>> {
+        if let Some(local_path) = file_local_cfg.path() {
+            // Upsert global project
+            let global_project = if let Some(global_project) = self.get_project_by_file(local_path)
+            {
+                global_project
+            } else {
+                let global_project = GlobalProjectCfg::new(local_path)?;
+                self.add_project(global_project);
+                self.get_project_by_file(local_path).unwrap()
+            };
+
+            // Sync local setup to global setup
+            let local_setups = file_local_cfg.borrow().get_setups();
+            for local_setup in local_setups.borrow().iter() {
+                let global_setup = GlobalProjectSetupCfg::from(&*local_setup.borrow());
+                global_project.borrow_mut().add_setup(global_setup)
+            }
+            Ok(global_project)
+        } else {
+            Err(anyhow!(format!(
+                "file local cfg has no path {:?}",
+                file_local_cfg
+            )))
+        }
     }
 }
 

@@ -26,8 +26,12 @@ impl LocalSetupCfg {
 }
 
 impl SetupCfg for LocalSetupCfg {
-    fn name(&self) -> String {
-        self.name.to_owned()
+    fn name(&self) -> &String {
+        &self.name
+    }
+
+    fn rename(&mut self, name: &String) {
+        self.name = name.clone();
     }
 }
 

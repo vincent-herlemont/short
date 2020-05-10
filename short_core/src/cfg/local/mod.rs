@@ -7,8 +7,8 @@ pub use setup::LocalSetupCfg;
 pub use setup_provider::LocalSetupProviderCfg;
 pub use setup_provider::LocalSetupProviderCloudformationCfg;
 
-use crate::cfg::{EnvPathCfg, EnvPathsCfg};
 use crate::cfg::setup::{SetupCfg, SetupsCfg};
+use crate::cfg::{EnvPathCfg, EnvPathsCfg};
 
 mod setup;
 mod setup_provider;
@@ -50,9 +50,9 @@ mod test {
     use std::path::PathBuf;
     use std::rc::Rc;
 
+    use crate::cfg::setup::SetupsCfg;
     use crate::cfg::{EnvPathCfg, EnvPathsCfg};
     use crate::cfg::{LocalCfg, LocalSetupCfg, LocalSetupProviderCfg};
-    use crate::cfg::setup::SetupsCfg;
 
     #[test]
     fn local_update_public_env_dir() {
@@ -66,7 +66,7 @@ mod test {
         assert_eq!(env_path, vec![PathBuf::new()]);
 
         {
-            let setup_cfg_1 = local_cfg.get_setup("setup".into()).unwrap();
+            let setup_cfg_1 = local_cfg.get_setup(&"setup".into()).unwrap();
             setup_cfg_1
                 .borrow_mut()
                 .set_env_path_op(Some("./env_dir/".into()));
@@ -75,7 +75,7 @@ mod test {
         let env_path = local_cfg.env_paths();
         assert_eq!(env_path, vec![PathBuf::from("./env_dir/")]);
 
-        local_cfg.remove_by_name_setup("setup".into());
-        assert!(local_cfg.get_setup("setup".into()).is_none());
+        local_cfg.remove_by_name_setup(&"setup".into());
+        assert!(local_cfg.get_setup(&"setup".into()).is_none());
     }
 }

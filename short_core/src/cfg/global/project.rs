@@ -71,19 +71,19 @@ mod test {
         assert!(project_cfg.get_setups().borrow().iter().count().eq(&1));
 
         {
-            let setup_cfg = project_cfg.get_setup("setup".into()).unwrap();
+            let setup_cfg = project_cfg.get_setup(&"setup".into()).unwrap();
             setup_cfg
                 .borrow_mut()
                 .set_env_path_op(Some("/private_env".into()));
         }
 
-        let global_project_setup_cfg_1 = project_cfg.get_setup("setup".into()).unwrap();
+        let global_project_setup_cfg_1 = project_cfg.get_setup(&"setup".into()).unwrap();
         assert_eq!(
             global_project_setup_cfg_1.borrow().env_path(),
             PathBuf::from("/private_env")
         );
 
-        project_cfg.remove_by_name_setup("setup".into());
-        assert!(project_cfg.get_setup("setup".into()).is_none());
+        project_cfg.remove_by_name_setup(&"setup".into());
+        assert!(project_cfg.get_setup(&"setup".into()).is_none());
     }
 }
