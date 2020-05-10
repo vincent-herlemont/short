@@ -2,40 +2,46 @@ use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 
-use crate::cfg::global::setup::GlobalProjectSetupCfg;
 use crate::cfg::{ProjectCfg, SetupCfg, SetupsCfg};
-use anyhow::{Context, Result};
+use crate::cfg::global::setup::GlobalProjectSetupCfg;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalProjectCfg {
-    dir: PathBuf,
+    file: PathBuf,
     setups: Rc<RefCell<Vec<Rc<RefCell<GlobalProjectSetupCfg>>>>>,
 }
 
 impl GlobalProjectCfg {
-    pub fn new(dir: PathBuf) -> Result<Self> {
+    pub fn new(file: PathBuf) -> Result<Self> {
         let mut gp = GlobalProjectCfg {
-            dir: PathBuf::new(),
+            file: PathBuf::new(),
             setups: Rc::new(RefCell::new(vec![])),
         };
-        gp.set_dir(dir)?;
+        gp.set_file(file)?;
         Ok(gp)
     }
 
-    pub fn set_dir(&mut self, dir: PathBuf) -> Result<()> {
-        if (!dir.is_absolute()) {
-            return Err(anyhow!("project directory path can not be relative"));
+    pub fn set_file(&mut self, file: PathBuf) -> Result<()> {
+        if (!file.is_absolute()) {
+            return Err(anyhow!(format!(
+                "project file path can not be relative {}",
+                file.to_string_lossy()
+            )));
         }
-        self.dir = dir;
+        if let None = file.file_name() {
+            return Err(anyhow!(format!("project file has no name")));
+        }
+        self.file = file;
         Ok(())
     }
 }
 
 impl ProjectCfg for GlobalProjectCfg {
     fn path(&self) -> PathBuf {
-        self.dir.to_owned()
+        self.file.to_owned()
     }
 }
 
@@ -51,9 +57,9 @@ impl SetupsCfg for GlobalProjectCfg {
 mod test {
     use std::path::PathBuf;
 
+    use crate::cfg::{EnvPathCfg, SetupsCfg};
     use crate::cfg::global::project::GlobalProjectCfg;
     use crate::cfg::global::setup::GlobalProjectSetupCfg;
-    use crate::cfg::{EnvPathCfg, SetupsCfg};
 
     #[test]
     fn global_update_private_env_dir() {

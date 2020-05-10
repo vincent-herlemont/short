@@ -8,14 +8,14 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
 use fs_extra::file::read_to_string;
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
+use serde::de::DeserializeOwned;
 
 use short_utils::write_all::write_all_dir;
 
+use crate::cfg::{GlobalCfg, LocalCfg};
 use crate::cfg::file::find::find_local_cfg;
 use crate::cfg::global::GLOCAL_FILE_NAME;
-use crate::cfg::{GlobalCfg, LocalCfg};
 
 mod find;
 
@@ -150,8 +150,8 @@ mod test {
 
     use short_utils::integration_test::environment::IntegrationTestEnvironment;
 
-    use crate::cfg::file::{load_local_cfg, FileCfg};
     use crate::cfg::{EnvPathsCfg, LocalCfg};
+    use crate::cfg::file::{FileCfg, load_local_cfg};
 
     fn init_env() -> IntegrationTestEnvironment {
         let mut e = IntegrationTestEnvironment::new("cmd_help");
