@@ -2,13 +2,14 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-use crate::cfg::{EnvPathCfg, LocalSetupProviderCfg};
 use crate::cfg::setup::SetupCfg;
+use crate::cfg::{EnvPathCfg, LocalSetupProviderCfg};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalSetupCfg {
     name: String,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     public_env_dir: Option<PathBuf>,
 
     provider: LocalSetupProviderCfg,

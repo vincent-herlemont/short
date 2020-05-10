@@ -8,15 +8,15 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
 use fs_extra::file::read_to_string;
-use serde::{Deserialize, Serialize};
 use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 
 use short_utils::write_all::write_all_dir;
 
-use crate::cfg::{GlobalCfg, LocalCfg};
 use crate::cfg::file::find::find_local_cfg;
 use crate::cfg::global::GLOCAL_FILE_NAME;
-
+use crate::cfg::{GlobalCfg, LocalCfg};
+use std::cell::RefCell;
 mod find;
 
 #[derive(Debug)]
@@ -41,6 +41,7 @@ where
             path: Some(path.to_path_buf()),
         })
     }
+
     pub fn new(path: &PathBuf, cfg: C) -> Result<FileCfg<C>> {
         if (!path.is_absolute()) {
             return Err(anyhow!("cfg file path must be an abosulte path"));
@@ -56,6 +57,18 @@ where
         let str = serde_yaml::to_string(&self.cfg).context("fail to parse cfg")?;
         write_all_dir(path, &str).context("fail to write cfg file")?;
         Ok(())
+    }
+
+    pub fn path(&self) -> Option<&PathBuf> {
+        self.path.as_ref()
+    }
+
+    pub fn borrow(&self) -> &C {
+        &self.cfg
+    }
+
+    pub fn borrow_mut(&mut self) -> &mut C {
+        &mut self.cfg
     }
 }
 
@@ -150,8 +163,8 @@ mod test {
 
     use short_utils::integration_test::environment::IntegrationTestEnvironment;
 
+    use crate::cfg::file::{load_local_cfg, FileCfg};
     use crate::cfg::{EnvPathsCfg, LocalCfg};
-    use crate::cfg::file::{FileCfg, load_local_cfg};
 
     fn init_env() -> IntegrationTestEnvironment {
         let mut e = IntegrationTestEnvironment::new("cmd_help");

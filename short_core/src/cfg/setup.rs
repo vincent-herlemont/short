@@ -7,9 +7,11 @@ pub trait SetupsCfg {
     type Setup: SetupCfg;
 
     fn add_setup(&mut self, setup: Self::Setup) {
-        self.get_setups()
-            .borrow_mut()
-            .append(&mut vec![Rc::new(RefCell::new(setup))])
+        if let None = self.get_setup(setup.name()) {
+            self.get_setups()
+                .borrow_mut()
+                .append(&mut vec![Rc::new(RefCell::new(setup))])
+        }
     }
 
     fn remove_by_name_setup(&mut self, name: String) {

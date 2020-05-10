@@ -2,11 +2,13 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-use crate::cfg::{EnvPathCfg, SetupCfg};
+use crate::cfg::{EnvPathCfg, LocalSetupCfg, SetupCfg};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalProjectSetupCfg {
     name: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     private_env_dir: Option<PathBuf>,
 }
 
@@ -14,6 +16,15 @@ impl GlobalProjectSetupCfg {
     pub fn new(name: String) -> Self {
         Self {
             name,
+            private_env_dir: None,
+        }
+    }
+}
+
+impl From<&LocalSetupCfg> for GlobalProjectSetupCfg {
+    fn from(local_setup: &LocalSetupCfg) -> Self {
+        Self {
+            name: local_setup.name(),
             private_env_dir: None,
         }
     }

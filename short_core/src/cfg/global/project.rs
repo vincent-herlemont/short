@@ -5,8 +5,8 @@ use std::rc::Rc;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 
-use crate::cfg::{ProjectCfg, SetupCfg, SetupsCfg};
 use crate::cfg::global::setup::GlobalProjectSetupCfg;
+use crate::cfg::{ProjectCfg, SetupCfg, SetupsCfg};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalProjectCfg {
@@ -15,7 +15,7 @@ pub struct GlobalProjectCfg {
 }
 
 impl GlobalProjectCfg {
-    pub fn new(file: PathBuf) -> Result<Self> {
+    pub fn new(file: &PathBuf) -> Result<Self> {
         let mut gp = GlobalProjectCfg {
             file: PathBuf::new(),
             setups: Rc::new(RefCell::new(vec![])),
@@ -24,7 +24,7 @@ impl GlobalProjectCfg {
         Ok(gp)
     }
 
-    pub fn set_file(&mut self, file: PathBuf) -> Result<()> {
+    pub fn set_file(&mut self, file: &PathBuf) -> Result<()> {
         if (!file.is_absolute()) {
             return Err(anyhow!(format!(
                 "project file path can not be relative {}",
@@ -34,7 +34,7 @@ impl GlobalProjectCfg {
         if let None = file.file_name() {
             return Err(anyhow!(format!("project file has no name")));
         }
-        self.file = file;
+        self.file = file.clone();
         Ok(())
     }
 }
@@ -57,15 +57,15 @@ impl SetupsCfg for GlobalProjectCfg {
 mod test {
     use std::path::PathBuf;
 
-    use crate::cfg::{EnvPathCfg, SetupsCfg};
     use crate::cfg::global::project::GlobalProjectCfg;
     use crate::cfg::global::setup::GlobalProjectSetupCfg;
+    use crate::cfg::{EnvPathCfg, SetupsCfg};
 
     #[test]
     fn global_update_private_env_dir() {
         let setup_cfg = GlobalProjectSetupCfg::new("setup".into());
 
-        let mut project_cfg = GlobalProjectCfg::new("/project".into()).unwrap();
+        let mut project_cfg = GlobalProjectCfg::new(&"/project".into()).unwrap();
         project_cfg.add_setup(setup_cfg);
 
         assert!(project_cfg.get_setups().borrow().iter().count().eq(&1));
