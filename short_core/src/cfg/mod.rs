@@ -59,6 +59,8 @@ impl Cfg {
 
         let local_setups = self.local_cfg.borrow().get_setups();
 
+        let local_cfg_path = self.local_cfg.file()?;
+
         let setups: Vec<_> = local_setups
             .borrow()
             .iter()
@@ -67,9 +69,11 @@ impl Cfg {
                     .borrow()
                     .get_setup(local_setup.borrow().name())
                 {
-                    if let Ok(setup) =
-                        Setup::new_fill(Rc::downgrade(local_setup), Rc::downgrade(&global_setup))
-                    {
+                    if let Ok(setup) = Setup::new_fill(
+                        local_cfg_path,
+                        Rc::downgrade(local_setup),
+                        Rc::downgrade(&global_setup),
+                    ) {
                         return Some(setup);
                     }
                 }
@@ -92,15 +96,12 @@ impl Cfg {
 
 #[cfg(test)]
 mod test {
-    use std::path::PathBuf;
-
-    use predicates::path::{exists, is_file};
-    use predicates::prelude::Predicate;
-    use predicates::str::contains;
-
-    use short_utils::integration_test::environment::IntegrationTestEnvironment;
-
     use crate::cfg::{Cfg, EnvPathCfg};
+    use predicates::path::{exists, is_file};
+    use predicates::prelude::*;
+    use predicates::str::contains;
+    use short_utils::integration_test::environment::IntegrationTestEnvironment;
+    use std::path::PathBuf;
 
     const HOME: &'static str = "home";
     const PROJECT: &'static str = "project";
@@ -237,5 +238,76 @@ projects:
         let local_cfg_str = e.read_file(&local_cfg);
         assert!(contains("setup_1").count(0).eval(local_cfg_str.as_str()));
         assert!(contains("setup_3").count(1).eval(local_cfg_str.as_str()));
+    }
+
+    #[test]
+    fn load_envs_public_and_private() {
+        const ENVDIR: &'static str = "private_env";
+        let mut e = init_env();
+        let local_cfg = PathBuf::from(PROJECT).join("short.yml");
+        let global_cfg = PathBuf::from(HOME).join(".short/cfg.yml");
+        let env_example = PathBuf::from(PROJECT).join(".example");
+        let env_dev = PathBuf::from(ENVDIR).join(".dev");
+        let env_prod = PathBuf::from(ENVDIR).join(".prod");
+
+        let abs_local_cfg = e.path().join(&local_cfg);
+        let abs_global_cfg = e.path().join(&global_cfg);
+        let abs_env_example = e.path().join(env_example);
+        let abs_env_dev = e.path().join(env_dev);
+        let abs_env_prod = e.path().join(env_prod);
+
+        e.add_file(
+            &local_cfg,
+            r#"
+setups:
+  - name: setup_1
+    provider:
+      name: cloudformation
+      template: ./template_1.yaml
+        "#,
+        );
+        e.add_file(
+            &abs_env_example,
+            r#"
+ENV= example
+VAR2= toto
+VAR3= "example"
+        "#,
+        );
+
+        e.add_file(
+            &global_cfg,
+            format!(
+                r#"
+projects:
+  - file: '{}'
+    setups:
+      - name: setup_1
+        private_env_dir: {}
+                "#,
+                abs_local_cfg.to_string_lossy(),
+                e.path().join(ENVDIR).to_string_lossy(),
+            ),
+        );
+        e.add_file(
+            &abs_env_prod,
+            r#"
+ENV= prod
+        "#,
+        );
+        e.add_file(
+            &abs_env_dev,
+            r#"
+ENV= dev
+        "#,
+        );
+        e.setup();
+
+        let mut cfg = Cfg::load(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let mut setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
+        let env_public = setup_1.env_public();
+        assert!(env_public.iter().count().eq(&1));
+        let env_private = setup_1.env_private();
+        assert!(env_private.iter().count().eq(&2));
     }
 }

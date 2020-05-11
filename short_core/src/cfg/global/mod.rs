@@ -53,7 +53,7 @@ impl GlobalCfg {
         &mut self,
         file_local_cfg: &FileCfg<LocalCfg>,
     ) -> Result<Rc<RefCell<GlobalProjectCfg>>> {
-        if let Some(local_path) = file_local_cfg.path() {
+        if let Ok(local_path) = file_local_cfg.file() {
             // Upsert global project
             let global_project = if let Some(global_project) = self.get_project_by_file(local_path)
             {

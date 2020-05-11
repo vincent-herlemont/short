@@ -24,7 +24,7 @@ pub struct FileCfg<C>
 where
     C: Serialize + DeserializeOwned,
 {
-    path: Option<PathBuf>,
+    file: Option<PathBuf>,
     cfg: C,
 }
 
@@ -32,35 +32,35 @@ impl<C> FileCfg<C>
 where
     C: Serialize + DeserializeOwned,
 {
-    pub fn load(path: &PathBuf) -> Result<FileCfg<C>> {
-        let str = read_to_string(&path)?;
+    pub fn load(file: &PathBuf) -> Result<FileCfg<C>> {
+        let str = read_to_string(&file)?;
         let cfg = serde_yaml::from_str(str.as_str())
-            .context(format!("fail to parse {}", path.to_string_lossy()))?;
+            .context(format!("fail to parse {}", file.to_string_lossy()))?;
         Ok(Self {
             cfg,
-            path: Some(path.to_path_buf()),
+            file: Some(file.to_path_buf()),
         })
     }
 
-    pub fn new(path: &PathBuf, cfg: C) -> Result<FileCfg<C>> {
-        if (!path.is_absolute()) {
+    pub fn new(file: &PathBuf, cfg: C) -> Result<FileCfg<C>> {
+        if (!file.is_absolute()) {
             return Err(anyhow!("cfg file path must be an abosulte path"));
         }
         Ok(Self {
-            path: Some(path.to_path_buf()),
+            file: Some(file.to_path_buf()),
             cfg,
         })
     }
 
     pub fn save(&self) -> Result<()> {
-        let path = self.path.as_ref().context("cfg file has not path")?;
+        let path = self.file.as_ref().context("cfg file has not path")?;
         let str = serde_yaml::to_string(&self.cfg).context("fail to parse cfg")?;
         write_all_dir(path, &str).context("fail to write cfg file")?;
         Ok(())
     }
 
-    pub fn path(&self) -> Option<&PathBuf> {
-        self.path.as_ref()
+    pub fn file(&self) -> Result<&PathBuf> {
+        self.file.as_ref().context("local cfg has no path")
     }
 
     pub fn borrow(&self) -> &C {
@@ -130,13 +130,13 @@ pub fn load_global_cfg(file: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
 
 impl From<LocalCfg> for FileCfg<LocalCfg> {
     fn from(cfg: LocalCfg) -> Self {
-        Self { cfg, path: None }
+        Self { cfg, file: None }
     }
 }
 
 impl From<GlobalCfg> for FileCfg<GlobalCfg> {
     fn from(cfg: GlobalCfg) -> Self {
-        Self { cfg, path: None }
+        Self { cfg, file: None }
     }
 }
 
@@ -189,7 +189,7 @@ setups:
         let e = init_env();
         let file_cfg: Result<FileCfg<LocalCfg>> = FileCfg::load(&e.path().join("short.yml"));
         let file_cfg = file_cfg.unwrap();
-        let path = file_cfg.path.unwrap().clone();
+        let path = file_cfg.file.unwrap().clone();
         assert!(contains("short.yml").eval(path.to_string_lossy().as_ref()));
     }
 
@@ -198,7 +198,7 @@ setups:
         let e = init_env();
         let file_local_cfg = load_local_cfg(&e.path().join("setup_1/short.yml"));
         let file_local_cfg = file_local_cfg.unwrap();
-        let path = file_local_cfg.path.unwrap().clone();
+        let path = file_local_cfg.file.unwrap().clone();
         assert!(contains("short.yml").eval(path.to_string_lossy().as_ref()));
     }
 

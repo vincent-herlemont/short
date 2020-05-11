@@ -1,12 +1,18 @@
+use crate::cfg::file::FileCfg;
 use crate::cfg::global::GlobalProjectSetupCfg;
-use crate::cfg::{GlobalCfg, LocalCfg, LocalSetupCfg};
+use crate::cfg::{EnvPathCfg, GlobalCfg, LocalCfg, LocalSetupCfg};
 use anyhow::Context;
 use anyhow::Result;
+use serde::de::DeserializeOwned;
 use serde::export::fmt::Debug;
 use serde::export::Formatter;
+use serde::Serialize;
+use short_env;
+use short_env::Env;
 use std::cell::{Ref, RefCell};
 use std::fmt;
 use std::fmt::Display;
+use std::path::PathBuf;
 use std::rc::{Rc, Weak};
 
 pub trait SetupsCfg {
@@ -45,6 +51,7 @@ pub trait SetupCfg {
 }
 
 pub struct Setup {
+    local_cfg_file: Option<PathBuf>,
     local_setup: Weak<RefCell<LocalSetupCfg>>,
     global_setup: Weak<RefCell<GlobalProjectSetupCfg>>,
 }
@@ -52,9 +59,35 @@ pub struct Setup {
 impl Setup {
     pub fn new() -> Self {
         Self {
+            local_cfg_file: None,
             local_setup: Weak::default(),
             global_setup: Weak::default(),
         }
+    }
+
+    pub fn env_public(&self) -> Vec<Result<Env>> {
+        if let (Some(local_setup), Some(file)) = (&self.local_setup(), &self.local_cfg_file) {
+            if let Some(dir) = file.parent() {
+                let abs_path = dir.join(local_setup.borrow().env_path());
+                let env = short_env::read_dir(&abs_path);
+                return env
+                    .into_iter()
+                    .map(|env| env.context("fail to parse env"))
+                    .collect();
+            }
+        }
+        vec![]
+    }
+
+    pub fn env_private(&self) -> Vec<Result<Env>> {
+        if let Some(global_setup) = self.global_setup() {
+            let env = short_env::read_dir(&global_setup.borrow().env_path());
+            return env
+                .into_iter()
+                .map(|env| env.context("fail to parse env"))
+                .collect();
+        }
+        vec![]
     }
 
     pub fn name(&self) -> Result<String> {
@@ -88,6 +121,7 @@ impl Setup {
     }
 
     pub fn new_fill(
+        local_file: &PathBuf,
         local_setup: Weak<RefCell<LocalSetupCfg>>,
         global_setup: Weak<RefCell<GlobalProjectSetupCfg>>,
     ) -> Result<Self> {
@@ -97,6 +131,7 @@ impl Setup {
             .context("global set up cfg is empty")?;
         if rc_local_setup.borrow().name() == rc_global_setup.borrow().name() {
             Ok(Self {
+                local_cfg_file: Some(local_file.to_owned()),
                 local_setup,
                 global_setup,
             })

@@ -1,7 +1,10 @@
+mod read_dir;
+
+pub use read_dir::read_dir;
 use std::fmt::{Display, Formatter};
 use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Error, ErrorKind};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -120,7 +123,7 @@ impl Entry {
 
 #[derive(Debug)]
 pub struct Env {
-    name: Option<String>,
+    file: Option<PathBuf>,
     entries: Vec<Entry>,
 }
 
@@ -136,7 +139,7 @@ impl Display for Env {
 impl Env {
     pub fn new() -> Self {
         Self {
-            name: None,
+            file: None,
             entries: vec![],
         }
     }
@@ -193,7 +196,7 @@ impl Env {
                 format!(
                     "fail to found env var {} {}",
                     name.as_ref().to_string(),
-                    self.name
+                    self.name()
                         .as_ref()
                         .map_or(String::new(), |env| format!(" to env {} ", env))
                 ),
@@ -232,10 +235,10 @@ impl Env {
             .ok_or(file_name_err())?
             .to_string();
 
-        let file = OpenOptions::new().read(true).open(path)?;
+        let file = OpenOptions::new().read(true).open(&path)?;
         let mut buf_reader = BufReader::new(file);
         let mut env = Env::from_reader(&mut buf_reader)?;
-        env.set_name(file_name);
+        env.file = Some(path);
         Ok(env)
     }
 
@@ -254,28 +257,38 @@ impl Env {
         }
 
         Ok(Env {
-            name: None,
+            file: None,
             entries,
         })
     }
 
-    /// Set name and remove dot char in the beginning of the name.
-    pub fn set_name<N: AsRef<str>>(&mut self, name: N) {
-        let name = name.as_ref().trim_start_matches('.');
-        self.name = Some(name.to_string());
+    pub fn set_path(&mut self, path: &PathBuf) {
+        self.file = Some(path.to_owned());
     }
 
-    pub fn name(&self) -> Result<String> {
-        self.name.clone().ok_or(Error::new(
-            ErrorKind::Interrupted,
-            "env file has not name \".unknown\"",
+    pub fn file_name(&self) -> Result<String> {
+        if let Some(file) = &self.file {
+            if let Some(file_name) = file.file_name() {
+                let file_name_err = || {
+                    Error::new(
+                        ErrorKind::InvalidData,
+                        format!("fail to read file env file name {:?}", file_name),
+                    )
+                };
+                let file_name = file_name.to_str().ok_or(file_name_err())?.to_string();
+                return Ok(file_name);
+            }
+        }
+        Err(Error::new(
+            ErrorKind::NotFound,
+            format!("env file not found",),
         ))
     }
 
-    pub fn dot_name(&self) -> Result<String> {
-        let mut name = self.name()?;
-        name.insert(0, '.');
-        Ok(name)
+    pub fn name(&self) -> Result<String> {
+        let file_name = self.file_name()?;
+        let name = file_name.trim_start_matches('.');
+        return Ok(name.to_string());
     }
 
     pub fn iter(&self) -> EnvIterator {
@@ -342,23 +355,19 @@ mod tests {
     fn name() {
         let mut env = Env::new();
         assert!(env.name().is_err());
-        env.set_name("test-env");
+        env.set_path(&"/test-env".into());
+        let file_name = env.file_name().unwrap();
+        assert_eq!(file_name, "test-env");
         let name = env.name().unwrap();
         assert_eq!(name, "test-env");
 
         // trim dot
         let mut env = Env::new();
-        env.set_name(".test-env");
+        env.set_path(&"test/.test-env".into());
+        let file_name = env.file_name().unwrap();
+        assert_eq!(file_name, ".test-env");
         let name = env.name().unwrap();
         assert_eq!(name, "test-env");
-    }
-
-    #[test]
-    fn dot_name() {
-        let mut env = Env::new();
-        env.set_name("test-env");
-        let name = env.dot_name().unwrap();
-        assert_eq!(name, ".test-env");
     }
 
     #[test]
