@@ -2,8 +2,8 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-use crate::cfg::setup::SetupCfg;
 use crate::cfg::{EnvPathCfg, LocalSetupProviderCfg};
+use crate::cfg::setup::SetupCfg;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalSetupCfg {

@@ -1,22 +1,23 @@
 #![feature(bool_to_option)]
 
+
 use std::env::var;
-use std::ffi::{OsStr, OsString};
+
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 
 use anyhow::{Context, Result};
 use fs_extra::file::read_to_string;
+use serde::{Serialize};
 use serde::de::DeserializeOwned;
-use serde::{Deserialize, Serialize};
 
 use short_utils::write_all::write_all_dir;
 
+use crate::cfg::{GlobalCfg, LocalCfg};
 use crate::cfg::file::find::find_local_cfg;
 use crate::cfg::global::GLOCAL_FILE_NAME;
-use crate::cfg::{GlobalCfg, LocalCfg};
-use std::cell::RefCell;
+
 mod find;
 
 #[derive(Debug)]
@@ -43,7 +44,7 @@ where
     }
 
     pub fn new(file: &PathBuf, cfg: C) -> Result<FileCfg<C>> {
-        if (!file.is_absolute()) {
+        if !file.is_absolute() {
             return Err(anyhow!("cfg file path must be an abosulte path"));
         }
         Ok(Self {
@@ -145,7 +146,7 @@ where
     C: Serialize + DeserializeOwned,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        if let Ok(content) = serde_yaml::to_string(&self.cfg).map_err(|err| fmt::Error {}) {
+        if let Ok(content) = serde_yaml::to_string(&self.cfg).map_err(|_err| fmt::Error {}) {
             write!(f, "{}", content);
         }
         Ok(())
@@ -156,15 +157,15 @@ where
 mod test {
     use std::path::PathBuf;
 
-    use anyhow::{Context, Result};
-    use fs_extra::dir::DirEntryAttr::Path;
+    use anyhow::{Result};
+    
     use predicates::prelude::Predicate;
     use predicates::str::contains;
 
     use short_utils::integration_test::environment::IntegrationTestEnvironment;
 
-    use crate::cfg::file::{load_local_cfg, FileCfg};
-    use crate::cfg::{EnvPathsCfg, LocalCfg};
+    use crate::cfg::{LocalCfg};
+    use crate::cfg::file::{FileCfg, load_local_cfg};
 
     fn init_env() -> IntegrationTestEnvironment {
         let mut e = IntegrationTestEnvironment::new("cmd_help");
@@ -210,7 +211,7 @@ setups:
         FileCfg::new(&PathBuf::from("toto"), local_cfg).unwrap_err();
 
         let local_cfg = LocalCfg::new();
-        let file_cfg_local =
+        let _file_cfg_local =
             FileCfg::new(&e.path().join(PathBuf::from("toto")), local_cfg).unwrap();
     }
 }

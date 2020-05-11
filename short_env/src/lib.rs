@@ -1,10 +1,11 @@
-mod read_dir;
-
-pub use read_dir::read_dir;
 use std::fmt::{Display, Formatter};
 use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Error, ErrorKind};
 use std::path::{Path, PathBuf};
+
+pub use read_dir::read_dir;
+
+mod read_dir;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -228,7 +229,7 @@ impl Env {
             )
         };
 
-        let file_name = path
+        let _file_name = path
             .file_name()
             .ok_or(file_name_err())?
             .to_str()

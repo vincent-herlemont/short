@@ -30,9 +30,10 @@ impl Settings {
 
 #[cfg(test)]
 mod test {
+    
+    
+
     use crate::settings::Settings;
-    use predicates::prelude::*;
-    use predicates::str;
 
     #[test]
     fn settings() {

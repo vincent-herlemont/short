@@ -1,4 +1,4 @@
-use std::cell::{Ref, RefCell};
+use std::cell::{RefCell};
 use std::rc::Rc;
 
 use serde::{Deserialize, Serialize};
@@ -7,8 +7,8 @@ pub use setup::LocalSetupCfg;
 pub use setup_provider::LocalSetupProviderCfg;
 pub use setup_provider::LocalSetupProviderCloudformationCfg;
 
-use crate::cfg::setup::{SetupCfg, SetupsCfg};
 use crate::cfg::{EnvPathCfg, EnvPathsCfg};
+use crate::cfg::setup::{SetupsCfg};
 
 mod setup;
 mod setup_provider;
@@ -46,13 +46,13 @@ impl EnvPathsCfg for LocalCfg {
 
 #[cfg(test)]
 mod test {
-    use std::cell::RefCell;
+    
     use std::path::PathBuf;
-    use std::rc::Rc;
+    
 
-    use crate::cfg::setup::SetupsCfg;
     use crate::cfg::{EnvPathCfg, EnvPathsCfg};
     use crate::cfg::{LocalCfg, LocalSetupCfg, LocalSetupProviderCfg};
+    use crate::cfg::setup::SetupsCfg;
 
     #[test]
     fn local_update_public_env_dir() {

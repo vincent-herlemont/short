@@ -1,19 +1,22 @@
-use crate::cfg::file::FileCfg;
-use crate::cfg::global::GlobalProjectSetupCfg;
-use crate::cfg::{EnvPathCfg, GlobalCfg, LocalCfg, LocalSetupCfg};
-use anyhow::Context;
-use anyhow::Result;
-use serde::de::DeserializeOwned;
-use serde::export::fmt::Debug;
-use serde::export::Formatter;
-use serde::Serialize;
-use short_env;
-use short_env::Env;
-use std::cell::{Ref, RefCell};
+use std::cell::{RefCell};
 use std::fmt;
-use std::fmt::Display;
+
 use std::path::PathBuf;
 use std::rc::{Rc, Weak};
+
+use anyhow::Context;
+use anyhow::Result;
+
+use serde::export::fmt::Debug;
+use serde::export::Formatter;
+
+
+use short_env;
+use short_env::Env;
+
+use crate::cfg::{EnvPathCfg, LocalSetupCfg};
+
+use crate::cfg::global::GlobalProjectSetupCfg;
 
 pub trait SetupsCfg {
     type Setup: SetupCfg;

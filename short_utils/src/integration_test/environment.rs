@@ -1,11 +1,12 @@
+use std::collections::HashMap;
+
+use std::fmt::{Display, Formatter};
+use std::path::{Path, PathBuf};
+
 use assert_cmd::Command;
 use fs_extra::dir::create_all;
 use fs_extra::file::read_to_string;
 use fs_extra::file::write_all;
-use std::collections::HashMap;
-use std::env::temp_dir;
-use std::fmt::{Display, Formatter};
-use std::path::{Path, PathBuf};
 use tempdir::TempDir;
 use walkdir::WalkDir;
 
@@ -113,9 +114,10 @@ impl Display for IntegrationTestEnvironment {
 
 #[cfg(test)]
 mod test {
-    use crate::integration_test::environment::IntegrationTestEnvironment;
     use predicates::prelude::Predicate;
     use predicates::str::contains;
+
+    use crate::integration_test::environment::IntegrationTestEnvironment;
 
     #[test]
     fn integration_test_environment() {

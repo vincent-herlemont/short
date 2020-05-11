@@ -1,7 +1,9 @@
 #[macro_use]
 extern crate short_utils;
+
 use predicates::prelude::Predicate;
 use predicates::str;
+
 use short_utils::integration_test::environment::IntegrationTestEnvironment;
 
 #[test]

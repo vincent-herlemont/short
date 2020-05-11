@@ -1,8 +1,8 @@
 use std::fs;
+use std::path::PathBuf;
 
 use crate::Env;
 use crate::Result;
-use std::path::PathBuf;
 
 pub fn read_dir(dir: &PathBuf) -> Vec<Result<Env>> {
     let mut envs = vec![];

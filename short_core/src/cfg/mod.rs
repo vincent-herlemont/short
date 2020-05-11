@@ -1,10 +1,8 @@
-use crate::cfg::file::{load_or_new_global_cfg, load_or_new_local_cfg, FileCfg};
-use crate::cfg::global::{GlobalProjectCfg, GlobalProjectSetupCfg, GLOCAL_FILE_NAME};
-use crate::cfg::setup::Setup;
+
+use std::path::{PathBuf};
+use std::rc::{Rc};
+
 use anyhow::{Context, Result};
-use std::cell::{Ref, RefCell};
-use std::path::{Path, PathBuf};
-use std::rc::{Rc, Weak};
 
 pub use env::EnvPathCfg;
 pub use env::EnvPathsCfg;
@@ -15,6 +13,10 @@ pub use local::LocalSetupProviderCfg;
 pub use project::ProjectCfg;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
+
+use crate::cfg::file::{FileCfg, load_or_new_global_cfg, load_or_new_local_cfg};
+
+use crate::cfg::setup::Setup;
 
 mod env;
 mod file;
@@ -96,12 +98,15 @@ impl Cfg {
 
 #[cfg(test)]
 mod test {
-    use crate::cfg::{Cfg, EnvPathCfg};
+    use std::path::PathBuf;
+
     use predicates::path::{exists, is_file};
     use predicates::prelude::*;
     use predicates::str::contains;
+
     use short_utils::integration_test::environment::IntegrationTestEnvironment;
-    use std::path::PathBuf;
+
+    use crate::cfg::{Cfg, EnvPathCfg};
 
     const HOME: &'static str = "home";
     const PROJECT: &'static str = "project";
@@ -180,7 +185,7 @@ setups:
         let global_cfg = PathBuf::from(HOME).join(".short/cfg.yml");
 
         let abs_local_cfg = e.path().join(&local_cfg);
-        let abs_global_cfg = e.path().join(&global_cfg);
+        let _abs_global_cfg = e.path().join(&global_cfg);
 
         e.add_file(
             &local_cfg,
@@ -212,7 +217,7 @@ projects:
 
         e.setup();
         let mut cfg = Cfg::load(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
-        let mut setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
+        let setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
         setup_1
             .global_setup()
             .unwrap()
@@ -251,7 +256,7 @@ projects:
         let env_prod = PathBuf::from(ENVDIR).join(".prod");
 
         let abs_local_cfg = e.path().join(&local_cfg);
-        let abs_global_cfg = e.path().join(&global_cfg);
+        let _abs_global_cfg = e.path().join(&global_cfg);
         let abs_env_example = e.path().join(env_example);
         let abs_env_dev = e.path().join(env_dev);
         let abs_env_prod = e.path().join(env_prod);
@@ -304,7 +309,7 @@ ENV= dev
         e.setup();
 
         let mut cfg = Cfg::load(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
-        let mut setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
+        let setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
         let env_public = setup_1.env_public();
         assert!(env_public.iter().count().eq(&1));
         let env_private = setup_1.env_private();

@@ -1,17 +1,19 @@
-mod project;
-mod setup;
-
-use crate::cfg::file::FileCfg;
-use crate::cfg::project::ProjectCfg;
-use crate::cfg::{LocalCfg, LocalSetupCfg, SetupsCfg};
-use anyhow::Result;
-use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
+
 pub use project::GlobalProjectCfg;
 pub use setup::GlobalProjectSetupCfg;
+
+use crate::cfg::{LocalCfg, SetupsCfg};
+use crate::cfg::file::FileCfg;
+use crate::cfg::project::ProjectCfg;
+
+mod project;
+mod setup;
 
 pub const GLOCAL_FILE_NAME: &'static str = "cfg.yml";
 
@@ -82,9 +84,10 @@ impl GlobalCfg {
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+
     use crate::cfg::global::project::GlobalProjectCfg;
     use crate::cfg::GlobalCfg;
-    use std::path::PathBuf;
 
     #[test]
     fn project() {

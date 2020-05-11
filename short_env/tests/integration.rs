@@ -1,5 +1,6 @@
-use short_env::Env;
 use std::io::Cursor;
+
+use short_env::Env;
 
 #[test]
 fn empty() {

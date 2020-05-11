@@ -2,11 +2,11 @@ use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use anyhow::{Context, Result};
+use anyhow::{Result};
 use serde::{Deserialize, Serialize};
 
+use crate::cfg::{ProjectCfg, SetupsCfg};
 use crate::cfg::global::setup::GlobalProjectSetupCfg;
-use crate::cfg::{ProjectCfg, SetupCfg, SetupsCfg};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalProjectCfg {
@@ -25,7 +25,7 @@ impl GlobalProjectCfg {
     }
 
     pub fn set_file(&mut self, file: &PathBuf) -> Result<()> {
-        if (!file.is_absolute()) {
+        if !file.is_absolute() {
             return Err(anyhow!(format!(
                 "project file path can not be relative {}",
                 file.to_string_lossy()
@@ -57,9 +57,9 @@ impl SetupsCfg for GlobalProjectCfg {
 mod test {
     use std::path::PathBuf;
 
+    use crate::cfg::{EnvPathCfg, SetupsCfg};
     use crate::cfg::global::project::GlobalProjectCfg;
     use crate::cfg::global::setup::GlobalProjectSetupCfg;
-    use crate::cfg::{EnvPathCfg, SetupsCfg};
 
     #[test]
     fn global_update_private_env_dir() {
