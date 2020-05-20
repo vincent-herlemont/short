@@ -12,5 +12,8 @@ serde_yaml ="0.8.11"
 fs_extra = "1.1.0"
 predicates = "1.0.4"
 serde = { version = "1.0.106", features = ["derive","rc"] }
+futures = "0.3.5"
+rand = "0.7.3"
+tokio = { version = "0.2.20", features = ["full"] }
 short_env = { path = "../short_env" }
 short_utils = { path = "../short_utils" }

@@ -1,4 +1,4 @@
-use std::cell::{RefCell};
+use std::cell::RefCell;
 use std::fmt;
 
 use std::path::PathBuf;
@@ -9,7 +9,6 @@ use anyhow::Result;
 
 use serde::export::fmt::Debug;
 use serde::export::Formatter;
-
 
 use short_env;
 use short_env::Env;
@@ -53,6 +52,7 @@ pub trait SetupCfg {
     fn rename(&mut self, name: &String);
 }
 
+#[derive(Clone)]
 pub struct Setup {
     local_cfg_file: Option<PathBuf>,
     local_setup: Weak<RefCell<LocalSetupCfg>>,
