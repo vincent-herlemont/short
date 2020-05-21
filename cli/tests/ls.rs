@@ -31,14 +31,8 @@ fn cmd_ls() {
         r"#---
 setups:
   - name: 'setup_1'
-    provider:
-      name: cloudformation
-      template: ./template_1.yaml
   - name: setup_2'
     public_env_directory: 'setup_2/'
-    provider:
-      name: cloudformation
-      template: setup_2/template.yaml
     #",
     );
     e.setup();

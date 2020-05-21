@@ -1,22 +1,21 @@
 #![feature(bool_to_option)]
 
-
 use std::env::var;
 
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
 use anyhow::{Context, Result};
 use fs_extra::file::read_to_string;
-use serde::{Serialize};
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 
 use short_utils::write_all::write_all_dir;
 
-use crate::cfg::{GlobalCfg, LocalCfg};
 use crate::cfg::file::find::find_local_cfg;
 use crate::cfg::global::GLOCAL_FILE_NAME;
+use crate::cfg::{GlobalCfg, LocalCfg};
 
 mod find;
 
@@ -157,15 +156,15 @@ where
 mod test {
     use std::path::PathBuf;
 
-    use anyhow::{Result};
-    
+    use anyhow::Result;
+
     use predicates::prelude::Predicate;
     use predicates::str::contains;
 
     use short_utils::integration_test::environment::IntegrationTestEnvironment;
 
-    use crate::cfg::{LocalCfg};
-    use crate::cfg::file::{FileCfg, load_local_cfg};
+    use crate::cfg::file::{load_local_cfg, FileCfg};
+    use crate::cfg::LocalCfg;
 
     fn init_env() -> IntegrationTestEnvironment {
         let mut e = IntegrationTestEnvironment::new("cmd_help");
@@ -176,9 +175,6 @@ mod test {
 setups:
   - name: setup_1'
     public_env_dir: 'setup_1/'
-    provider:
-      name: cloudformation
-      template: setup_1/template.yml
 #",
         );
         e.setup();

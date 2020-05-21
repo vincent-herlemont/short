@@ -8,7 +8,6 @@ pub use env::EnvPathsCfg;
 pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
-pub use local::LocalSetupProviderCfg;
 pub use project::ProjectCfg;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
@@ -145,9 +144,6 @@ mod main_test {
             r#"
 setups:
   - name: setup_1
-    provider:
-      name: cloudformation
-      template: ./template_1.yaml
         "#,
         );
         e.setup();
@@ -158,9 +154,6 @@ setups:
         // Check content of setups
         let dbg_setups = format!("{:#?}", setups);
         assert!(contains("setup_1").count(2).eval(dbg_setups.as_str()));
-        assert!(contains("./template_1.yaml")
-            .count(1)
-            .eval(dbg_setups.as_str()));
 
         // Check if global file do not exist before save
         assert!(!is_file().eval(&abs_global_cfg));
@@ -190,13 +183,7 @@ setups:
             r#"
 setups:
   - name: setup_1
-    provider:
-      name: cloudformation
-      template: ./template_1.yaml
   - name: setup_2
-    provider:
-      name: cloudformation
-      template: ./template_2.yaml
         "#,
         );
         e.add_file(
@@ -362,13 +349,7 @@ mod thread_test {
             r#"
 setups:
   - name: setup_1
-    provider:
-      name: cloudformation
-      template: ./template_1.yaml
   - name: setup_2
-    provider:
-      name: cloudformation
-      template: ./template_2.yaml
         "#,
         );
         e.setup();

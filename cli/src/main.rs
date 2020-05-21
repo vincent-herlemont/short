@@ -59,29 +59,6 @@ fn run() -> Result<()> {
             SubCommand::with_name("init").about("Create an empty \"short.yml\" configuration file"),
         )
         .subcommand(
-            SubCommand::with_name("add")
-                .setting(AppSettings::DeriveDisplayOrder)
-                .setting(AppSettings::SubcommandRequiredElseHelp)
-                .about("Add set up provider (cloudformation,...)")
-                .subcommand(
-                    SubCommand::with_name("cloudformation")
-                        .about("Add cloudformation setup")
-                        .arg(
-                            Arg::with_name("template")
-                                .help("The template cloudformation path")
-                                .index(1)
-                                .required(true),
-                        )
-                        .arg(
-                            Arg::with_name("name")
-                                .help("Name of your setup")
-                                .long("name")
-                                .short("n")
-                                .takes_value(true),
-                        ),
-                ),
-        )
-        .subcommand(
             SubCommand::with_name("env")
                 .setting(AppSettings::SubcommandRequiredElseHelp)
                 .setting(AppSettings::DeriveDisplayOrder)

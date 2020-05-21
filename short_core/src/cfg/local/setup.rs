@@ -2,8 +2,8 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-use crate::cfg::{EnvPathCfg, LocalSetupProviderCfg};
 use crate::cfg::setup::SetupCfg;
+use crate::cfg::EnvPathCfg;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalSetupCfg {
@@ -11,16 +11,13 @@ pub struct LocalSetupCfg {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     public_env_dir: Option<PathBuf>,
-
-    provider: LocalSetupProviderCfg,
 }
 
 impl LocalSetupCfg {
-    pub fn new(name: String, provider: LocalSetupProviderCfg) -> Self {
+    pub fn new(name: String) -> Self {
         Self {
             name,
             public_env_dir: None,
-            provider,
         }
     }
 }

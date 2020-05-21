@@ -4,15 +4,12 @@ use std::rc::Rc;
 use serde::{Deserialize, Serialize};
 
 pub use setup::LocalSetupCfg;
-pub use setup_provider::LocalSetupProviderCfg;
-pub use setup_provider::LocalSetupProviderCloudformationCfg;
 
 use crate::cfg::setup::SetupsCfg;
 use crate::cfg::{EnvPathCfg, EnvPathsCfg};
 
 mod setup;
 mod setup_env_group;
-mod setup_provider;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalCfg {
@@ -52,12 +49,11 @@ mod test {
 
     use crate::cfg::setup::SetupsCfg;
     use crate::cfg::{EnvPathCfg, EnvPathsCfg};
-    use crate::cfg::{LocalCfg, LocalSetupCfg, LocalSetupProviderCfg};
+    use crate::cfg::{LocalCfg, LocalSetupCfg};
 
     #[test]
     fn local_update_public_env_dir() {
-        let provider_cfg = LocalSetupProviderCfg::None;
-        let setup_cfg = LocalSetupCfg::new("setup".into(), provider_cfg);
+        let setup_cfg = LocalSetupCfg::new("setup".into());
 
         let mut local_cfg = LocalCfg::new();
         local_cfg.add_setup(setup_cfg);
