@@ -2,8 +2,7 @@
 
 :construction: *Disclaimer : Work in progress. It's an experimental project that I used for learn rust. Most of the code are dirty and need to be rewrite.*
 
-Short it's command-line tool that allow to deploy and manage easily **multiple cloud projects** with **multiple environments** using .env files.
-For now only aws cloudformation is supported. 
+Short it's command-line tool that allow to run sh script with multiple .env file.
 
 ### Initializing an project :black_square_button:
 You need to go to your project's directory and type :
@@ -12,16 +11,22 @@ $> short init
 ```
 This create an empty `short.yml` configuration file.
 
-### Add cloudformation set up :black_square_button:
-You need have a cloudformation template, follow this [documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/gettingstarted.templatebasics.html) if you have not familiar with cloudformation.
-In this example we have to `./template.yaml` at the root of our project's directory.
+### Create new runnable script.
+
+The following command, create new empty runnable script. By default, filename is `run.sh`, but
+you can customise the name with `-n` argument.
 ```
-$> short add cloudformation ./template.yaml
+$> short new
 ```
-The set up name take by default the name of the project's directory. You can specified an custom set up name with the `--name` argument:
+
+Here the content of `run.sh`
+```sh
+#!/bin/sh
+declare -A all=(ALL) # Associative array with all variables.
+declare -p all       # Print [debug]
 ```
-$> short add cloudformation ./template.yaml --name setup_1
-```
+
+
 
 ### Create environment :black_square_button:
 Now you have to create an environment to your current set up, in the following example we create an environment named `dev`
@@ -30,12 +35,12 @@ but you can choose the name as you want.
 $> short env new dev
 ```
 
-### Deploy :black_square_button:
-Now you have to deploy. ([aws cli must be installed](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html))
+### Run :black_square_button:
+
+Short run the set up with the configured environment.
 ```
-$> short deploy
+$> short run
 ```
-Short deploy your current set up / environment.
 
 ### Show current set up and environment :black_square_button:
 It's useful to see which set up is configured for deployment so that avoid deployment mistake.
@@ -94,20 +99,20 @@ This configuration is ranked at the root of your project. It defined all setup c
 
 ```yaml
 setups:
-  - name: 'setup_1'   
-    provider:
-      name: cloudformation
-      template: "./template.yaml"
+  - name: 'setup_1'
+    file: './run.sh'
+    env_groups:
+      - all: [ '*' ]
 ```
 
-With custom public env directory
+With custom public env directory.
 ```yaml
 setups:  
   - name: 'setup_1'
     public_env_dir: './env/'
-    provider:
-      name: cloudformation
-      template: "./template.yaml"
+    file: './run.sh'
+    env_groups:
+      - all: [ '*' ]
 ```
 
 ### Global configuration file
