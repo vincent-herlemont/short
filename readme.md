@@ -22,8 +22,8 @@ $> short new
 Here the content of `run.sh`
 ```sh
 #!/bin/sh
-declare -A all=(ALL) # Associative array with all variables.
-declare -p all       # Print [debug]
+declare -A all && eval all=($ALL) # Associative array with all variables.
+declare -p all                    # Print [debug]
 ```
 
 

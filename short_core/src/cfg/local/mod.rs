@@ -1,15 +1,14 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
-use serde::{Deserialize, Serialize};
-
-pub use setup::LocalSetupCfg;
+mod setup;
+mod setup_env_group;
 
 use crate::cfg::setup::SetupsCfg;
 use crate::cfg::{EnvPathCfg, EnvPathsCfg};
+use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::rc::Rc;
 
-mod setup;
-mod setup_env_group;
+pub use setup::LocalSetupCfg;
+pub use setup_env_group::EnvGroup;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalCfg {
@@ -53,7 +52,7 @@ mod test {
 
     #[test]
     fn local_update_public_env_dir() {
-        let setup_cfg = LocalSetupCfg::new("setup".into());
+        let setup_cfg = LocalSetupCfg::new("setup".into(), "run.sh".into());
 
         let mut local_cfg = LocalCfg::new();
         local_cfg.add_setup(setup_cfg);

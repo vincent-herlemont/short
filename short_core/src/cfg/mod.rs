@@ -144,6 +144,8 @@ mod main_test {
             r#"
 setups:
   - name: setup_1
+    file: ./run.sh
+    env_groups: []
         "#,
         );
         e.setup();
@@ -183,7 +185,11 @@ setups:
             r#"
 setups:
   - name: setup_1
+    file: ./run.sh
+    env_groups: []
   - name: setup_2
+    file: ./run.sh
+    env_groups: []
         "#,
         );
         e.add_file(
@@ -251,9 +257,8 @@ projects:
             r#"
 setups:
   - name: setup_1
-    provider:
-      name: cloudformation
-      template: ./template_1.yaml
+    file: ./run.sh
+    env_groups: []
         "#,
         );
         e.add_file(
@@ -349,7 +354,11 @@ mod thread_test {
             r#"
 setups:
   - name: setup_1
+    file: ./run.sh
+    env_groups: []
   - name: setup_2
+    file: ./run.sh
+    env_groups: []
         "#,
         );
         e.setup();

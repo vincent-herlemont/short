@@ -2,8 +2,11 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
+use crate::cfg::local::EnvGroup;
 use crate::cfg::setup::SetupCfg;
 use crate::cfg::EnvPathCfg;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalSetupCfg {
@@ -11,13 +14,19 @@ pub struct LocalSetupCfg {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     public_env_dir: Option<PathBuf>,
+
+    file: PathBuf,
+
+    env_groups: Rc<RefCell<Vec<EnvGroup>>>,
 }
 
 impl LocalSetupCfg {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: String, file: PathBuf) -> Self {
         Self {
             name,
             public_env_dir: None,
+            file,
+            env_groups: Rc::new(RefCell::new(vec![EnvGroup {}])),
         }
     }
 }
