@@ -8,7 +8,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 pub use setup::LocalSetupCfg;
-pub use setup_env_group::EnvGroup;
+pub use setup_env_group::{EnvGroup, EnvGroups};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalCfg {
@@ -42,13 +42,13 @@ impl EnvPathsCfg for LocalCfg {
 }
 
 #[cfg(test)]
-mod test {
-
-    use std::path::PathBuf;
+mod tests {
 
     use crate::cfg::setup::SetupsCfg;
     use crate::cfg::{EnvPathCfg, EnvPathsCfg};
     use crate::cfg::{LocalCfg, LocalSetupCfg};
+    use predicates::str::contains;
+    use std::path::PathBuf;
 
     #[test]
     fn local_update_public_env_dir() {
@@ -62,9 +62,12 @@ mod test {
 
         {
             let setup_cfg_1 = local_cfg.get_setup(&"setup".into()).unwrap();
-            setup_cfg_1
-                .borrow_mut()
-                .set_env_path_op(Some("./env_dir/".into()));
+            let mut setup_cfg_1 = setup_cfg_1.borrow_mut();
+            setup_cfg_1.set_env_path_op(Some("./env_dir/".into()));
+            let mut env_groups = setup_cfg_1.env_groups();
+            dbg!(&env_groups);
+            env_groups.add("toto".into(), "tata".into());
+            dbg!(&env_groups);
         }
 
         let env_path = local_cfg.env_paths();
@@ -72,5 +75,30 @@ mod test {
 
         local_cfg.remove_by_name_setup(&"setup".into());
         assert!(local_cfg.get_setup(&"setup".into()).is_none());
+    }
+
+    #[test]
+    fn local_cfg_yaml() {
+        let setup_cfg = LocalSetupCfg::new("setup".into(), "run.sh".into());
+
+        let expect = r#"---
+name: setup
+file: run.sh
+env_groups:
+  all: "*"
+  var2: SUFFIX_*
+  var1: PREFIX_*"#;
+
+        let mut env_groups = setup_cfg.env_groups();
+        env_groups.add("all".into(), "*".into());
+        env_groups.add("var2".into(), "SUFFIX_*".into());
+        env_groups.add("var1".into(), "PREFIX_*".into());
+
+        let content = serde_yaml::to_string(&setup_cfg).unwrap();
+        assert_eq!(expect, content.as_str());
+
+        let setup_cfg: LocalSetupCfg = serde_yaml::from_str(content.as_str()).unwrap();
+        let content = serde_yaml::to_string(&setup_cfg).unwrap();
+        assert_eq!(expect, content.as_str());
     }
 }
