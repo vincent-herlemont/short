@@ -8,6 +8,7 @@ pub use env::EnvPathsCfg;
 pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
+pub use local::{EnvGroup, EnvGroups};
 pub use project::ProjectCfg;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;

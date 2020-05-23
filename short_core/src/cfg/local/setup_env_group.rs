@@ -5,6 +5,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
+use std::vec::IntoIter;
 
 type VarName = String;
 type Pattern = String;
@@ -19,6 +20,10 @@ impl EnvGroups {
 
     pub fn add(&mut self, name: VarName, pattern: Pattern) {
         self.0.borrow_mut().append(&mut vec![(name, pattern)])
+    }
+
+    pub fn inner(&self) -> Rc<RefCell<Vec<EnvGroup>>> {
+        self.0.clone()
     }
 }
 

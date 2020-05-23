@@ -861,6 +861,7 @@ dependencies = [
  "futures",
  "predicates",
  "rand 0.7.3",
+ "regex",
  "serde",
  "serde_yaml",
  "short_env",
