@@ -20,11 +20,14 @@ pub struct LocalSetupCfg {
 
 impl LocalSetupCfg {
     pub fn new(name: String, file: PathBuf) -> Self {
+        let mut env_groups = EnvGroups::new();
+        env_groups.add("all".into(), "*".into());
+
         Self {
             name,
             public_env_dir: None,
             file,
-            env_groups: EnvGroups::new(),
+            env_groups,
         }
     }
 

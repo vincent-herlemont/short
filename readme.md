@@ -99,20 +99,20 @@ This configuration is ranked at the root of your project. It defined all setup c
 
 ```yaml
 setups:
-  - name: 'setup_1'
-    file: './run.sh'
+  - name: setup_1
+    file: ./run.sh
     env_groups:
-      - all: [ '*' ]
+      all: "*"
 ```
 
 With custom public env directory.
 ```yaml
 setups:  
-  - name: 'setup_1'
+  - name: setup_1
     public_env_dir: './env/'
-    file: './run.sh'
+    file: ./run.sh
     env_groups:
-      - all: [ '*' ]
+      all: "*"
 ```
 
 ### Global configuration file
