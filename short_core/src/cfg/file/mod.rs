@@ -176,7 +176,7 @@ setups:
   - name: setup_1'
     public_env_dir: 'setup_1/'
     file: ./run.sh
-    env_groups: []
+    env_groups: {}
 #",
         );
         e.setup();

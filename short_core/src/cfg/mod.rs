@@ -145,7 +145,7 @@ mod main_test {
 setups:
   - name: setup_1
     file: ./run.sh
-    env_groups: []
+    env_groups: {}
         "#,
         );
         e.setup();
@@ -186,10 +186,10 @@ setups:
 setups:
   - name: setup_1
     file: ./run.sh
-    env_groups: []
+    env_groups: {}
   - name: setup_2
     file: ./run.sh
-    env_groups: []
+    env_groups: {}
         "#,
         );
         e.add_file(
@@ -258,7 +258,7 @@ projects:
 setups:
   - name: setup_1
     file: ./run.sh
-    env_groups: []
+    env_groups: {}
         "#,
         );
         e.add_file(
@@ -355,10 +355,10 @@ mod thread_test {
 setups:
   - name: setup_1
     file: ./run.sh
-    env_groups: []
+    env_groups: {}
   - name: setup_2
     file: ./run.sh
-    env_groups: []
+    env_groups: {}
         "#,
         );
         e.setup();

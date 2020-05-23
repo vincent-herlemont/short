@@ -64,10 +64,6 @@ mod tests {
             let setup_cfg_1 = local_cfg.get_setup(&"setup".into()).unwrap();
             let mut setup_cfg_1 = setup_cfg_1.borrow_mut();
             setup_cfg_1.set_env_path_op(Some("./env_dir/".into()));
-            let mut env_groups = setup_cfg_1.env_groups();
-            dbg!(&env_groups);
-            env_groups.add("toto".into(), "tata".into());
-            dbg!(&env_groups);
         }
 
         let env_path = local_cfg.env_paths();
