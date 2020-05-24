@@ -8,6 +8,25 @@ use std::fs::{set_permissions, Permissions};
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
+pub struct File {
+    path: PathBuf,
+    shebang: String,
+}
+
+impl File {
+    pub fn new(path: PathBuf, shebang: String) -> Self {
+        Self { path, shebang }
+    }
+
+    pub fn path(&self) -> &PathBuf {
+        &self.path
+    }
+
+    pub fn shebang(&self) -> &String {
+        &self.shebang
+    }
+}
+
 pub fn set_exec_permision(file: &PathBuf) -> Result<()> {
     let file = file.canonicalize()?;
     let permissions = Permissions::from_mode(0o755);
@@ -15,8 +34,10 @@ pub fn set_exec_permision(file: &PathBuf) -> Result<()> {
     Ok(())
 }
 
-pub fn new(file: &PathBuf, vars: &Vec<Var>) -> Result<()> {
-    let mut content = String::from("#!/bin/sh\n");
+pub fn new(file: &File, vars: &Vec<Var>) -> Result<()> {
+    let mut content = String::new();
+    writeln!(&mut content, "{}", file.shebang);
+
     if vars.len() > 0 {
         for var in vars.iter() {
             if var.array {
@@ -36,8 +57,8 @@ pub fn new(file: &PathBuf, vars: &Vec<Var>) -> Result<()> {
         }
     }
 
-    write_all(file, content.as_str())?;
-    set_exec_permision(file)?;
+    write_all(&file.path, content.as_str())?;
+    set_exec_permision(&file.path)?;
     Ok(())
 }
 
@@ -45,7 +66,7 @@ pub fn new(file: &PathBuf, vars: &Vec<Var>) -> Result<()> {
 mod tests {
     use crate::cfg::EnvGroups;
     use crate::command::env_group::Var;
-    use crate::command::file::new;
+    use crate::command::file::{new, File};
     use predicates::prelude::predicate::path::exists;
     use predicates::prelude::*;
     use short_env::Env;
@@ -71,11 +92,11 @@ mod tests {
         let mut e = IntegrationTestEnvironment::new("command");
         e.setup();
         let file = e.path().join("run.sh");
-        new(&file, &vars).unwrap();
+        new(&File::new(file.clone(), String::from("#!/bin/bash")), &vars).unwrap();
         assert!(file.exists());
         let file = e.read_file("./run.sh");
         assert_eq!(
-            r#"#!/bin/sh
+            r#"#!/bin/bash
 declare -A all && eval all=($ALL)
 declare -r var1=$VAR1
 

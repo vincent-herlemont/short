@@ -47,6 +47,7 @@ fn run(file: &PathBuf, vars: &Vec<Var>) -> Result<Output> {
 #[cfg(test)]
 mod tests {
     use crate::cfg::EnvGroups;
+    use crate::command::file::File;
     use crate::command::{generate_vars, new, run, set_exec_permision};
     use predicates::prelude::*;
     use short_env::Env;
@@ -66,9 +67,8 @@ mod tests {
         let vars = generate_vars(&env_file, &env_groups).unwrap();
 
         let file = e.path().join("run.sh");
-        new(&file, &vars).unwrap();
+        new(&File::new(file.clone(), String::from("#!/bin/bash")), &vars).unwrap();
         let output = run(&file, &vars).unwrap();
-        assert_eq!(&output.status, &0);
         assert_eq!(
             &output.stdout,
             "declare -A all=([VAR1]=\"VALUE1\" [VAR2]=\"VALUE2\" )\ndeclare -r var1=\"VALUE1\"\n"
