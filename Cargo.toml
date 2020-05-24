@@ -1,7 +1,38 @@
-[workspace]
-members = [
-    "cli",
-    "short_utils",
-    "short_core",
-    "short_env"
-]
+[package]
+name = "short"
+version = "0.0.2"
+authors = ["Vincent Herlemont <vincentherl@leszeros.com>"]
+edition = "2018"
+
+[dependencies]
+tempdir = "0.3.7"
+fs_extra = "1.1.0"
+walkdir = "2.3.1"
+assert_cmd = "1.0.1"
+serde_yaml ="0.8.11"
+predicates = "1.0.4"
+serde = { version = "1.0.106", features = ["derive","rc"] }
+futures = "0.3.5"
+rand = "0.7.3"
+regex = "1.3.7"
+tokio = { version = "0.2.20", features = ["full"] }
+clap = "2.33.0"
+dirs = "2.0.2"
+anyhow = "1.0.28"
+log = "0.4.8"
+env_logger = "0.7.1"
+console = "0.11.2"
+
+[dev-dependencies]
+predicates = "1.0.4"
+cli_integration_test = "0.1.0"
+
+[lib]
+name = "short"
+path = "src/lib.rs"
+doc = true
+
+[[bin]]
+name = "short"
+path = "src/main.rs"
+doc = false

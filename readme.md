@@ -21,12 +21,10 @@ $> short new
 
 Here the content of `run.sh`
 ```sh
-#!/bin/sh
+#!/bin/bash
 declare -A all && eval all=($ALL) # Associative array with all variables.
 declare -p all                    # Print [debug]
 ```
-
-
 
 ### Create environment :black_square_button:
 Now you have to create an environment to your current set up, in the following example we create an environment named `dev`
@@ -102,7 +100,7 @@ setups:
   - name: setup_1
     file: ./run.sh
     env_groups:
-      all: "*"
+      all: ".*"
 ```
 
 With custom public env directory.
@@ -112,7 +110,7 @@ setups:
     public_env_dir: './env/'
     file: ./run.sh
     env_groups:
-      all: "*"
+      all: ".*"
 ```
 
 ### Global configuration file
