@@ -1,6 +1,6 @@
-use crate::cfg::file::find::find_local_cfg;
 use crate::cfg::global::GLOCAL_FILE_NAME;
 use crate::cfg::{GlobalCfg, LocalCfg};
+use crate::utils::find::find_in_parents;
 use crate::utils::write_all::write_all_dir;
 use anyhow::{Context, Result};
 use fs_extra::file::read_to_string;
@@ -66,19 +66,30 @@ where
     }
 }
 
-pub fn load_or_new_local_cfg(dir: &PathBuf) -> Result<FileCfg<LocalCfg>> {
+fn local_cfg_file(dir: &PathBuf) -> PathBuf {
     let local_cfg_file = var("SHORT_LOCAL_CFG_FILE").map_or("short.yml".to_string(), |v| v);
-    let local_cfg_file = dir.join(local_cfg_file);
+    dir.join(local_cfg_file)
+}
 
-    let local = load_local_cfg(&local_cfg_file).map_or(
-        FileCfg::new(&local_cfg_file, LocalCfg::new()).context(format!(
-            "fail to create new local cfg file {}",
-            local_cfg_file.to_string_lossy()
-        ))?,
-        |v| v,
-    );
+pub fn load_local_cfg(dir: &PathBuf) -> Result<FileCfg<LocalCfg>> {
+    let local_cfg_file = local_cfg_file(dir);
 
-    Ok(local)
+    let local_cfg = get_local_cfg(&local_cfg_file).context(format!(
+        "cfg file not found {}",
+        local_cfg_file.to_string_lossy()
+    ))?;
+
+    Ok(local_cfg)
+}
+
+pub fn new_local_cfg(dir: &PathBuf) -> Result<FileCfg<LocalCfg>> {
+    let local_cfg_file = local_cfg_file(dir);
+
+    if let Ok(_) = get_local_cfg(&local_cfg_file) {
+        return Err(anyhow!("local cfg {:?} already exist", local_cfg_file));
+    }
+
+    FileCfg::new(&local_cfg_file, LocalCfg::new())
 }
 
 pub fn load_or_new_global_cfg(dir: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
@@ -86,10 +97,10 @@ pub fn load_or_new_global_cfg(dir: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
     let global_dir = dir.join(global_cfg_dir);
     let global_cfg_file = global_dir.join(GLOCAL_FILE_NAME.to_string());
 
-    let global = load_global_cfg(&global_cfg_file).map_or(
+    let global = get_global_cfg(&global_cfg_file).map_or(
         FileCfg::new(&global_cfg_file, GlobalCfg::new()).context(format!(
-            "fail to create new global cfg file {}",
-            global_cfg_file.to_string_lossy()
+            "fail to create new global cfg file {:?}",
+            global_cfg_file
         ))?,
         |v| v,
     );
@@ -97,7 +108,7 @@ pub fn load_or_new_global_cfg(dir: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
     Ok(global)
 }
 
-pub fn load_local_cfg(file: &PathBuf) -> Result<FileCfg<LocalCfg>> {
+pub fn get_local_cfg(file: &PathBuf) -> Result<FileCfg<LocalCfg>> {
     let dir = file.parent().context(format!(
         "fail to reach directory of local cfg file {}",
         file.to_string_lossy()
@@ -114,11 +125,11 @@ pub fn load_local_cfg(file: &PathBuf) -> Result<FileCfg<LocalCfg>> {
             file.to_string_lossy()
         ))?
         .to_string();
-    let path = find_local_cfg(dir.to_path_buf(), file_name).context("fail to found local cfg")?;
+    let path = find_in_parents(dir.to_path_buf(), file_name).context("fail to found local cfg")?;
     FileCfg::load(&path)
 }
 
-pub fn load_global_cfg(file: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
+pub fn get_global_cfg(file: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
     FileCfg::load(file)
 }
 

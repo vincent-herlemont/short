@@ -3,14 +3,18 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-use short::*;
-
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use cli::commands;
 use cli::settings::Settings;
 use cli::terminal::emoji;
+use dirs::home_dir;
+use short::cfg::Cfg;
+use short::cli::settings::get_settings;
+use short::*;
 use std::env;
+use std::env::current_dir;
+use std::path::PathBuf;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const BIN_NAME: &'static str = "short";
@@ -110,24 +114,11 @@ fn run() -> Result<()> {
         .subcommand(SubCommand::with_name("ls").about("List set up and environments"))
         .get_matches();
 
-    let _settings = settings(&app);
+    let _settings = get_settings(&app);
 
     if let Some(_) = app.subcommand_matches("ls") {
         commands::ls()?;
     }
 
     Ok(())
-}
-
-fn settings(app: &ArgMatches) -> Settings {
-    let mut settings = Settings::new();
-    if let Some(setup) = app.value_of_lossy("setup") {
-        settings.set_setup(setup.to_string());
-    }
-    info!("setup {:?}", settings.setup());
-    if let Some(env) = app.value_of_lossy("env") {
-        settings.set_env(env.to_string());
-    }
-    info!("env {:?}", settings.env());
-    settings
 }

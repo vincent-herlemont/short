@@ -26,8 +26,12 @@ fn cmd_ls() {
         "short.yml",
         r"#---
 setups:
-  - name: 'setup_1'
-  - name: setup_2'
+  - name: setup_1
+    file: test.sh
+    env_groups: {}
+  - name: setup_2
+    file: test.sh
+    env_groups: {}
     public_env_directory: 'setup_2/'
     #",
     );

@@ -13,7 +13,7 @@ pub use project::ProjectCfg;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
 
-use crate::cfg::file::{load_or_new_global_cfg, load_or_new_local_cfg, FileCfg};
+use crate::cfg::file::{load_local_cfg, load_or_new_global_cfg, new_local_cfg, FileCfg};
 use crate::cfg::setup::Setup;
 
 mod env;
@@ -31,9 +31,19 @@ pub struct Cfg {
 }
 
 impl Cfg {
-    pub fn load(global_dir: PathBuf, local_dir: PathBuf) -> Result<Self> {
-        let local_cfg = load_or_new_local_cfg(&local_dir).context("fail to load local cfg file")?;
+    pub fn load_local(global_dir: PathBuf, local_dir: PathBuf) -> Result<Self> {
+        let local_cfg = load_local_cfg(&local_dir).context("fail to load local cfg file")?;
 
+        Cfg::new(global_dir, local_cfg)
+    }
+
+    pub fn create_local(global_dir: PathBuf, local_dir: PathBuf) -> Result<Self> {
+        let local_cfg = new_local_cfg(&local_dir).context("fail to create local cfg file")?;
+
+        Cfg::new(global_dir, local_cfg)
+    }
+
+    pub fn new(global_dir: PathBuf, local_cfg: FileCfg<LocalCfg>) -> Result<Self> {
         let global_cfg =
             load_or_new_global_cfg(&global_dir).context("fail to load global cfg file")?;
 
@@ -114,12 +124,12 @@ mod main_test {
     }
 
     #[test]
-    fn new_and_save_cfg() {
+    fn create_cfg() {
         let e = init_env();
         let local_cfg = e.path().join(PROJECT).join("short.yml");
         let global_cfg = e.path().join(HOME).join(".short/cfg.yml");
 
-        let cfg = Cfg::load(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let cfg = Cfg::create_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         assert!(!exists().eval(&local_cfg));
         assert!(!exists().eval(&global_cfg));
         cfg.save().unwrap();
@@ -147,7 +157,7 @@ setups:
         );
         e.setup();
 
-        let mut cfg = Cfg::load(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         let setups = cfg.local_setups();
 
         // Check content of setups
@@ -204,7 +214,7 @@ projects:
         );
 
         e.setup();
-        let mut cfg = Cfg::load(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         let setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
         setup_1
             .global_setup()
@@ -295,7 +305,7 @@ ENV= dev
         );
         e.setup();
 
-        let mut cfg = Cfg::load(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         let setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
         let env_public = setup_1.env_public();
         assert!(env_public.iter().count().eq(&1));
@@ -306,17 +316,13 @@ ENV= dev
 
 #[cfg(test)]
 mod thread_test {
-    
-    
-    
-    
+
     use std::path::PathBuf;
-    
+
     use std::time::Duration;
 
-    
     use futures::future::{err, join_all, ok};
-    
+
     use rand::{thread_rng, Rng};
     use tokio::runtime::Builder;
     use tokio::time::delay_for;
@@ -359,7 +365,7 @@ setups:
         "#,
         );
         e.setup();
-        let mut cfg = Cfg::load(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         let setup = cfg.local_setup(&"setup_1".into()).unwrap();
         let setup = setup.unwrap();
 

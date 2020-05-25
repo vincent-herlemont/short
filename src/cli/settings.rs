@@ -1,3 +1,6 @@
+use clap::ArgMatches;
+use log::*;
+
 pub struct Settings {
     setup: Option<String>,
     env: Option<String>,
@@ -26,6 +29,19 @@ impl Settings {
     pub fn env(&self) -> Option<&String> {
         self.env.as_ref()
     }
+}
+
+pub fn get_settings(app: &ArgMatches) -> Settings {
+    let mut settings = Settings::new();
+    if let Some(setup) = app.value_of_lossy("setup") {
+        settings.set_setup(setup.to_string());
+    }
+    info!("setup {:?}", settings.setup());
+    if let Some(env) = app.value_of_lossy("env") {
+        settings.set_env(env.to_string());
+    }
+    info!("env {:?}", settings.env());
+    settings
 }
 
 #[cfg(test)]
