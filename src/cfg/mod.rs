@@ -60,12 +60,23 @@ impl Cfg {
         Ok(())
     }
 
-    pub fn local_setups(&mut self) -> Result<Vec<Setup>> {
+    pub fn sync_local_to_global(&mut self) -> Result<()> {
         let global_cfg = self.global_cfg.borrow_mut();
-
-        let global_project = global_cfg
+        global_cfg
             .sync_local_project(&self.local_cfg)
             .context("fail to sync local project cfg to global")?;
+        Ok(())
+    }
+
+    /**
+     * Local cfg and Global cfg must be synchronised.
+     **/
+    pub fn local_setups(&self) -> Result<Vec<Setup>> {
+        let local_cfg_file = self.local_cfg.file()?;
+        let global_cfg = self.global_cfg.borrow();
+        let global_project = global_cfg
+            .get_project_by_file(local_cfg_file)
+            .context(format!("fail to get project {:?}", local_cfg_file))?;
 
         let local_setups = self.local_cfg.borrow().get_setups();
 
@@ -158,6 +169,7 @@ setups:
         e.setup();
 
         let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        cfg.sync_local_to_global().unwrap();
         let setups = cfg.local_setups();
 
         // Check content of setups
@@ -366,6 +378,7 @@ setups:
         );
         e.setup();
         let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        cfg.sync_local_to_global().unwrap();
         let setup = cfg.local_setup(&"setup_1".into()).unwrap();
         let setup = setup.unwrap();
 
