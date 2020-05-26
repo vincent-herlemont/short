@@ -37,7 +37,7 @@ pub fn get_settings(app: &ArgMatches) -> Settings {
         settings.set_setup(setup.to_string());
     }
     info!("setup {:?}", settings.setup());
-    if let Some(env) = app.value_of_lossy("env") {
+    if let Some(env) = app.value_of_lossy("environment") {
         settings.set_env(env.to_string());
     }
     info!("env {:?}", settings.env());

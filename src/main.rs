@@ -3,18 +3,18 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-use anyhow::{Context, Result};
-use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
+use anyhow::{Result};
+use clap::{App, AppSettings, Arg, SubCommand};
 use cli::commands;
-use cli::settings::Settings;
+
 use cli::terminal::emoji;
-use dirs::home_dir;
-use short::cfg::Cfg;
-use short::cli::settings::get_settings;
+
+
+
 use short::*;
 use std::env;
-use std::env::current_dir;
-use std::path::PathBuf;
+
+
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const BIN_NAME: &'static str = "short";
@@ -114,10 +114,8 @@ fn run() -> Result<()> {
         .subcommand(SubCommand::with_name("ls").about("List set up and environments"))
         .get_matches();
 
-    let _settings = get_settings(&app);
-
     if let Some(_) = app.subcommand_matches("ls") {
-        commands::ls()?;
+        commands::ls(&app)?;
     }
 
     Ok(())

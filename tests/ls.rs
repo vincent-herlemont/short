@@ -41,7 +41,9 @@ setups:
     let r = command
         .env("RUST_LOG", "debug")
         .arg("ls")
+        .args(vec!["-s", "setup_2", "-e", "example_1"])
         .assert()
         .to_string();
+
     println!("{}", r);
 }
