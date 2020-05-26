@@ -69,7 +69,7 @@ impl Cfg {
     }
 
     /**
-     * Local cfg and Global cfg must be synchronised.
+     * Local cfg and Global cfg must be synchronised before.
      **/
     pub fn local_setups(&self) -> Result<Vec<Setup>> {
         let local_cfg_file = self.local_cfg.file()?;
@@ -319,9 +319,9 @@ ENV= dev
 
         let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         let setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
-        let env_public = setup_1.env_public();
+        let env_public = setup_1.envs_public();
         assert!(env_public.iter().count().eq(&1));
-        let env_private = setup_1.env_private();
+        let env_private = setup_1.envs_private();
         assert!(env_private.iter().count().eq(&2));
     }
 }

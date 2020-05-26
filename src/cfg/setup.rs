@@ -65,7 +65,14 @@ impl Setup {
         }
     }
 
-    pub fn env_public(&self) -> Vec<Result<Env>> {
+    pub fn envs(&self) -> Vec<Result<Env>> {
+        let mut env = vec![];
+        env.append(&mut self.envs_public());
+        env.append(&mut self.envs_private());
+        env
+    }
+
+    pub fn envs_public(&self) -> Vec<Result<Env>> {
         if let (Some(local_setup), Some(file)) = (&self.local_setup(), &self.local_cfg_file) {
             if let Some(dir) = file.parent() {
                 let abs_path = dir.join(local_setup.borrow().env_path());
@@ -79,7 +86,7 @@ impl Setup {
         vec![]
     }
 
-    pub fn env_private(&self) -> Vec<Result<Env>> {
+    pub fn envs_private(&self) -> Vec<Result<Env>> {
         if let Some(global_setup) = self.global_setup() {
             let env = env_file::read_dir(&global_setup.borrow().env_path());
             return env

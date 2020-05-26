@@ -21,7 +21,8 @@ fn cmd_ls_settings() {
 fn cmd_ls() {
     let mut e = IntegrationTestEnvironment::new("cmd_help");
     e.add_file("template.yaml", "");
-    e.add_file("setup_2/template.yaml", "");
+    e.add_file("setup_2/.example_1", "VAR1=VALUE1");
+    e.add_file("setup_2/.example_2", "VAR1=VALUE1");
     e.add_file(
         "short.yml",
         r"#---
@@ -32,7 +33,7 @@ setups:
   - name: setup_2
     file: test.sh
     env_groups: {}
-    public_env_directory: 'setup_2/'
+    public_env_dir: 'setup_2/'
     #",
     );
     e.setup();
