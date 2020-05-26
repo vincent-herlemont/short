@@ -1,3 +1,5 @@
-pub use ls::ls;
-
+mod init;
 mod ls;
+
+pub use init::init;
+pub use ls::ls;

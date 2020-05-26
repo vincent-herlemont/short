@@ -11,10 +11,10 @@ $> short init
 ```
 This create an empty `short.yml` configuration file.
 
-### Create new runnable script.
+### Create new set up.
 
-The following command, create new empty runnable script. By default, filename is `run.sh`, but
-you can customise the name with `-n` argument.
+The following command, create new set up with empty runnable shell script. By default, filename is `run.sh`, but
+you can customise the name with `-n <custom_name_script>` and you can provide your own script with `-f <path_script>`.
 ```
 $> short new
 ```

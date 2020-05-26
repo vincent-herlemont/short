@@ -3,18 +3,12 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-use anyhow::{Result};
+use anyhow::Result;
 use clap::{App, AppSettings, Arg, SubCommand};
 use cli::commands;
-
 use cli::terminal::emoji;
-
-
-
 use short::*;
 use std::env;
-
-
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const BIN_NAME: &'static str = "short";
@@ -116,6 +110,8 @@ fn run() -> Result<()> {
 
     if let Some(_) = app.subcommand_matches("ls") {
         commands::ls(&app)?;
+    } else if let Some(_) = app.subcommand_matches("init") {
+        commands::init(&app)?;
     }
 
     Ok(())

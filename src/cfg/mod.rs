@@ -1,8 +1,6 @@
-use std::path::PathBuf;
-use std::rc::Rc;
-
+use crate::cfg::file::{load_local_cfg, load_or_new_global_cfg, new_local_cfg, FileCfg};
+use crate::cfg::setup::Setup;
 use anyhow::{Context, Result};
-
 pub use env::EnvPathCfg;
 pub use env::EnvPathsCfg;
 pub use global::GlobalCfg;
@@ -12,9 +10,8 @@ pub use local::{EnvGroup, EnvGroups};
 pub use project::ProjectCfg;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
-
-use crate::cfg::file::{load_local_cfg, load_or_new_global_cfg, new_local_cfg, FileCfg};
-use crate::cfg::setup::Setup;
+use std::path::PathBuf;
+use std::rc::Rc;
 
 mod env;
 mod file;
@@ -39,7 +36,7 @@ impl Cfg {
 
     pub fn create_local(global_dir: PathBuf, local_dir: PathBuf) -> Result<Self> {
         let local_cfg = new_local_cfg(&local_dir).context("fail to create local cfg file")?;
-
+        dbg!(&local_cfg);
         Cfg::new(global_dir, local_cfg)
     }
 
