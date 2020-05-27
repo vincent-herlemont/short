@@ -18,7 +18,15 @@ impl EnvGroups {
     }
 
     pub fn add(&mut self, name: VarName, pattern: Pattern) {
-        self.0.borrow_mut().append(&mut vec![(name, pattern)])
+        if self
+            .0
+            .borrow()
+            .iter()
+            .find(|env_group| env_group.0 == name)
+            .is_none()
+        {
+            self.0.borrow_mut().append(&mut vec![(name, pattern)])
+        }
     }
 
     pub fn inner(&self) -> Rc<RefCell<Vec<EnvGroup>>> {

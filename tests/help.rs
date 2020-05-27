@@ -1,6 +1,7 @@
 use cli_integration_test::IntegrationTestEnvironment;
 
 #[test]
+#[ignore]
 fn cmd_help() {
     let e = IntegrationTestEnvironment::new("cmd_help");
     let mut command = e.command(env!("CARGO_PKG_NAME"));
@@ -34,6 +35,7 @@ SUBCOMMANDS:
 }
 
 #[test]
+#[ignore]
 fn cmd_help_env() {
     let e = IntegrationTestEnvironment::new("cmd_help");
     let mut command = e.command(env!("CARGO_PKG_NAME"));

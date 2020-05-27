@@ -1,8 +1,7 @@
 use crate::cfg::{EnvGroup, EnvGroups};
 use crate::env_file::Env;
-use anyhow::{Result};
+use anyhow::Result;
 use regex::Regex;
-
 
 #[derive(Debug)]
 pub struct Var {

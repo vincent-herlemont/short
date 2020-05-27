@@ -21,7 +21,7 @@ setups: []
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
-    let _r = command
+    let r = command
         .env("RUST_LOG", "debug")
         .arg("new")
         .arg("setup_1")
@@ -29,10 +29,15 @@ setups: []
         .success()
         .to_string();
 
+    assert!(contains("new setup").eval(&r));
+
     {
         let e = itew.e();
         let e = e.borrow_mut();
         let r = e.read_file(itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap());
         assert!(contains("setup_1").eval(&r));
+
+        let r = e.read_file("project/run.sh");
+        assert!(contains("declare -A all && eval all=($ALL)").eval(&r));
     }
 }

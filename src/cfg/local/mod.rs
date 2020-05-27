@@ -47,7 +47,6 @@ mod tests {
     use crate::cfg::setup::SetupsCfg;
     use crate::cfg::{EnvPathCfg, EnvPathsCfg};
     use crate::cfg::{LocalCfg, LocalSetupCfg};
-    
     use std::path::PathBuf;
 
     #[test]
@@ -81,14 +80,16 @@ mod tests {
 name: setup
 file: run.sh
 env_groups:
-  all: "*"
+  all: ".*"
   var2: SUFFIX_*
   var1: PREFIX_*"#;
 
-        let mut env_groups = setup_cfg.env_groups();
-        env_groups.add("all".into(), "*".into());
+        let env_groups = setup_cfg.env_groups();
+        let mut env_groups = env_groups.borrow_mut();
+        env_groups.add("all".into(), ".*".into());
         env_groups.add("var2".into(), "SUFFIX_*".into());
         env_groups.add("var1".into(), "PREFIX_*".into());
+        drop(env_groups);
 
         let content = serde_yaml::to_string(&setup_cfg).unwrap();
         assert_eq!(expect, content.as_str());

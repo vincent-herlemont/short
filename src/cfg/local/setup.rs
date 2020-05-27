@@ -1,10 +1,11 @@
-use crate::cfg::local::{EnvGroups};
+use crate::cfg::local::EnvGroups;
 use crate::cfg::setup::SetupCfg;
 use crate::cfg::EnvPathCfg;
 use serde::{Deserialize, Serialize};
 
+use std::cell::RefCell;
 use std::path::PathBuf;
-
+use std::rc::Rc;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalSetupCfg {
@@ -15,24 +16,24 @@ pub struct LocalSetupCfg {
 
     file: PathBuf,
 
-    env_groups: EnvGroups,
+    env_groups: Rc<RefCell<EnvGroups>>,
 }
 
 impl LocalSetupCfg {
     pub fn new(name: String, file: PathBuf) -> Self {
         let mut env_groups = EnvGroups::new();
-        env_groups.add("all".into(), "*".into());
+        env_groups.add("all".into(), ".*".into());
 
         Self {
             name,
             public_env_dir: None,
             file,
-            env_groups,
+            env_groups: Rc::new(RefCell::new(env_groups)),
         }
     }
 
-    pub fn env_groups(&self) -> EnvGroups {
-        self.env_groups.clone()
+    pub fn env_groups(&self) -> Rc<RefCell<EnvGroups>> {
+        Rc::clone(&self.env_groups)
     }
 }
 
