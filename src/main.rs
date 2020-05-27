@@ -70,6 +70,22 @@ fn run() -> Result<()> {
                 ),
         )
         .subcommand(
+            SubCommand::with_name("rename")
+                .about("Rename setup")
+                .arg(
+                    Arg::with_name("last_setup_name")
+                        .index(1)
+                        .required(true)
+                        .help("Last setup name"),
+                )
+                .arg(
+                    Arg::with_name("new_setup_name")
+                        .index(2)
+                        .required(true)
+                        .help("New setup name"),
+                ),
+        )
+        .subcommand(
             SubCommand::with_name("env")
                 .setting(AppSettings::SubcommandRequiredElseHelp)
                 .setting(AppSettings::DeriveDisplayOrder)
@@ -127,10 +143,12 @@ fn run() -> Result<()> {
 
     if let Some(_) = app.subcommand_matches("init") {
         commands::init(&app)?;
-    } else if let Some(arg) = app.subcommand_matches("new") {
-        commands::new(&arg)?;
+    } else if let Some(args) = app.subcommand_matches("new") {
+        commands::new(&args)?;
     } else if let Some(_) = app.subcommand_matches("ls") {
         commands::ls(&app)?;
+    } else if let Some(args) = app.subcommand_matches("rename") {
+        commands::rename(&args)?;
     }
 
     Ok(())
