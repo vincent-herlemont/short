@@ -57,6 +57,11 @@ impl Cfg {
         Ok(())
     }
 
+    pub fn add_local_setup_cfg(&mut self, setup: LocalSetupCfg) {
+        let local_cfg = self.local_cfg.borrow_mut();
+        local_cfg.add_setup(setup);
+    }
+
     pub fn sync_local_to_global(&mut self) -> Result<()> {
         let global_cfg = self.global_cfg.borrow_mut();
         global_cfg

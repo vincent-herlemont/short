@@ -21,36 +21,53 @@ fn main() -> Result<()> {
 }
 
 fn run() -> Result<()> {
+    let _setup_arg = Arg::with_name("setup")
+        .long("setup")
+        .short("s")
+        .takes_value(true)
+        .help("Set up name");
+    let _environment_arg = Arg::with_name("environment")
+        .long("env")
+        .short("e")
+        .takes_value(true)
+        .help("Environment name");
+    let _dryrun_arg = Arg::with_name("dry-run")
+        .long("dry-run")
+        .help("Disable all executions");
+
     let app = App::new(format!("{} short", emoji::PARASOL))
         .version(VERSION)
         .author("Vincent Herlemont <vincentherl@leszeros.com>")
         .setting(AppSettings::ArgRequiredElseHelp)
         .setting(AppSettings::DeriveDisplayOrder)
         .setting(AppSettings::VersionlessSubcommands)
-        .arg(
-            Arg::with_name("setup")
-                .long("setup")
-                .short("s")
-                .takes_value(true)
-                .global(true)
-                .help("Set up name"),
-        )
-        .arg(
-            Arg::with_name("environment")
-                .long("env")
-                .short("e")
-                .takes_value(true)
-                .global(true)
-                .help("Environment name"),
-        )
-        .arg(
-            Arg::with_name("dry-run")
-                .long("dry-run")
-                .global(true)
-                .help("Disable all executions"),
+        .subcommand(
+            SubCommand::with_name("init")
+                .about("Init project, create an empty \"short.yml\" configuration file"),
         )
         .subcommand(
-            SubCommand::with_name("init").about("Create an empty \"short.yml\" configuration file"),
+            SubCommand::with_name("new")
+                .about("Create new setup")
+                .arg(
+                    Arg::with_name("setup_name")
+                        .index(1)
+                        .required(true)
+                        .help("Setup name"),
+                )
+                .arg(
+                    Arg::with_name("file")
+                        .long("file")
+                        .short("f")
+                        .default_value("run.sh")
+                        .help("Path script"),
+                )
+                .arg(
+                    Arg::with_name("shebang")
+                        .long("shebang")
+                        .short("s")
+                        .default_value("#!/bin/bash")
+                        .help("Interpreter program"),
+                ),
         )
         .subcommand(
             SubCommand::with_name("env")
@@ -108,10 +125,12 @@ fn run() -> Result<()> {
         .subcommand(SubCommand::with_name("ls").about("List set up and environments"))
         .get_matches();
 
-    if let Some(_) = app.subcommand_matches("ls") {
-        commands::ls(&app)?;
-    } else if let Some(_) = app.subcommand_matches("init") {
+    if let Some(_) = app.subcommand_matches("init") {
         commands::init(&app)?;
+    } else if let Some(arg) = app.subcommand_matches("new") {
+        commands::new(&arg)?;
+    } else if let Some(_) = app.subcommand_matches("ls") {
+        commands::ls(&app)?;
     }
 
     Ok(())

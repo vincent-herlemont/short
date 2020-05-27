@@ -1,7 +1,9 @@
 use assert_cmd::Command;
 use cli_integration_test::IntegrationTestEnvironment;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 pub const HOME: &'static str = "home";
 pub const PROJECT: &'static str = "project";
@@ -17,14 +19,14 @@ pub enum PathTestEnvironment {
 }
 
 pub struct IntegrationTestEnvironmentWrapper {
-    e: IntegrationTestEnvironment,
+    e: Rc<RefCell<IntegrationTestEnvironment>>,
     paths: HashMap<PathTestEnvironment, PathBuf>,
 }
 
 impl IntegrationTestEnvironmentWrapper {
     pub fn init_all<S: AsRef<str>>(label: S) -> Self {
         let mut itew = Self {
-            e: IntegrationTestEnvironment::new(label),
+            e: Rc::new(RefCell::new(IntegrationTestEnvironment::new(label))),
             paths: HashMap::new(),
         };
 
@@ -34,10 +36,13 @@ impl IntegrationTestEnvironmentWrapper {
         itew.set_global_env_dev();
         itew.set_global_env_pro();
 
-        itew.e.add_dir(PROJECT);
-        itew.e.add_dir(HOME);
-        itew.e.add_dir(ENVDIR);
-        itew.e.setup();
+        let e = itew.e();
+        let mut e = e.borrow_mut();
+
+        e.add_dir(PROJECT);
+        e.add_dir(HOME);
+        e.add_dir(ENVDIR);
+        e.setup();
 
         return itew;
     }
@@ -46,13 +51,16 @@ impl IntegrationTestEnvironmentWrapper {
     where
         C: AsRef<str>,
     {
-        let mut command = self.e.command(crate_name);
-        command.current_dir(&self.e.path().join(PROJECT));
+        let e = self.e();
+        let e = e.borrow_mut();
+        let mut command = e.command(crate_name);
+        command.current_dir(&e.path().join(PROJECT));
+        command.env("HOME", &e.path().join(HOME));
         command
     }
 
-    pub fn get_integration_test_environment(&self) -> &IntegrationTestEnvironment {
-        &self.e
+    pub fn e(&self) -> Rc<RefCell<IntegrationTestEnvironment>> {
+        Rc::clone(&self.e)
     }
 
     pub fn get_rel_path(&self, path: PathTestEnvironment) -> Option<PathBuf> {
@@ -60,8 +68,9 @@ impl IntegrationTestEnvironmentWrapper {
     }
 
     pub fn get_abs_path(&self, path: PathTestEnvironment) -> Option<PathBuf> {
-        self.get_rel_path(path)
-            .map(|path| self.e.path().join(&path))
+        let e = self.e();
+        let e = e.borrow_mut();
+        self.get_rel_path(path).map(|path| e.path().join(&path))
     }
 
     pub fn set_path<P: AsRef<Path>>(&mut self, setup_path: PathTestEnvironment, path: P) {
