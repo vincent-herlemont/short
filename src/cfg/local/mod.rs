@@ -82,7 +82,9 @@ file: run.sh
 array_vars:
   all: ".*"
   var2: SUFFIX_*
-  var1: PREFIX_*"#;
+  var1: PREFIX_*
+vars:
+  - SETUP_NAME"#;
 
         let array_vars = setup_cfg.array_vars().unwrap();
         let mut array_vars = array_vars.borrow_mut();

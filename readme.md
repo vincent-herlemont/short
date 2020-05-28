@@ -118,8 +118,7 @@ setups:
     file: ./run.sh
     array_vars:
       all: ".*"
-    vars:
-      setup_name: 'SETUP_NAME'
+    vars: [ SETUP_NAME ]
 ```
 
 ### Global configuration file
