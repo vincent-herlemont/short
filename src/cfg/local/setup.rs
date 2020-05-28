@@ -3,6 +3,8 @@ use crate::cfg::setup::SetupCfg;
 use crate::cfg::EnvPathCfg;
 use serde::{Deserialize, Serialize};
 
+use crate::cfg::local::setup_vars::Vars;
+
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -20,7 +22,7 @@ pub struct LocalSetupCfg {
     array_vars: Option<Rc<RefCell<ArrayVars>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    vars: Option<Rc<RefCell<Vec<String>>>>,
+    vars: Option<Rc<RefCell<Vars>>>,
 }
 
 impl LocalSetupCfg {
@@ -39,8 +41,9 @@ impl LocalSetupCfg {
         local_setup
     }
 
-    pub fn new_vars(&mut self) -> Rc<RefCell<Vec<String>>> {
-        let vars = vec!["SETUP_NAME".to_string()];
+    pub fn new_vars(&mut self) -> Rc<RefCell<Vars>> {
+        let mut vars = Vars::new();
+        vars.add("SETUP_NAME".into());
 
         let vars = Rc::new(RefCell::new(vars));
         self.vars = Some(Rc::clone(&vars));
@@ -58,6 +61,10 @@ impl LocalSetupCfg {
 
     pub fn array_vars(&self) -> Option<Rc<RefCell<ArrayVars>>> {
         self.array_vars.as_ref().map(|r| Rc::clone(r))
+    }
+
+    pub fn vars(&self) -> Option<Rc<RefCell<Vars>>> {
+        self.vars.as_ref().map(|r| Rc::clone(r))
     }
 }
 

@@ -1,8 +1,11 @@
-use crate::run_file::Var;
+use crate::cfg::{ArrayVar, ArrayVars, Var, Vars};
+
 use anyhow::Result;
 use fs_extra::file::write_all;
+
 use std::fmt::Write as FmtWrite;
 use std::fs::{set_permissions, Permissions};
+use std::ops::Deref;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
@@ -29,31 +32,47 @@ impl File {
         &self.shebang
     }
 
-    pub fn generate(&mut self, vars: &Vec<Var>) -> Result<()> {
+    pub fn generate<AV, V>(&mut self, array_vars: Option<AV>, vars: Option<V>) -> Result<()>
+    where
+        AV: Deref<Target = ArrayVars>,
+        V: Deref<Target = Vars>,
+    {
+        let array_vars = array_vars.as_deref();
+        let vars = vars.as_deref();
+
         writeln!(&mut self.content, "{}", self.shebang)?;
 
-        if vars.len() > 0 {
-            for var in vars.iter() {
-                if var.array {
-                    writeln!(
-                        &mut self.content,
-                        "declare -A {name} && eval {name}=(${env_name})",
-                        name = var.name,
-                        env_name = var.env_name
-                    )?;
-                } else {
-                    writeln!(
-                        &mut self.content,
-                        "declare -r {}=${}",
-                        var.name, var.env_name
-                    )?;
-                }
-            }
-            writeln!(&mut self.content, "")?;
-            for var in vars.iter() {
-                writeln!(&mut self.content, "declare -p {}", var.name)?;
+        let mut defined_vars = vec![];
+
+        if let Some(array_vars) = array_vars {
+            for array_var in array_vars.inner() {
+                let var_name = array_var.var_name();
+                writeln!(
+                    &mut self.content,
+                    "declare -A {var} && eval {var}=(${env_var})",
+                    var = var_name.to_var(),
+                    env_var = var_name.to_env_var()
+                )?;
+                defined_vars.append(&mut vec![var_name])
             }
         }
+        if let Some(vars) = vars {
+            for var_name in vars.inner() {
+                writeln!(
+                    &mut self.content,
+                    "declare -r {var}=${var_name}",
+                    var = var_name.to_var(),
+                    var_name = var_name.to_env_var(),
+                )?;
+                defined_vars.append(&mut vec![var_name])
+            }
+        }
+
+        writeln!(&mut self.content, "")?;
+        for var_name in defined_vars.iter() {
+            writeln!(&mut self.content, "declare -p {}", var_name.to_var())?;
+        }
+
         Ok(())
     }
 
@@ -74,42 +93,35 @@ pub fn set_exec_permision(file: &PathBuf) -> Result<()> {
 #[cfg(test)]
 mod tests {
 
-    use crate::run_file::array_var::Var;
+    use crate::cfg::{ArrayVars, Vars};
     use crate::run_file::file::File;
+
     use cli_integration_test::IntegrationTestEnvironment;
 
     #[test]
     fn file_new() {
-        let vars = vec![
-            Var {
-                array: true,
-                name: "all".into(),
-                env_name: "ALL".into(),
-                env_value: " [VAR1]=\'VALUE1\' [VAR2]=\'VALUE2\' ".into(),
-            },
-            Var {
-                array: false,
-                name: "var1".into(),
-                env_name: "VAR1".into(),
-                env_value: "VALUE1".into(),
-            },
-        ];
+        let mut array_vars = ArrayVars::new();
+        array_vars.add("all".into(), ".*".into());
+
+        let mut vars = Vars::new();
+        vars.add("SETUP_NAME".into());
 
         let e = IntegrationTestEnvironment::new("command");
         e.setup();
         let path_file = e.path().join("run.sh");
+
         let mut file = File::new(path_file.clone(), String::from("#!/bin/bash"));
-        file.generate(&vars);
-        file.save();
+        file.generate(Some(&array_vars), Some(&vars)).unwrap();
+        file.save().unwrap();
         assert!(path_file.exists());
         let file = e.read_file("./run.sh");
         assert_eq!(
             r#"#!/bin/bash
 declare -A all && eval all=($ALL)
-declare -r var1=$VAR1
+declare -r setup_name=$SETUP_NAME
 
 declare -p all
-declare -p var1
+declare -p setup_name
 "#,
             file
         );

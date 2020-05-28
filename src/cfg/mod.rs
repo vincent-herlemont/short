@@ -7,6 +7,7 @@ pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
 pub use local::{ArrayVar, ArrayVars};
+pub use local::{Var, Vars};
 pub use project::ProjectCfg;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;

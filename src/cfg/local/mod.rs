@@ -1,5 +1,6 @@
 mod setup;
 mod setup_array_vars;
+mod setup_vars;
 
 use crate::cfg::setup::SetupsCfg;
 use crate::cfg::{EnvPathCfg, EnvPathsCfg};
@@ -9,6 +10,7 @@ use std::rc::Rc;
 
 pub use setup::LocalSetupCfg;
 pub use setup_array_vars::{ArrayVar, ArrayVars};
+pub use setup_vars::{Var, Vars};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalCfg {

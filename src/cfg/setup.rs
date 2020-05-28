@@ -1,18 +1,15 @@
-use std::cell::RefCell;
-use std::fmt;
-
+use crate::cfg::global::GlobalProjectSetupCfg;
+use crate::cfg::{EnvPathCfg, LocalSetupCfg};
 use crate::env_file;
 use crate::env_file::Env;
 use anyhow::Context;
 use anyhow::Result;
 use serde::export::fmt::Debug;
 use serde::export::Formatter;
+use std::cell::RefCell;
+use std::fmt;
 use std::path::PathBuf;
 use std::rc::{Rc, Weak};
-
-use crate::cfg::{EnvPathCfg, LocalSetupCfg};
-
-use crate::cfg::global::GlobalProjectSetupCfg;
 
 pub trait SetupsCfg {
     type Setup: SetupCfg;

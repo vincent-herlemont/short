@@ -1,12 +1,12 @@
+use crate::cfg::local::Var;
 use serde::de::{MapAccess, Visitor};
 use serde::export::Formatter;
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::cell::RefCell;
-use std::fmt;
-use std::rc::Rc;
 
-type VarName = String;
+use std::fmt;
+
+
 type Pattern = String;
 
 #[derive(Debug)]
@@ -17,14 +17,14 @@ impl ArrayVars {
         Self(vec![])
     }
 
-    pub fn add(&mut self, name: VarName, pattern: Pattern) {
+    pub fn add(&mut self, name: Var, pattern: Pattern) {
         if self
             .0
             .iter()
-            .find(|array_vars| array_vars.0 == name)
+            .find(|array_var| array_var.0 == name)
             .is_none()
         {
-            self.0.append(&mut vec![(name, pattern)])
+            self.0.append(&mut vec![(name, pattern).into()])
         }
     }
 
@@ -66,7 +66,7 @@ impl<'de> Deserialize<'de> for ArrayVars {
                 A: MapAccess<'de>,
             {
                 let mut array_vars = ArrayVars::new();
-                while let Some((var_name, pattern)) = map.next_entry::<VarName, Pattern>()? {
+                while let Some((var_name, pattern)) = map.next_entry::<Var, Pattern>()? {
                     array_vars.add(var_name, pattern);
                 }
                 Ok(array_vars)
@@ -77,4 +77,21 @@ impl<'de> Deserialize<'de> for ArrayVars {
     }
 }
 
-pub type ArrayVar = (VarName, Pattern);
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ArrayVar(Var, Pattern);
+
+impl ArrayVar {
+    pub fn var_name(&self) -> &Var {
+        &self.0
+    }
+
+    pub fn pattern(&self) -> &Pattern {
+        &self.1
+    }
+}
+
+impl From<(Var, Pattern)> for ArrayVar {
+    fn from(t: (Var, Pattern)) -> Self {
+        Self(t.0, t.1)
+    }
+}
