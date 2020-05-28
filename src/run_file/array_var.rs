@@ -39,7 +39,7 @@ pub fn generate_var(env: &Env, array_var: &ArrayVar) -> Result<Var> {
 
 pub fn generate_vars(env: &Env, array_vars: &ArrayVars) -> Result<Vec<Var>> {
     let mut vec = vec![];
-    for array_var in array_vars.inner().borrow().iter() {
+    for array_var in array_vars.inner().iter() {
         vec.append(&mut vec![generate_var(env, array_var)?])
     }
     Ok(vec)

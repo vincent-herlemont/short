@@ -10,33 +10,26 @@ type VarName = String;
 type Pattern = String;
 
 #[derive(Debug)]
-pub struct ArrayVars(Rc<RefCell<Vec<ArrayVar>>>);
+pub struct ArrayVars(Vec<ArrayVar>);
 
 impl ArrayVars {
     pub fn new() -> Self {
-        Self(Rc::new(RefCell::new(vec![])))
+        Self(vec![])
     }
 
     pub fn add(&mut self, name: VarName, pattern: Pattern) {
         if self
             .0
-            .borrow()
             .iter()
             .find(|array_vars| array_vars.0 == name)
             .is_none()
         {
-            self.0.borrow_mut().append(&mut vec![(name, pattern)])
+            self.0.append(&mut vec![(name, pattern)])
         }
     }
 
-    pub fn inner(&self) -> Rc<RefCell<Vec<ArrayVar>>> {
-        self.0.clone()
-    }
-}
-
-impl Clone for ArrayVars {
-    fn clone(&self) -> Self {
-        Self(Rc::clone(&self.0))
+    pub fn inner(&self) -> &Vec<ArrayVar> {
+        &self.0
     }
 }
 
@@ -45,7 +38,7 @@ impl Serialize for ArrayVars {
     where
         S: Serializer,
     {
-        let vec = self.0.borrow();
+        let vec = &self.0;
         let mut seq = serializer.serialize_map(Some(vec.len()))?;
         for e in vec.iter() {
             seq.serialize_entry(&e.0, &e.1)?;
