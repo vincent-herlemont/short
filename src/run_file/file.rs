@@ -74,10 +74,9 @@ pub fn set_exec_permision(file: &PathBuf) -> Result<()> {
 #[cfg(test)]
 mod tests {
 
-    use crate::run_file::env_group::Var;
+    use crate::run_file::array_var::Var;
     use crate::run_file::file::File;
     use cli_integration_test::IntegrationTestEnvironment;
-    
 
     #[test]
     fn file_new() {

@@ -25,18 +25,20 @@ pub fn new(app: &ArgMatches) -> Result<()> {
     let setup_file = PathBuf::from(setup_file);
 
     let local_setup_cfg = LocalSetupCfg::new(setup_name.into(), setup_file.clone());
-    let env_group = local_setup_cfg.env_groups();
+    let array_vars = local_setup_cfg.array_vars();
 
     cfg.add_local_setup_cfg(local_setup_cfg);
     cfg.sync_local_to_global()?;
     cfg.save()?;
 
     let mut file = File::new(setup_file.clone(), setup_shebang.to_string());
-    let env_group = env_group.borrow();
-    let vars = generate_vars(&Env::new(), &env_group)?;
-    drop(env_group);
-    file.generate(&vars)?;
-    file.save()?;
+    if let Some(array_vars) = array_vars {
+        let array_vars = array_vars.borrow();
+        let vars = generate_vars(&Env::new(), &array_vars)?;
+        drop(array_vars);
+        file.generate(&vars)?;
+        file.save()?;
+    }
 
     success(format!("new setup {}", setup_name).as_str());
 

@@ -29,10 +29,10 @@ fn cmd_ls() {
 setups:
   - name: setup_1
     file: test.sh
-    env_groups: {}
+    array_vars: {}
   - name: setup_2
     file: test.sh
-    env_groups: {}
+    array_vars: {}
     public_env_dir: 'setup_2/'
     #",
     );

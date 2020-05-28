@@ -1,7 +1,7 @@
-mod env_group;
+mod array_var;
 mod file;
 
-pub use env_group::{generate_var, generate_vars, Var};
+pub use array_var::{generate_var, generate_vars, Var};
 pub use file::{set_exec_permision, File};
 
 use anyhow::{Context, Result};
@@ -45,7 +45,7 @@ fn run(file: &PathBuf, vars: &Vec<Var>) -> Result<Output> {
 
 #[cfg(test)]
 mod tests {
-    use crate::cfg::EnvGroups;
+    use crate::cfg::ArrayVars;
     use crate::env_file::Env;
     use crate::run_file::file::File;
     use crate::run_file::{generate_vars, run};
@@ -56,13 +56,13 @@ mod tests {
         let e = IntegrationTestEnvironment::new("run_integration_test");
         e.setup();
 
-        let mut env_groups = EnvGroups::new();
-        env_groups.add("all".into(), ".*".into());
-        env_groups.add("var1".into(), "VAR1".into());
+        let mut array_vars = ArrayVars::new();
+        array_vars.add("all".into(), ".*".into());
+        array_vars.add("var1".into(), "VAR1".into());
         let mut env_file = Env::new();
         env_file.add("VAR1", "VALUE1");
         env_file.add("VAR2", "VALUE2");
-        let vars = generate_vars(&env_file, &env_groups).unwrap();
+        let vars = generate_vars(&env_file, &array_vars).unwrap();
 
         let path_file = e.path().join("run.sh");
         let mut file = File::new(path_file.clone(), String::from("#!/bin/bash"));

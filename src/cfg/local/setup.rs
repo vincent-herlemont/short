@@ -1,4 +1,4 @@
-use crate::cfg::local::EnvGroups;
+use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
 use crate::cfg::EnvPathCfg;
 use serde::{Deserialize, Serialize};
@@ -16,24 +16,25 @@ pub struct LocalSetupCfg {
 
     file: PathBuf,
 
-    env_groups: Rc<RefCell<EnvGroups>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    array_vars: Option<Rc<RefCell<ArrayVars>>>,
 }
 
 impl LocalSetupCfg {
     pub fn new(name: String, file: PathBuf) -> Self {
-        let mut env_groups = EnvGroups::new();
-        env_groups.add("all".into(), ".*".into());
+        let mut array_vars = ArrayVars::new();
+        array_vars.add("all".into(), ".*".into());
 
         Self {
             name,
             public_env_dir: None,
             file,
-            env_groups: Rc::new(RefCell::new(env_groups)),
+            array_vars: Some(Rc::new(RefCell::new(array_vars))),
         }
     }
 
-    pub fn env_groups(&self) -> Rc<RefCell<EnvGroups>> {
-        Rc::clone(&self.env_groups)
+    pub fn array_vars(&self) -> Option<Rc<RefCell<ArrayVars>>> {
+        self.array_vars.as_ref().map(|r| Rc::clone(r))
     }
 }
 

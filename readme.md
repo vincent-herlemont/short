@@ -106,18 +106,20 @@ This configuration is ranked at the root of your project. It defined all setup c
 setups:
   - name: setup_1
     file: ./run.sh
-    env_groups:
+    array_vars:
       all: ".*"
 ```
 
-With custom public env directory.
+With custom public env directory and custom vars.
 ```yaml
 setups:  
   - name: setup_1
     public_env_dir: './env/'
     file: ./run.sh
-    env_groups:
+    array_vars:
       all: ".*"
+    vars:
+      setup_name: 'SETUP_NAME'
 ```
 
 ### Global configuration file

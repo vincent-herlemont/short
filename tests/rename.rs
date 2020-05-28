@@ -17,7 +17,7 @@ fn cmd_rename() {
 setups:
   - name: setup_1
     file: run.sh
-    env_groups: {}
+    array_vars: {}
         "#,
         );
         e.setup();

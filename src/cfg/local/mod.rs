@@ -1,5 +1,5 @@
 mod setup;
-mod setup_env_group;
+mod setup_array_vars;
 
 use crate::cfg::setup::SetupsCfg;
 use crate::cfg::{EnvPathCfg, EnvPathsCfg};
@@ -8,7 +8,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 pub use setup::LocalSetupCfg;
-pub use setup_env_group::{EnvGroup, EnvGroups};
+pub use setup_array_vars::{ArrayVar, ArrayVars};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalCfg {
@@ -79,17 +79,17 @@ mod tests {
         let expect = r#"---
 name: setup
 file: run.sh
-env_groups:
+array_vars:
   all: ".*"
   var2: SUFFIX_*
   var1: PREFIX_*"#;
 
-        let env_groups = setup_cfg.env_groups();
-        let mut env_groups = env_groups.borrow_mut();
-        env_groups.add("all".into(), ".*".into());
-        env_groups.add("var2".into(), "SUFFIX_*".into());
-        env_groups.add("var1".into(), "PREFIX_*".into());
-        drop(env_groups);
+        let array_vars = setup_cfg.array_vars().unwrap();
+        let mut array_vars = array_vars.borrow_mut();
+        array_vars.add("all".into(), ".*".into());
+        array_vars.add("var2".into(), "SUFFIX_*".into());
+        array_vars.add("var1".into(), "PREFIX_*".into());
+        drop(array_vars);
 
         let content = serde_yaml::to_string(&setup_cfg).unwrap();
         assert_eq!(expect, content.as_str());

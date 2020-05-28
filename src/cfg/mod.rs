@@ -6,7 +6,7 @@ pub use env::EnvPathsCfg;
 pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
-pub use local::{EnvGroup, EnvGroups};
+pub use local::{ArrayVar, ArrayVars};
 pub use project::ProjectCfg;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
@@ -165,7 +165,6 @@ mod main_test {
 setups:
   - name: setup_1
     file: ./run.sh
-    env_groups: {}
         "#,
         );
         e.setup();
@@ -207,10 +206,8 @@ setups:
 setups:
   - name: setup_1
     file: ./run.sh
-    env_groups: {}
   - name: setup_2
     file: ./run.sh
-    env_groups: {}
         "#,
         );
         e.add_file(
@@ -279,7 +276,7 @@ projects:
 setups:
   - name: setup_1
     file: ./run.sh
-    env_groups: {}
+    array_vars: {}
         "#,
         );
         e.add_file(
@@ -372,10 +369,8 @@ mod thread_test {
 setups:
   - name: setup_1
     file: ./run.sh
-    env_groups: {}
   - name: setup_2
     file: ./run.sh
-    env_groups: {}
         "#,
         );
         e.setup();

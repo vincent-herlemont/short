@@ -1,4 +1,4 @@
-use crate::cfg::{EnvGroup, EnvGroups};
+use crate::cfg::{ArrayVar, ArrayVars};
 use crate::env_file::Env;
 use anyhow::Result;
 use regex::Regex;
@@ -11,8 +11,8 @@ pub struct Var {
     pub env_value: String,
 }
 
-pub fn generate_var(env: &Env, env_group: &EnvGroup) -> Result<Var> {
-    let (var_name, pattern) = env_group;
+pub fn generate_var(env: &Env, array_var: &ArrayVar) -> Result<Var> {
+    let (var_name, pattern) = array_var;
     let re = Regex::new(pattern.as_str())?;
     let mut var = Var {
         array: true,
@@ -37,28 +37,28 @@ pub fn generate_var(env: &Env, env_group: &EnvGroup) -> Result<Var> {
     Ok(var)
 }
 
-pub fn generate_vars(env: &Env, env_groups: &EnvGroups) -> Result<Vec<Var>> {
+pub fn generate_vars(env: &Env, array_vars: &ArrayVars) -> Result<Vec<Var>> {
     let mut vec = vec![];
-    for env_group in env_groups.inner().borrow().iter() {
-        vec.append(&mut vec![generate_var(env, env_group)?])
+    for array_var in array_vars.inner().borrow().iter() {
+        vec.append(&mut vec![generate_var(env, array_var)?])
     }
     Ok(vec)
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::cfg::{EnvGroup, EnvGroups};
+    use crate::cfg::{ArrayVar, ArrayVars};
     use crate::env_file::Env;
     use crate::run_file::{generate_var, generate_vars};
 
     #[test]
     fn generate_var_test() {
-        let env_group: EnvGroup = ("all".into(), ".*".into());
+        let array_var: ArrayVar = ("all".into(), ".*".into());
         let mut env_file = Env::new();
         env_file.add("VAR1", "VALUE1");
         env_file.add("VAR2", "VALUE2");
 
-        let var = generate_var(&env_file, &env_group).unwrap();
+        let var = generate_var(&env_file, &array_var).unwrap();
         assert_eq!(var.name, "all");
         assert_eq!(var.env_value, " [VAR1]='VALUE1' [VAR2]='VALUE2' ");
         assert_eq!(var.array, true);
@@ -66,14 +66,14 @@ mod tests {
 
     #[test]
     fn generate_vars_test() {
-        let mut env_groups = EnvGroups::new();
-        env_groups.add("all".into(), ".*".into());
-        env_groups.add("var1".into(), "VAR1".into());
+        let mut array_vars = ArrayVars::new();
+        array_vars.add("all".into(), ".*".into());
+        array_vars.add("var1".into(), "VAR1".into());
         let mut env_file = Env::new();
         env_file.add("VAR1", "VALUE1");
         env_file.add("VAR2", "VALUE2");
 
-        let vars = generate_vars(&env_file, &env_groups).unwrap();
+        let vars = generate_vars(&env_file, &array_vars).unwrap();
         assert_eq!(vars.len(), 2);
     }
 }
