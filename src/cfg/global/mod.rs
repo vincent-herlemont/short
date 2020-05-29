@@ -8,12 +8,14 @@ use serde::{Deserialize, Serialize};
 pub use project::GlobalProjectCfg;
 pub use setup::GlobalProjectSetupCfg;
 
-use crate::cfg::{LocalCfg, SetupsCfg};
 use crate::cfg::file::FileCfg;
 use crate::cfg::project::ProjectCfg;
+use crate::cfg::{LocalCfg, SetupsCfg};
 
 mod project;
 mod setup;
+
+type LocalCfgFile = PathBuf;
 
 pub const GLOCAL_FILE_NAME: &'static str = "cfg.yml";
 
@@ -34,14 +36,17 @@ impl GlobalCfg {
         }
     }
 
-    pub fn remove_project_by_file(&mut self, file: &PathBuf) {
+    pub fn remove_project_by_file(&mut self, file: &LocalCfgFile) {
         self.projects.retain(|project| {
             let project = &*project.borrow() as &dyn ProjectCfg;
             file != project
         })
     }
 
-    pub fn get_project_by_file(&self, file: &PathBuf) -> Option<Rc<RefCell<GlobalProjectCfg>>> {
+    pub fn get_project_by_file(
+        &self,
+        file: &LocalCfgFile,
+    ) -> Option<Rc<RefCell<GlobalProjectCfg>>> {
         self.projects
             .iter()
             .find(|project| {

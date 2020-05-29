@@ -15,7 +15,7 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
     cfg.sync_local_to_global()?;
     let cfg = cfg;
-    let local_setups = cfg.local_setups()?;
+    let local_setups = cfg.current_setups()?;
     let mut table = Table::new();
 
     table.style = TableStyle::blank();

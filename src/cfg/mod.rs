@@ -74,7 +74,7 @@ impl Cfg {
     /**
      * Local cfg and Global cfg must be synchronised before.
      **/
-    pub fn local_setups(&self) -> Result<Vec<Setup>> {
+    pub fn current_setups(&self) -> Result<Vec<Setup>> {
         let local_cfg_file = self.local_cfg.file()?;
         let global_cfg = self.global_cfg.borrow();
         let global_project = global_cfg
@@ -108,8 +108,8 @@ impl Cfg {
         Ok(setups)
     }
 
-    pub fn local_setup(&mut self, name: &String) -> Result<Option<Setup>> {
-        for setup in self.local_setups()? {
+    pub fn current_setup(&mut self, name: &String) -> Result<Option<Setup>> {
+        for setup in self.current_setups()? {
             if setup.name()? == *name {
                 return Ok(Some(setup));
             }
@@ -172,7 +172,7 @@ setups:
 
         let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         cfg.sync_local_to_global().unwrap();
-        let setups = cfg.local_setups();
+        let setups = cfg.current_setups();
 
         // Check content of setups
         let dbg_setups = format!("{:#?}", setups);
@@ -227,7 +227,7 @@ projects:
 
         e.setup();
         let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
-        let setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
+        let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap().unwrap();
         setup_1
             .global_setup()
             .unwrap()
@@ -318,7 +318,7 @@ ENV= dev
         e.setup();
 
         let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
-        let setup_1 = cfg.local_setup(&"setup_1".into()).unwrap().unwrap();
+        let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap().unwrap();
         let env_public = setup_1.envs_public();
         assert!(env_public.iter().count().eq(&1));
         let env_private = setup_1.envs_private();
@@ -377,7 +377,7 @@ setups:
         e.setup();
         let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         cfg.sync_local_to_global().unwrap();
-        let setup = cfg.local_setup(&"setup_1".into()).unwrap();
+        let setup = cfg.current_setup(&"setup_1".into()).unwrap();
         let setup = setup.unwrap();
 
         let mut runtime = Builder::new()
