@@ -49,3 +49,9 @@ impl Vars {
         &self.0
     }
 }
+
+impl Default for Vars {
+    fn default() -> Self {
+        Self::new()
+    }
+}

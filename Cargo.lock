@@ -124,9 +124,9 @@ dependencies = [
 
 [[package]]
 name = "cli_integration_test"
-version = "0.1.0"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "230b92602f0efb02f54c05cd532a638338c2ab75715c2d4f969946d7aea53361"
+checksum = "a7104245415db397db140f404f83dd16f3242ab5b2db74f4e0b136b8ffaef6da"
 dependencies = [
  "assert_cmd",
  "fs_extra",

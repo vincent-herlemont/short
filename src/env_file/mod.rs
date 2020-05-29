@@ -217,25 +217,19 @@ impl Env {
         self.entries.append(&mut vec![Entry::Empty]);
     }
 
+    pub fn from_env_name<P: AsRef<Path>>(path: P, env_name: &String) -> Result<Self> {
+        let file = path
+            .as_ref()
+            .to_path_buf()
+            .join(PathBuf::from(format!(".{}", env_name)));
+
+        dbg!(&file);
+
+        Self::from_file(file)
+    }
+
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let path = path.as_ref().to_path_buf();
-        let file_name_err = || {
-            Error::new(
-                ErrorKind::InvalidData,
-                format!(
-                    "fail to read file env file name {}",
-                    path.to_string_lossy().trim()
-                ),
-            )
-        };
-
-        let _file_name = path
-            .file_name()
-            .ok_or(file_name_err())?
-            .to_str()
-            .ok_or(file_name_err())?
-            .to_string();
-
         let file = OpenOptions::new().read(true).open(&path)?;
         let mut buf_reader = BufReader::new(file);
         let mut env = Env::from_reader(&mut buf_reader)?;

@@ -16,6 +16,7 @@ pub enum PathTestEnvironment {
     LocalEnvExample,
     GlobalEnvDev,
     GlobalEnvProd,
+    Run,
 }
 
 pub struct IntegrationTestEnvironmentWrapper {
@@ -35,6 +36,7 @@ impl IntegrationTestEnvironmentWrapper {
         itew.set_local_env_example();
         itew.set_global_env_dev();
         itew.set_global_env_pro();
+        itew.set_run();
 
         let e = itew.e();
         let mut e = e.borrow_mut();
@@ -94,7 +96,7 @@ impl IntegrationTestEnvironmentWrapper {
     pub fn set_local_env_example(&mut self) {
         self.set_path(
             PathTestEnvironment::LocalEnvExample,
-            PathBuf::from(ENVDIR).join(".example"),
+            PathBuf::from(PROJECT).join(".example"),
         );
     }
 
@@ -109,6 +111,12 @@ impl IntegrationTestEnvironmentWrapper {
         self.set_path(
             PathTestEnvironment::GlobalEnvProd,
             PathBuf::from(ENVDIR).join(".prod"),
+        );
+    }
+    pub fn set_run(&mut self) {
+        self.set_path(
+            PathTestEnvironment::Run,
+            PathBuf::from(PROJECT).join("run.sh"),
         );
     }
 }

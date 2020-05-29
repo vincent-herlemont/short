@@ -2,7 +2,7 @@ use crate::cfg::{ArrayVar, ArrayVars, SetupCfg, Var, Vars};
 use crate::env_file::Env;
 use anyhow::Result;
 use regex::Regex;
-
+use std::ops::Deref;
 
 type EnvValue = String;
 
@@ -47,23 +47,21 @@ pub fn generate_env_var(env: &Env, var: &Var) -> EnvVar {
         .map_or((var.clone(), "".to_string()).into(), |e| e)
 }
 
-pub fn generate_env_vars(
-    env: &Env,
-    array_vars: Option<&ArrayVars>,
-    vars: Option<&Vars>,
-) -> Result<Vec<EnvVar>> {
+pub fn generate_env_vars<AV, V>(env: &Env, array_vars: AV, vars: V) -> Result<Vec<EnvVar>>
+where
+    AV: Deref<Target = ArrayVars>,
+    V: Deref<Target = Vars>,
+{
     let mut env_vars: Vec<EnvVar> = vec![];
-    if let Some(array_vars) = array_vars {
-        for array_var in array_vars.inner().iter() {
-            let env_var = generate_array_env_var(env, array_var)?;
-            env_vars.append(&mut vec![env_var]);
-        }
+
+    for array_var in array_vars.inner().iter() {
+        let env_var = generate_array_env_var(env, array_var)?;
+        env_vars.append(&mut vec![env_var]);
     }
-    if let Some(vars) = vars {
-        for var in vars.inner().iter() {
-            let env_var = generate_env_var(env, var);
-            env_vars.append(&mut vec![env_var]);
-        }
+
+    for var in vars.inner().iter() {
+        let env_var = generate_env_var(env, var);
+        env_vars.append(&mut vec![env_var]);
     }
 
     Ok(env_vars)

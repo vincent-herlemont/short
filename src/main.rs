@@ -21,17 +21,17 @@ fn main() -> Result<()> {
 }
 
 fn run() -> Result<()> {
-    let _setup_arg = Arg::with_name("setup")
+    let setup_arg = Arg::with_name("setup")
         .long("setup")
         .short("s")
         .takes_value(true)
         .help("Set up name");
-    let _environment_arg = Arg::with_name("environment")
+    let environment_arg = Arg::with_name("environment")
         .long("env")
         .short("e")
         .takes_value(true)
         .help("Environment name");
-    let _dryrun_arg = Arg::with_name("dry-run")
+    let dryrun_arg = Arg::with_name("dry-run")
         .long("dry-run")
         .help("Disable all executions");
 
@@ -68,6 +68,13 @@ fn run() -> Result<()> {
                         .default_value("#!/bin/bash")
                         .help("Interpreter program"),
                 ),
+        )
+        .subcommand(
+            SubCommand::with_name("run")
+                .about("Run setup")
+                .arg(setup_arg.clone())
+                .arg(environment_arg.clone())
+                .arg(dryrun_arg.clone()),
         )
         .subcommand(
             SubCommand::with_name("rename")
@@ -145,6 +152,8 @@ fn run() -> Result<()> {
         commands::init(&app)?;
     } else if let Some(args) = app.subcommand_matches("new") {
         commands::new(&args)?;
+    } else if let Some(args) = app.subcommand_matches("run") {
+        commands::run(&args)?;
     } else if let Some(_) = app.subcommand_matches("ls") {
         commands::ls(&app)?;
     } else if let Some(args) = app.subcommand_matches("rename") {

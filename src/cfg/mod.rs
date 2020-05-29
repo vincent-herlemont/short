@@ -108,7 +108,7 @@ impl Cfg {
         Ok(setups)
     }
 
-    pub fn current_setup(&mut self, name: &String) -> Result<Option<Setup>> {
+    pub fn current_setup(&self, name: &String) -> Result<Option<Setup>> {
         for setup in self.current_setups()? {
             if setup.name()? == *name {
                 return Ok(Some(setup));
@@ -226,7 +226,7 @@ projects:
         );
 
         e.setup();
-        let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap().unwrap();
         setup_1
             .global_setup()
@@ -306,18 +306,18 @@ projects:
         e.add_file(
             &abs_env_prod,
             r#"
-ENV= prod
-        "#,
+ENV=prod
+"#,
         );
         e.add_file(
             &abs_env_dev,
             r#"
-ENV= dev
-        "#,
+ENV=dev
+"#,
         );
         e.setup();
 
-        let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap().unwrap();
         let env_public = setup_1.envs_public();
         assert!(env_public.iter().count().eq(&1));

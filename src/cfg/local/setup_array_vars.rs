@@ -6,7 +6,6 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use std::fmt;
 
-
 type Pattern = String;
 
 #[derive(Debug)]
@@ -30,6 +29,12 @@ impl ArrayVars {
 
     pub fn inner(&self) -> &Vec<ArrayVar> {
         &self.0
+    }
+}
+
+impl Default for ArrayVars {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

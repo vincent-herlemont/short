@@ -41,6 +41,10 @@ impl LocalSetupCfg {
         local_setup
     }
 
+    pub fn file(&self) -> &PathBuf {
+        &self.file
+    }
+
     pub fn new_vars(&mut self) -> Rc<RefCell<Vars>> {
         let mut vars = Vars::new();
         vars.add("SETUP_NAME".into());

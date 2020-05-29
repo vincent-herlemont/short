@@ -29,7 +29,7 @@ impl From<process::Output> for Output {
     }
 }
 
-fn run(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
+pub fn run(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
     let file = file.canonicalize()?;
     let mut output = Command::new(&file);
     output.env_clear();
@@ -53,6 +53,7 @@ mod tests {
     use crate::run_file::run;
     use crate::run_file::var::generate_env_vars;
     use cli_integration_test::IntegrationTestEnvironment;
+    
 
     #[test]
     fn run_integration_test() {
@@ -73,7 +74,8 @@ mod tests {
         let mut file = File::new(path_file.clone(), String::from("#!/bin/bash"));
         file.generate(Some(&array_vars), Some(&vars)).unwrap();
         file.save().unwrap();
-        let env_vars = generate_env_vars(&env, Some(&array_vars), Some(&vars)).unwrap();
+
+        let env_vars = generate_env_vars(&env, &array_vars, &vars).unwrap();
 
         let output = run(&path_file, &env_vars).unwrap();
         assert_eq!(

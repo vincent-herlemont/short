@@ -8,7 +8,7 @@ use serde::export::fmt::Debug;
 use serde::export::Formatter;
 use std::cell::RefCell;
 use std::fmt;
-use std::path::PathBuf;
+use std::path::{PathBuf};
 use std::rc::{Rc, Weak};
 
 pub trait SetupsCfg {
@@ -62,6 +62,36 @@ impl Setup {
         }
     }
 
+    pub fn local_cfg_file(&self) -> Result<&PathBuf> {
+        self.local_cfg_file.as_ref().context("no local cfg file")
+    }
+
+    pub fn local_cfg_dir(&self) -> Result<PathBuf> {
+        let local_cfg_file = self.local_cfg_file()?;
+        let local_cfg_dir = local_cfg_file
+            .parent()
+            .context(format!("can not reach parent of {:?}", local_cfg_file))?;
+        Ok(local_cfg_dir.to_path_buf())
+    }
+
+    pub fn local_cfg_run_file(&self) -> Result<PathBuf> {
+        let local_cfg_dir = self.local_cfg_dir()?;
+        let local_setup = self.local_setup().context("local_setup not found")?;
+        let local_setup = local_setup.borrow();
+        let run_file = local_cfg_dir.join(local_setup.file());
+        Ok(run_file)
+    }
+
+    pub fn env(&self, env_name: &String) -> Result<Env> {
+        let msg_err = |env_file: &PathBuf| format!("fail to parse {} {:?}", env_name, env_file);
+
+        match (self.envs_private_dir(), self.envs_public_dir()) {
+            (Some(dir), _) => Env::from_env_name(&dir, env_name).context(msg_err(&dir)),
+            (_, Some(dir)) => Env::from_env_name(&dir, env_name).context(msg_err(&dir)),
+            _ => Err(anyhow!("env {} not found", env_name)),
+        }
+    }
+
     pub fn envs(&self) -> Vec<Result<Env>> {
         let mut env = vec![];
         env.append(&mut self.envs_public());
@@ -69,23 +99,36 @@ impl Setup {
         env
     }
 
-    pub fn envs_public(&self) -> Vec<Result<Env>> {
+    fn envs_public_dir(&self) -> Option<PathBuf> {
         if let (Some(local_setup), Some(file)) = (&self.local_setup(), &self.local_cfg_file) {
             if let Some(dir) = file.parent() {
-                let abs_path = dir.join(local_setup.borrow().env_path());
-                let env = env_file::read_dir(&abs_path);
-                return env
-                    .into_iter()
-                    .map(|env| env.context("fail to parse env"))
-                    .collect();
+                return Some(dir.join(local_setup.borrow().env_path()));
             }
+        }
+        None
+    }
+
+    pub fn envs_public(&self) -> Vec<Result<Env>> {
+        if let Some(abs_path) = self.envs_public_dir() {
+            let env = env_file::read_dir(&abs_path);
+            return env
+                .into_iter()
+                .map(|env| env.context("fail to parse env"))
+                .collect();
         }
         vec![]
     }
 
-    pub fn envs_private(&self) -> Vec<Result<Env>> {
+    fn envs_private_dir(&self) -> Option<PathBuf> {
         if let Some(global_setup) = self.global_setup() {
-            let env = env_file::read_dir(&global_setup.borrow().env_path());
+            return Some(global_setup.borrow().env_path());
+        }
+        None
+    }
+
+    pub fn envs_private(&self) -> Vec<Result<Env>> {
+        if let Some(global_setup) = self.envs_private_dir() {
+            let env = env_file::read_dir(&global_setup);
             return env
                 .into_iter()
                 .map(|env| env.context("fail to parse env"))
