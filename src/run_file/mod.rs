@@ -53,7 +53,6 @@ mod tests {
     use crate::run_file::run;
     use crate::run_file::var::generate_env_vars;
     use cli_integration_test::IntegrationTestEnvironment;
-    
 
     #[test]
     fn run_integration_test() {
@@ -72,7 +71,7 @@ mod tests {
 
         let path_file = e.path().join("run.sh");
         let mut file = File::new(path_file.clone(), String::from("#!/bin/bash"));
-        file.generate(Some(&array_vars), Some(&vars)).unwrap();
+        file.generate(&array_vars, &vars).unwrap();
         file.save().unwrap();
 
         let env_vars = generate_env_vars(&env, &array_vars, &vars).unwrap();

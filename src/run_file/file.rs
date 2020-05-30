@@ -32,40 +32,34 @@ impl File {
         &self.shebang
     }
 
-    pub fn generate<AV, V>(&mut self, array_vars: Option<AV>, vars: Option<V>) -> Result<()>
+    pub fn generate<AV, V>(&mut self, array_vars: AV, vars: V) -> Result<()>
     where
         AV: Deref<Target = ArrayVars>,
         V: Deref<Target = Vars>,
     {
-        let array_vars = array_vars.as_deref();
-        let vars = vars.as_deref();
-
         writeln!(&mut self.content, "{}", self.shebang)?;
 
         let mut defined_vars = vec![];
 
-        if let Some(array_vars) = array_vars {
-            for array_var in array_vars.inner() {
-                let var_name = array_var.var_name();
-                writeln!(
-                    &mut self.content,
-                    "declare -A {var} && eval {var}=(${env_var})",
-                    var = var_name.to_var(),
-                    env_var = var_name.to_env_var()
-                )?;
-                defined_vars.append(&mut vec![var_name])
-            }
+        for array_var in array_vars.inner() {
+            let var_name = array_var.var_name();
+            writeln!(
+                &mut self.content,
+                "declare -A {var} && eval {var}=(${env_var})",
+                var = var_name.to_var(),
+                env_var = var_name.to_env_var()
+            )?;
+            defined_vars.append(&mut vec![var_name])
         }
-        if let Some(vars) = vars {
-            for var_name in vars.inner() {
-                writeln!(
-                    &mut self.content,
-                    "declare -r {var}=${var_name}",
-                    var = var_name.to_var(),
-                    var_name = var_name.to_env_var(),
-                )?;
-                defined_vars.append(&mut vec![var_name])
-            }
+
+        for var_name in vars.inner() {
+            writeln!(
+                &mut self.content,
+                "declare -r {var}=${var_name}",
+                var = var_name.to_var(),
+                var_name = var_name.to_env_var(),
+            )?;
+            defined_vars.append(&mut vec![var_name])
         }
 
         writeln!(&mut self.content, "")?;
@@ -111,7 +105,7 @@ mod tests {
         let path_file = e.path().join("run.sh");
 
         let mut file = File::new(path_file.clone(), String::from("#!/bin/bash"));
-        file.generate(Some(&array_vars), Some(&vars)).unwrap();
+        file.generate(&array_vars, &vars).unwrap();
         file.save().unwrap();
         assert!(path_file.exists());
         let file = e.read_file("./run.sh");
