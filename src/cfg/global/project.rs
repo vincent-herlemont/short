@@ -6,9 +6,37 @@ use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
+type SetupName = String;
+type EnvName = String;
+
+#[derive(Debug, Serialize, Deserialize)]
+struct CurrentSetup {
+    #[serde(rename = "setup", skip_serializing_if = "Option::is_none")]
+    pub setup_name: Option<SetupName>,
+    #[serde(rename = "env", skip_serializing_if = "Option::is_none")]
+    pub env_name: Option<EnvName>,
+}
+
+impl CurrentSetup {
+    pub fn new() -> Self {
+        Self {
+            setup_name: None,
+            env_name: None,
+        }
+    }
+}
+
+impl Default for CurrentSetup {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalProjectCfg {
     file: PathBuf,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    current: Option<CurrentSetup>,
     setups: Rc<RefCell<Vec<Rc<RefCell<GlobalProjectSetupCfg>>>>>,
 }
 
@@ -16,6 +44,7 @@ impl GlobalProjectCfg {
     pub fn new(file: &PathBuf) -> Result<Self> {
         let mut gp = GlobalProjectCfg {
             file: PathBuf::new(),
+            current: None,
             setups: Rc::new(RefCell::new(vec![])),
         };
         gp.set_file(file)?;
@@ -38,6 +67,26 @@ impl GlobalProjectCfg {
 
     pub fn file(&self) -> &PathBuf {
         &self.file
+    }
+
+    pub fn set_current_setup_name(&mut self, setup_name: SetupName) {
+        self.current.get_or_insert(CurrentSetup::new()).setup_name = Some(setup_name);
+    }
+
+    pub fn current_setup_name(&self) -> Option<&SetupName> {
+        self.current
+            .as_ref()
+            .map_or(None, |current| current.setup_name.as_ref())
+    }
+
+    pub fn set_current_env_name(&mut self, env_name: EnvName) {
+        self.current.get_or_insert(CurrentSetup::new()).env_name = Some(env_name);
+    }
+
+    pub fn current_env_name(&self) -> Option<&EnvName> {
+        self.current
+            .as_ref()
+            .map_or(None, |current| current.env_name.as_ref())
     }
 }
 
