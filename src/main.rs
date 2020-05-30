@@ -134,15 +134,16 @@ fn run() -> Result<()> {
             SubCommand::with_name("use")
                 .about("Switch of current setup or/and environment")
                 .arg(
-                    Arg::with_name("setup_name")
+                    Arg::with_name("setup")
                         .help("The setup name to switch in")
                         .index(1)
                         .required(true),
                 )
                 .arg(
-                    Arg::with_name("env_name")
+                    Arg::with_name("environment")
                         .help("The environment name to switch in")
-                        .index(2),
+                        .index(2)
+                        .required(true),
                 ),
         )
         .subcommand(SubCommand::with_name("ls").about("List set up and environments"))
@@ -158,6 +159,8 @@ fn run() -> Result<()> {
         commands::ls(&app)?;
     } else if let Some(args) = app.subcommand_matches("rename") {
         commands::rename(&args)?;
+    } else if let Some(args) = app.subcommand_matches("use") {
+        commands::r#use(&args)?;
     }
 
     Ok(())

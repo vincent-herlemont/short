@@ -1,10 +1,12 @@
+use predicates::prelude::Predicate;
+use predicates::str::contains;
 use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment};
 
 mod utils;
 
 #[test]
-fn cmd_run() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_run");
+fn cmd_use() {
+    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_use");
 
     {
         let e = itew.e();
@@ -25,25 +27,25 @@ setups:
     array_vars: {}
         "#,
         );
-        let run_file = itew.get_rel_path(PathTestEnvironment::Run).unwrap();
-        e.add_file(
-            &run_file,
-            r#"#!/bin/bash
-echo "TEST"
-        "#,
-        );
         e.setup();
-        e.set_exec_permission(&run_file).unwrap();
-        dbg!(e.tree());
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("run")
-        .args(&vec!["-s", "setup_1"])
-        .args(&vec!["-e", "example"])
+        .arg("use")
+        .arg("setup_1")
+        .arg("example")
         .assert()
         .to_string();
-    println!("{}", r);
+
+    assert!(contains("your current setup is").eval(&r));
+
+    {
+        let e = itew.e();
+        let e = e.borrow();
+        let content = e.read_file(itew.get_rel_path(PathTestEnvironment::GlobalCfg).unwrap());
+        assert!(contains("setup: setup_1").count(1).eval(&content));
+        assert!(contains("env: example").count(1).eval(&content));
+    }
 }

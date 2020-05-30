@@ -91,6 +91,7 @@ impl Cfg {
                     if let Ok(setup) = Setup::new_fill(
                         local_cfg_path,
                         Rc::downgrade(local_setup),
+                        Rc::downgrade(&global_project),
                         Rc::downgrade(&global_setup),
                     ) {
                         return Some(setup);

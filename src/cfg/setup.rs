@@ -1,7 +1,7 @@
-use crate::cfg::global::GlobalProjectSetupCfg;
+use crate::cfg::global::{GlobalProjectCfg, GlobalProjectSetupCfg};
 use crate::cfg::LocalSetupCfg;
 use crate::env_file;
-use crate::env_file::Env;
+use crate::env_file::{path_from_env_name, Env};
 use anyhow::Context;
 use anyhow::Result;
 use serde::export::fmt::Debug;
@@ -50,6 +50,7 @@ pub trait SetupCfg {
 pub struct Setup {
     local_cfg_file: Option<PathBuf>,
     local_setup: Weak<RefCell<LocalSetupCfg>>,
+    global_project: Weak<RefCell<GlobalProjectCfg>>,
     global_setup: Weak<RefCell<GlobalProjectSetupCfg>>,
 }
 
@@ -58,6 +59,7 @@ impl Setup {
         Self {
             local_cfg_file: None,
             local_setup: Weak::default(),
+            global_project: Weak::default(),
             global_setup: Weak::default(),
         }
     }
@@ -89,6 +91,14 @@ impl Setup {
             (Some(dir), _) => Env::from_env_name(&dir, env_name).context(msg_err(&dir)),
             (_, Some(dir)) => Env::from_env_name(&dir, env_name).context(msg_err(&dir)),
             _ => Err(anyhow!("env {} not found", env_name)),
+        }
+    }
+
+    pub fn env_exist(&self, env_name: &String) -> bool {
+        match (self.envs_private_dir(), self.envs_public_dir()) {
+            (Some(dir), _) => path_from_env_name(&dir, env_name).exists(),
+            (_, Some(dir)) => path_from_env_name(&dir, env_name).exists(),
+            _ => false,
         }
     }
 
@@ -173,6 +183,7 @@ impl Setup {
     pub fn new_fill(
         local_file: &PathBuf,
         local_setup: Weak<RefCell<LocalSetupCfg>>,
+        global_project: Weak<RefCell<GlobalProjectCfg>>,
         global_setup: Weak<RefCell<GlobalProjectSetupCfg>>,
     ) -> Result<Self> {
         let rc_local_setup = local_setup.upgrade().context("local set up cfg is empty")?;
@@ -183,6 +194,7 @@ impl Setup {
             Ok(Self {
                 local_cfg_file: Some(local_file.to_owned()),
                 local_setup,
+                global_project,
                 global_setup,
             })
         } else {
@@ -194,6 +206,10 @@ impl Setup {
 
     pub fn local_setup(&self) -> Option<Rc<RefCell<LocalSetupCfg>>> {
         self.local_setup.upgrade()
+    }
+
+    pub fn global_project(&self) -> Option<Rc<RefCell<GlobalProjectCfg>>> {
+        self.global_project.upgrade()
     }
 
     pub fn global_setup(&self) -> Option<Rc<RefCell<GlobalProjectSetupCfg>>> {

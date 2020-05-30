@@ -218,13 +218,7 @@ impl Env {
     }
 
     pub fn from_env_name<P: AsRef<Path>>(path: P, env_name: &String) -> Result<Self> {
-        let file = path
-            .as_ref()
-            .to_path_buf()
-            .join(PathBuf::from(format!(".{}", env_name)));
-
-        dbg!(&file);
-
+        let file = path_from_env_name(path, env_name);
         Self::from_file(file)
     }
 
@@ -292,6 +286,12 @@ impl Env {
             env: &self,
         }
     }
+}
+
+pub fn path_from_env_name<P: AsRef<Path>>(path: P, env_name: &String) -> PathBuf {
+    path.as_ref()
+        .to_path_buf()
+        .join(PathBuf::from(format!(".{}", env_name)))
 }
 
 #[derive(Debug)]
