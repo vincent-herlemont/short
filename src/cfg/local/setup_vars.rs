@@ -40,7 +40,7 @@ impl Vars {
     }
 
     pub fn add(&mut self, name: Var) {
-        if self.0.iter().find(|var_name| *var_name == &name).is_none() {
+        if self.0.iter().find(|var| *var == &name).is_none() {
             self.0.append(&mut vec![name])
         }
     }

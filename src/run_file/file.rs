@@ -42,29 +42,29 @@ impl File {
         let mut defined_vars = vec![];
 
         for array_var in array_vars.inner() {
-            let var_name = array_var.var_name();
+            let var = array_var.var();
             writeln!(
                 &mut self.content,
                 "declare -A {var} && eval {var}=(${env_var})",
-                var = var_name.to_var(),
-                env_var = var_name.to_env_var()
+                var = var.to_var(),
+                env_var = var.to_env_var()
             )?;
-            defined_vars.append(&mut vec![var_name])
+            defined_vars.append(&mut vec![var])
         }
 
-        for var_name in vars.inner() {
+        for var in vars.inner() {
             writeln!(
                 &mut self.content,
-                "declare -r {var}=${var_name}",
-                var = var_name.to_var(),
-                var_name = var_name.to_env_var(),
+                "declare -r {var}=${env_var}",
+                var = var.to_var(),
+                env_var = var.to_env_var(),
             )?;
-            defined_vars.append(&mut vec![var_name])
+            defined_vars.append(&mut vec![var])
         }
 
         writeln!(&mut self.content, "")?;
-        for var_name in defined_vars.iter() {
-            writeln!(&mut self.content, "declare -p {}", var_name.to_var())?;
+        for var in defined_vars.iter() {
+            writeln!(&mut self.content, "declare -p {}", var.to_var())?;
         }
 
         Ok(())

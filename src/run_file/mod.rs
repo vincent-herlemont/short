@@ -35,7 +35,7 @@ pub fn run(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
     output.env_clear();
 
     for env_var in vars.iter() {
-        output.env(env_var.var_name().to_env_var(), env_var.env_value());
+        output.env(env_var.var().to_env_var(), env_var.env_value());
     }
 
     let output = output

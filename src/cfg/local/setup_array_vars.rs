@@ -71,8 +71,8 @@ impl<'de> Deserialize<'de> for ArrayVars {
                 A: MapAccess<'de>,
             {
                 let mut array_vars = ArrayVars::new();
-                while let Some((var_name, pattern)) = map.next_entry::<Var, Pattern>()? {
-                    array_vars.add(var_name, pattern);
+                while let Some((var, pattern)) = map.next_entry::<Var, Pattern>()? {
+                    array_vars.add(var, pattern);
                 }
                 Ok(array_vars)
             }
@@ -86,7 +86,7 @@ impl<'de> Deserialize<'de> for ArrayVars {
 pub struct ArrayVar(Var, Pattern);
 
 impl ArrayVar {
-    pub fn var_name(&self) -> &Var {
+    pub fn var(&self) -> &Var {
         &self.0
     }
 
