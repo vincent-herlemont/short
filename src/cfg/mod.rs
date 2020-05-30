@@ -1,24 +1,19 @@
 use crate::cfg::file::{load_local_cfg, load_or_new_global_cfg, new_local_cfg, FileCfg};
 use crate::cfg::setup::Setup;
 use anyhow::{Context, Result};
-pub use env::EnvPathCfg;
-pub use env::EnvPathsCfg;
 pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
 pub use local::{ArrayVar, ArrayVars};
 pub use local::{Var, Vars};
-pub use project::ProjectCfg;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-mod env;
 mod file;
 mod global;
 mod local;
-mod project;
 mod setup;
 
 #[derive(Debug)]
@@ -120,7 +115,7 @@ impl Cfg {
 
 #[cfg(test)]
 mod main_test {
-    use crate::cfg::{Cfg, EnvPathCfg};
+    use crate::cfg::Cfg;
     use cli_integration_test::IntegrationTestEnvironment;
     use predicates::path::{exists, is_file};
     use predicates::prelude::*;
@@ -232,7 +227,7 @@ projects:
             .global_setup()
             .unwrap()
             .borrow_mut()
-            .set_env_path_op(Some("/private/env/dir2".into()));
+            .set_private_env_dir("/private/env/dir2".into());
 
         cfg.save();
 
@@ -341,12 +336,12 @@ mod thread_test {
 
     use crate::cfg::main_test::{init_env, HOME, PROJECT};
     use crate::cfg::setup::Setup;
-    use crate::cfg::{Cfg, EnvPathCfg};
+    use crate::cfg::Cfg;
 
     async fn update_setup_async_future(i: u32, setup: Setup) {
         let local_setup = setup.local_setup().unwrap();
         let mut local_setup = local_setup.borrow_mut();
-        local_setup.set_env_path_op(Some(format!("/test/{}", i).into()));
+        local_setup.set_public_env_dir(format!("/test/{}", i).into());
         drop(local_setup); // Must dropped after .await
 
         let mut rng = thread_rng();
@@ -396,7 +391,9 @@ setups:
             f.await;
         });
 
-        let local_env_path = setup.local_setup().unwrap().borrow().env_path();
+        let local_env_path = setup.local_setup().unwrap();
+        let local_env_path = local_env_path.borrow();
+        let local_env_path = local_env_path.public_env_dir();
         assert!(local_env_path.to_string_lossy().eq("/test/9"));
     }
 }

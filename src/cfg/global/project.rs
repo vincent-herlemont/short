@@ -1,12 +1,10 @@
-use std::cell::RefCell;
-use std::path::PathBuf;
-use std::rc::Rc;
-
-use anyhow::{Result};
-use serde::{Deserialize, Serialize};
-
-use crate::cfg::{ProjectCfg, SetupsCfg};
 use crate::cfg::global::setup::GlobalProjectSetupCfg;
+use crate::cfg::SetupsCfg;
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalProjectCfg {
@@ -37,11 +35,9 @@ impl GlobalProjectCfg {
         self.file = file.clone();
         Ok(())
     }
-}
 
-impl ProjectCfg for GlobalProjectCfg {
-    fn path(&self) -> PathBuf {
-        self.file.to_owned()
+    pub fn file(&self) -> &PathBuf {
+        &self.file
     }
 }
 
@@ -53,13 +49,23 @@ impl SetupsCfg for GlobalProjectCfg {
     }
 }
 
+impl PartialEq<PathBuf> for GlobalProjectCfg {
+    fn eq(&self, path_buf: &PathBuf) -> bool {
+        self.file().eq(path_buf)
+    }
+}
+impl PartialEq<GlobalProjectCfg> for PathBuf {
+    fn eq(&self, path_buf: &GlobalProjectCfg) -> bool {
+        self.eq(&path_buf.file)
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use std::path::PathBuf;
-
-    use crate::cfg::{EnvPathCfg, SetupsCfg};
     use crate::cfg::global::project::GlobalProjectCfg;
     use crate::cfg::global::setup::GlobalProjectSetupCfg;
+    use crate::cfg::SetupsCfg;
+    use std::path::PathBuf;
 
     #[test]
     fn global_update_private_env_dir() {
@@ -74,13 +80,16 @@ mod test {
             let setup_cfg = project_cfg.get_setup(&"setup".into()).unwrap();
             setup_cfg
                 .borrow_mut()
-                .set_env_path_op(Some("/private_env".into()));
+                .set_private_env_dir("/private_env".into());
         }
 
         let global_project_setup_cfg_1 = project_cfg.get_setup(&"setup".into()).unwrap();
         assert_eq!(
-            global_project_setup_cfg_1.borrow().env_path(),
-            PathBuf::from("/private_env")
+            global_project_setup_cfg_1
+                .borrow()
+                .private_env_dir()
+                .unwrap(),
+            &PathBuf::from("/private_env")
         );
 
         project_cfg.remove_by_name_setup(&"setup".into());

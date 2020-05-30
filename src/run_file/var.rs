@@ -54,12 +54,12 @@ where
 {
     let mut env_vars: Vec<EnvVar> = vec![];
 
-    for array_var in array_vars.inner().iter() {
+    for array_var in array_vars.as_ref().iter() {
         let env_var = generate_array_env_var(env, array_var)?;
         env_vars.append(&mut vec![env_var]);
     }
 
-    for var in vars.inner().iter() {
+    for var in vars.as_ref().iter() {
         let env_var = generate_env_var(env, var);
         env_vars.append(&mut vec![env_var]);
     }

@@ -1,12 +1,12 @@
 use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
-use crate::cfg::EnvPathCfg;
 use serde::{Deserialize, Serialize};
 
 use crate::cfg::local::setup_vars::Vars;
 
+use std::borrow::Cow;
 use std::cell::RefCell;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -70,6 +70,17 @@ impl LocalSetupCfg {
     pub fn vars(&self) -> Option<Rc<RefCell<Vars>>> {
         self.vars.as_ref().map(|r| Rc::clone(r))
     }
+
+    pub fn public_env_dir(&self) -> Cow<Path> {
+        match &self.public_env_dir {
+            Some(dir) => Cow::Borrowed(dir),
+            None => Cow::Owned(PathBuf::new()),
+        }
+    }
+
+    pub fn set_public_env_dir(&mut self, dir: PathBuf) {
+        self.public_env_dir = Some(dir)
+    }
 }
 
 impl SetupCfg for LocalSetupCfg {
@@ -79,15 +90,5 @@ impl SetupCfg for LocalSetupCfg {
 
     fn rename(&mut self, name: &String) {
         self.name = name.clone();
-    }
-}
-
-impl EnvPathCfg for LocalSetupCfg {
-    fn env_path_op(&self) -> Option<&PathBuf> {
-        self.public_env_dir.as_ref()
-    }
-
-    fn set_env_path_op(&mut self, dir: Option<PathBuf>) {
-        self.public_env_dir = dir
     }
 }

@@ -3,7 +3,6 @@ use serde::de::{MapAccess, Visitor};
 use serde::export::Formatter;
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
 use std::fmt;
 
 type Pattern = String;
@@ -26,8 +25,10 @@ impl ArrayVars {
             self.0.append(&mut vec![(name, pattern).into()])
         }
     }
+}
 
-    pub fn inner(&self) -> &Vec<ArrayVar> {
+impl AsRef<Vec<ArrayVar>> for ArrayVars {
+    fn as_ref(&self) -> &Vec<ArrayVar> {
         &self.0
     }
 }

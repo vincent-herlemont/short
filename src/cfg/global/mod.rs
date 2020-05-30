@@ -1,23 +1,20 @@
+use crate::cfg::file::FileCfg;
+use crate::cfg::{LocalCfg, SetupsCfg};
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use anyhow::Result;
-use serde::{Deserialize, Serialize};
-
 pub use project::GlobalProjectCfg;
 pub use setup::GlobalProjectSetupCfg;
-
-use crate::cfg::file::FileCfg;
-use crate::cfg::project::ProjectCfg;
-use crate::cfg::{LocalCfg, SetupsCfg};
 
 mod project;
 mod setup;
 
 type LocalCfgFile = PathBuf;
 
-pub const GLOCAL_FILE_NAME: &'static str = "cfg.yml";
+pub const GLOBAL_FILE_NAME: &'static str = "cfg.yml";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalCfg {
@@ -30,7 +27,7 @@ impl GlobalCfg {
     }
 
     pub fn add_project(&mut self, project: GlobalProjectCfg) {
-        if let None = self.get_project_by_file(&project.path()) {
+        if let None = self.get_project_by_file(&project.file()) {
             self.projects
                 .append(&mut vec![Rc::new(RefCell::new(project))]);
         }
@@ -38,8 +35,8 @@ impl GlobalCfg {
 
     pub fn remove_project_by_file(&mut self, file: &LocalCfgFile) {
         self.projects.retain(|project| {
-            let project = &*project.borrow() as &dyn ProjectCfg;
-            file != project
+            let project = &*project.borrow();
+            project != file
         })
     }
 
@@ -50,7 +47,7 @@ impl GlobalCfg {
         self.projects
             .iter()
             .find(|project| {
-                let project = &*project.borrow() as &dyn ProjectCfg;
+                let project = &*project.borrow();
                 file == project
             })
             .map(|project| Rc::clone(project))

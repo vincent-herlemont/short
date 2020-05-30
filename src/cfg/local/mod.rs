@@ -3,7 +3,6 @@ mod setup_array_vars;
 mod setup_vars;
 
 use crate::cfg::setup::SetupsCfg;
-use crate::cfg::{EnvPathCfg, EnvPathsCfg};
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -33,21 +32,9 @@ impl SetupsCfg for LocalCfg {
     }
 }
 
-impl EnvPathsCfg for LocalCfg {
-    fn env_paths_dyn(&self) -> Vec<Rc<RefCell<dyn EnvPathCfg>>> {
-        self.setups
-            .borrow()
-            .iter()
-            .map(|e| Rc::clone(e) as Rc<RefCell<dyn EnvPathCfg>>)
-            .collect()
-    }
-}
-
 #[cfg(test)]
 mod tests {
-
     use crate::cfg::setup::SetupsCfg;
-    use crate::cfg::{EnvPathCfg, EnvPathsCfg};
     use crate::cfg::{LocalCfg, LocalSetupCfg};
     use std::path::PathBuf;
 
@@ -58,17 +45,11 @@ mod tests {
         let mut local_cfg = LocalCfg::new();
         local_cfg.add_setup(setup_cfg);
 
-        let env_path = local_cfg.env_paths();
-        assert_eq!(env_path, vec![PathBuf::new()]);
-
         {
             let setup_cfg_1 = local_cfg.get_setup(&"setup".into()).unwrap();
             let mut setup_cfg_1 = setup_cfg_1.borrow_mut();
-            setup_cfg_1.set_env_path_op(Some("./env_dir/".into()));
+            setup_cfg_1.set_public_env_dir("./env_dir/".into());
         }
-
-        let env_path = local_cfg.env_paths();
-        assert_eq!(env_path, vec![PathBuf::from("./env_dir/")]);
 
         local_cfg.remove_by_name_setup(&"setup".into());
         assert!(local_cfg.get_setup(&"setup".into()).is_none());

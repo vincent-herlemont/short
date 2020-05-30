@@ -1,5 +1,5 @@
 use crate::cfg::global::GlobalProjectSetupCfg;
-use crate::cfg::{EnvPathCfg, LocalSetupCfg};
+use crate::cfg::LocalSetupCfg;
 use crate::env_file;
 use crate::env_file::Env;
 use anyhow::Context;
@@ -8,7 +8,7 @@ use serde::export::fmt::Debug;
 use serde::export::Formatter;
 use std::cell::RefCell;
 use std::fmt;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use std::rc::{Rc, Weak};
 
 pub trait SetupsCfg {
@@ -101,8 +101,9 @@ impl Setup {
 
     fn envs_public_dir(&self) -> Option<PathBuf> {
         if let (Some(local_setup), Some(file)) = (&self.local_setup(), &self.local_cfg_file) {
-            if let Some(dir) = file.parent() {
-                return Some(dir.join(local_setup.borrow().env_path()));
+            if let Some(root_dir) = file.parent() {
+                let local_setup = local_setup.borrow();
+                return Some(root_dir.join(local_setup.public_env_dir()));
             }
         }
         None
@@ -121,7 +122,9 @@ impl Setup {
 
     fn envs_private_dir(&self) -> Option<PathBuf> {
         if let Some(global_setup) = self.global_setup() {
-            return Some(global_setup.borrow().env_path());
+            if let Some(dir) = global_setup.borrow().private_env_dir() {
+                return Some(dir.clone());
+            }
         }
         None
     }

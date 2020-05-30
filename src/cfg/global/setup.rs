@@ -1,8 +1,6 @@
-use std::path::PathBuf;
-
+use crate::cfg::{LocalSetupCfg, SetupCfg};
 use serde::{Deserialize, Serialize};
-
-use crate::cfg::{EnvPathCfg, LocalSetupCfg, SetupCfg};
+use std::path::PathBuf;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalProjectSetupCfg {
@@ -18,6 +16,14 @@ impl GlobalProjectSetupCfg {
             name,
             private_env_dir: None,
         }
+    }
+
+    pub fn private_env_dir(&self) -> Option<&PathBuf> {
+        self.private_env_dir.as_ref()
+    }
+
+    pub fn set_private_env_dir(&mut self, dir: PathBuf) {
+        self.private_env_dir = Some(dir)
     }
 }
 
@@ -37,15 +43,5 @@ impl SetupCfg for GlobalProjectSetupCfg {
 
     fn rename(&mut self, name: &String) {
         self.name = name.clone();
-    }
-}
-
-impl EnvPathCfg for GlobalProjectSetupCfg {
-    fn env_path_op(&self) -> Option<&PathBuf> {
-        self.private_env_dir.as_ref()
-    }
-
-    fn set_env_path_op(&mut self, dir: Option<PathBuf>) {
-        self.private_env_dir = dir
     }
 }

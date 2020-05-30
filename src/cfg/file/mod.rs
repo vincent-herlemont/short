@@ -1,4 +1,4 @@
-use crate::cfg::global::GLOCAL_FILE_NAME;
+use crate::cfg::global::GLOBAL_FILE_NAME;
 use crate::cfg::{GlobalCfg, LocalCfg};
 use crate::utils::find::find_in_parents;
 use crate::utils::write_all::write_all_dir;
@@ -93,7 +93,7 @@ pub fn new_local_cfg(dir: &PathBuf) -> Result<FileCfg<LocalCfg>> {
 pub fn load_or_new_global_cfg(dir: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
     let global_cfg_dir = var("SHORT_GLOBAL_CFG_DIR").map_or(".short/".to_string(), |v| v);
     let global_dir = dir.join(global_cfg_dir);
-    let global_cfg_file = global_dir.join(GLOCAL_FILE_NAME.to_string());
+    let global_cfg_file = global_dir.join(GLOBAL_FILE_NAME.to_string());
 
     let global = get_global_cfg(&global_cfg_file).map_or(
         FileCfg::new(&global_cfg_file, GlobalCfg::new()).context(format!(

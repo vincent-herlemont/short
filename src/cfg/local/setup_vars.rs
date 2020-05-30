@@ -44,8 +44,10 @@ impl Vars {
             self.0.append(&mut vec![name])
         }
     }
+}
 
-    pub fn inner(&self) -> &Vec<Var> {
+impl AsRef<Vec<Var>> for Vars {
+    fn as_ref(&self) -> &Vec<Var> {
         &self.0
     }
 }

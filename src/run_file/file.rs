@@ -41,7 +41,7 @@ impl File {
 
         let mut defined_vars = vec![];
 
-        for array_var in array_vars.inner() {
+        for array_var in array_vars.as_ref() {
             let var = array_var.var();
             writeln!(
                 &mut self.content,
@@ -52,7 +52,7 @@ impl File {
             defined_vars.append(&mut vec![var])
         }
 
-        for var in vars.inner() {
+        for var in vars.as_ref() {
             writeln!(
                 &mut self.content,
                 "declare -r {var}=${env_var}",
