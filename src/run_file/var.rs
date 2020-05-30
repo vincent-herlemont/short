@@ -1,4 +1,4 @@
-use crate::cfg::{ArrayVar, ArrayVars, SetupCfg, Var, Vars};
+use crate::cfg::{ArrayVar, ArrayVars, Var, Vars};
 use crate::env_file::Env;
 use anyhow::Result;
 use regex::Regex;
@@ -67,58 +67,11 @@ where
     Ok(env_vars)
 }
 
-#[derive(Debug)]
-#[deprecated]
-pub struct VarLast {
-    pub array: bool,
-    pub name: String,
-    pub env_name: String,
-    pub env_value: String,
-}
-
-#[deprecated]
-pub fn generate_var_last(env: &Env, array_var: &ArrayVar) -> Result<VarLast> {
-    let var = array_var.var();
-    let pattern = array_var.pattern();
-    let re = Regex::new(pattern.as_str())?;
-    let mut var = VarLast {
-        array: true,
-        name: var.to_string(),
-        env_name: String::new(),
-        env_value: String::from(" "),
-    };
-    for (env_name, env_value) in env.iter() {
-        if env_name == *pattern {
-            var.env_value = env_value;
-            var.env_name = env_name;
-            var.array = false;
-            break;
-        }
-        if re.is_match(&env_name) {
-            var.env_value = format!("{}[{}]='{}' ", var.env_value.clone(), &env_name, &env_value);
-        }
-    }
-    if var.array {
-        var.env_name = var.name.to_uppercase()
-    }
-    Ok(var)
-}
-
-#[deprecated]
-pub fn generate_vars_last(env: &Env, array_vars: &ArrayVars) -> Result<Vec<VarLast>> {
-    let mut vec = vec![];
-    for array_var in array_vars.inner().iter() {
-        vec.append(&mut vec![generate_var_last(env, array_var)?])
-    }
-    Ok(vec)
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::cfg::{ArrayVar, ArrayVars, Var};
+    use crate::cfg::{ArrayVar, Var};
     use crate::env_file::Env;
     use crate::run_file::var::{generate_array_env_var, generate_env_var};
-    use crate::run_file::{generate_var_last, generate_vars_last};
 
     #[test]
     fn generate_array_var_test() {
@@ -143,35 +96,5 @@ mod tests {
         let env_var = generate_env_var(&env_file, &var);
         assert_eq!(env_var.var().to_string(), "VAR1");
         assert_eq!(env_var.env_value(), "VALUE1");
-    }
-
-    #[test]
-    #[ignore]
-    #[deprecated]
-    fn generate_var_test_last() {
-        let array_var: ArrayVar = ("all".into(), ".*".into()).into();
-        let mut env_file = Env::new();
-        env_file.add("VAR1", "VALUE1");
-        env_file.add("VAR2", "VALUE2");
-
-        let var = generate_var_last(&env_file, &array_var).unwrap();
-        assert_eq!(var.name, "all");
-        assert_eq!(var.env_value, " [VAR1]='VALUE1' [VAR2]='VALUE2' ");
-        assert_eq!(var.array, true);
-    }
-
-    #[test]
-    #[ignore]
-    #[deprecated]
-    fn generate_vars_test_last() {
-        let mut array_vars = ArrayVars::new();
-        array_vars.add("all".into(), ".*".into());
-        array_vars.add("var1".into(), "VAR1".into());
-        let mut env_file = Env::new();
-        env_file.add("VAR1", "VALUE1");
-        env_file.add("VAR2", "VALUE2");
-
-        let vars = generate_vars_last(&env_file, &array_vars).unwrap();
-        assert_eq!(vars.len(), 2);
     }
 }

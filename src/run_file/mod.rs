@@ -2,10 +2,7 @@ mod file;
 mod var;
 
 pub use file::{set_exec_permision, File};
-pub use var::{
-    generate_array_env_var, generate_env_var, generate_env_vars, generate_var_last,
-    generate_vars_last, EnvVar, VarLast,
-};
+pub use var::{generate_array_env_var, generate_env_var, generate_env_vars, EnvVar};
 
 use anyhow::{Context, Result};
 use std::path::PathBuf;
