@@ -182,20 +182,16 @@ impl Setup {
 
     pub fn new_fill(
         local_file: &PathBuf,
-        local_setup: Weak<RefCell<LocalSetupCfg>>,
-        global_project: Weak<RefCell<GlobalProjectCfg>>,
-        global_setup: Weak<RefCell<GlobalProjectSetupCfg>>,
+        local_setup: &Rc<RefCell<LocalSetupCfg>>,
+        global_project: &Rc<RefCell<GlobalProjectCfg>>,
+        global_setup: &Rc<RefCell<GlobalProjectSetupCfg>>,
     ) -> Result<Self> {
-        let rc_local_setup = local_setup.upgrade().context("local set up cfg is empty")?;
-        let rc_global_setup = global_setup
-            .upgrade()
-            .context("global set up cfg is empty")?;
-        if rc_local_setup.borrow().name() == rc_global_setup.borrow().name() {
+        if local_setup.borrow().name() == global_setup.borrow().name() {
             Ok(Self {
                 local_cfg_file: Some(local_file.to_owned()),
-                local_setup,
-                global_project,
-                global_setup,
+                local_setup: Rc::downgrade(local_setup),
+                global_project: Rc::downgrade(global_project),
+                global_setup: Rc::downgrade(global_setup),
             })
         } else {
             Err(anyhow!(

@@ -18,7 +18,6 @@ mod setup;
 
 #[derive(Debug)]
 pub struct Cfg {
-    current_setup: Setup,
     local_cfg: FileCfg<LocalCfg>,
     global_cfg: FileCfg<GlobalCfg>,
 }
@@ -41,7 +40,6 @@ impl Cfg {
             load_or_new_global_cfg(&global_dir).context("fail to load global cfg file")?;
 
         Ok(Self {
-            current_setup: Setup::new(),
             local_cfg,
             global_cfg,
         })
@@ -90,9 +88,9 @@ impl Cfg {
                 {
                     if let Ok(setup) = Setup::new_fill(
                         local_cfg_path,
-                        Rc::downgrade(local_setup),
-                        Rc::downgrade(&global_project),
-                        Rc::downgrade(&global_setup),
+                        &local_setup,
+                        &global_project,
+                        &global_setup,
                     ) {
                         return Some(setup);
                     }
