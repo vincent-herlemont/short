@@ -34,7 +34,6 @@ echo "TEST"
         );
         e.setup();
         e.set_exec_permission(&run_file).unwrap();
-        dbg!(e.tree());
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
@@ -45,5 +44,6 @@ echo "TEST"
         .args(&vec!["-e", "example"])
         .assert()
         .to_string();
+
     println!("{}", r);
 }

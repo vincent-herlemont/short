@@ -9,7 +9,7 @@ pub use local::{Var, Vars};
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
 use std::path::PathBuf;
-use std::rc::Rc;
+
 
 mod file;
 mod global;
@@ -31,7 +31,6 @@ impl Cfg {
 
     pub fn create_local(global_dir: PathBuf, local_dir: PathBuf) -> Result<Self> {
         let local_cfg = new_local_cfg(&local_dir).context("fail to create local cfg file")?;
-        dbg!(&local_cfg);
         Cfg::new(global_dir, local_cfg)
     }
 

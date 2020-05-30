@@ -3,7 +3,7 @@ use crate::cfg::SetupsCfg;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 use std::rc::Rc;
 
 type SetupName = String;

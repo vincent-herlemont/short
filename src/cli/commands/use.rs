@@ -1,7 +1,7 @@
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::get_settings;
 use crate::cli::terminal::message::success;
-use crate::run_file::run as run_file;
+
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 
