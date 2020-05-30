@@ -11,8 +11,6 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
-mod find;
-
 #[derive(Debug)]
 pub struct FileCfg<C>
 where
