@@ -161,6 +161,8 @@ fn run() -> Result<()> {
         commands::rename(&args)?;
     } else if let Some(args) = app.subcommand_matches("use") {
         commands::r#use(&args)?;
+    } else if let Some(_) = app.subcommand_matches("show") {
+        commands::show()?;
     }
 
     Ok(())

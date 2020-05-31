@@ -128,7 +128,7 @@ It's store configuration that not allowed in local configuration the path of pri
 
 ```yaml
 projects:
-  - dir: "/home/perichon/project/my_project"
+  - file: "/home/perichon/project/my_project/short.yaml"
     setups:
       - name: 'setup_1'
         private_env_dir: "/home/perichon/private_envs/"
