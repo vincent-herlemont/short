@@ -1,4 +1,4 @@
-use crate::cfg::global::{GlobalProjectCfg, GlobalProjectSetupCfg};
+use crate::cfg::global::{GlobalProjectSetupCfg};
 use crate::cfg::LocalSetupCfg;
 use crate::env_file;
 use crate::env_file::{path_from_env_name, Env};
@@ -50,7 +50,6 @@ pub trait SetupCfg {
 pub struct Setup {
     local_cfg_file: Option<PathBuf>,
     local_setup: Weak<RefCell<LocalSetupCfg>>,
-    global_project: Weak<RefCell<GlobalProjectCfg>>,
     global_setup: Weak<RefCell<GlobalProjectSetupCfg>>,
 }
 
@@ -59,7 +58,6 @@ impl Setup {
         Self {
             local_cfg_file: None,
             local_setup: Weak::default(),
-            global_project: Weak::default(),
             global_setup: Weak::default(),
         }
     }
@@ -183,14 +181,12 @@ impl Setup {
     pub fn new_fill(
         local_file: &PathBuf,
         local_setup: &Rc<RefCell<LocalSetupCfg>>,
-        global_project: &Rc<RefCell<GlobalProjectCfg>>,
         global_setup: &Rc<RefCell<GlobalProjectSetupCfg>>,
     ) -> Result<Self> {
         if local_setup.borrow().name() == global_setup.borrow().name() {
             Ok(Self {
                 local_cfg_file: Some(local_file.to_owned()),
                 local_setup: Rc::downgrade(local_setup),
-                global_project: Rc::downgrade(global_project),
                 global_setup: Rc::downgrade(global_setup),
             })
         } else {
@@ -202,10 +198,6 @@ impl Setup {
 
     pub fn local_setup(&self) -> Option<Rc<RefCell<LocalSetupCfg>>> {
         self.local_setup.upgrade()
-    }
-
-    pub fn global_project(&self) -> Option<Rc<RefCell<GlobalProjectCfg>>> {
-        self.global_project.upgrade()
     }
 
     pub fn global_setup(&self) -> Option<Rc<RefCell<GlobalProjectSetupCfg>>> {

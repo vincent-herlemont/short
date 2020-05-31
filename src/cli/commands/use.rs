@@ -24,7 +24,7 @@ pub fn r#use(app: &ArgMatches) -> Result<()> {
     }
 
     {
-        let global_project = setup.global_project().unwrap();
+        let global_project = cfg.current_project()?;
         let mut global_project = global_project.borrow_mut();
         global_project.set_current_setup_name(setup_name.to_owned());
         global_project.set_current_env_name(env.to_owned());

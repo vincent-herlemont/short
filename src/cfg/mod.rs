@@ -1,4 +1,5 @@
 use crate::cfg::file::{load_local_cfg, load_or_new_global_cfg, new_local_cfg, FileCfg};
+use crate::cfg::global::GlobalProjectCfg;
 use crate::cfg::setup::Setup;
 use anyhow::{Context, Result};
 pub use global::GlobalCfg;
@@ -8,8 +9,9 @@ pub use local::{ArrayVar, ArrayVars};
 pub use local::{Var, Vars};
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
+use std::cell::RefCell;
 use std::path::PathBuf;
-
+use std::rc::Rc;
 
 mod file;
 mod global;
@@ -66,12 +68,19 @@ impl Cfg {
     /**
      * Local cfg and Global cfg must be synchronised before.
      **/
-    pub fn current_setups(&self) -> Result<Vec<Setup>> {
+    pub fn current_project(&self) -> Result<Rc<RefCell<GlobalProjectCfg>>> {
         let local_cfg_file = self.local_cfg.file()?;
         let global_cfg = self.global_cfg.borrow();
-        let global_project = global_cfg
+        global_cfg
             .get_project_by_file(local_cfg_file)
-            .context(format!("fail to get project {:?}", local_cfg_file))?;
+            .context(format!("fail to get project {:?}", local_cfg_file))
+    }
+
+    /**
+     * Local cfg and Global cfg must be synchronised before.
+     **/
+    pub fn current_setups(&self) -> Result<Vec<Setup>> {
+        let global_project = self.current_project()?;
 
         let local_setups = self.local_cfg.borrow().get_setups();
 
@@ -85,12 +94,8 @@ impl Cfg {
                     .borrow()
                     .get_setup(local_setup.borrow().name())
                 {
-                    if let Ok(setup) = Setup::new_fill(
-                        local_cfg_path,
-                        &local_setup,
-                        &global_project,
-                        &global_setup,
-                    ) {
+                    if let Ok(setup) = Setup::new_fill(local_cfg_path, &local_setup, &global_setup)
+                    {
                         return Some(setup);
                     }
                 }
