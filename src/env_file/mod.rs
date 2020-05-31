@@ -217,12 +217,12 @@ impl Env {
         self.entries.append(&mut vec![Entry::Empty]);
     }
 
-    pub fn from_env_name<P: AsRef<Path>>(path: P, env_name: &String) -> Result<Self> {
+    pub fn from_env_name_reader<P: AsRef<Path>>(path: P, env_name: &String) -> Result<Self> {
         let file = path_from_env_name(path, env_name);
-        Self::from_file(file)
+        Self::from_file_reader(file)
     }
 
-    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
+    pub fn from_file_reader<P: AsRef<Path>>(path: P) -> Result<Self> {
         let path = path.as_ref().to_path_buf();
         let file = OpenOptions::new().read(true).open(&path)?;
         let mut buf_reader = BufReader::new(file);
@@ -288,6 +288,15 @@ impl Env {
     }
 }
 
+impl From<PathBuf> for Env {
+    fn from(file: PathBuf) -> Self {
+        Self {
+            file: Some(file.clone()),
+            entries: vec![],
+        }
+    }
+}
+
 pub fn path_from_env_name<P: AsRef<Path>>(path: P, env_name: &String) -> PathBuf {
     path.as_ref()
         .to_path_buf()
@@ -320,6 +329,7 @@ impl<'a> Iterator for EnvIterator<'a> {
 mod tests {
     use crate::env_file::Env;
     use std::io::Cursor;
+    use std::path::PathBuf;
 
     #[test]
     fn env_iterator() {
@@ -345,6 +355,14 @@ mod tests {
         }
 
         assert!(iter.next().is_none());
+    }
+
+    #[test]
+    fn name_from() {
+        let file = PathBuf::from("/test-env");
+        let env: Env = file.into();
+        let file_name = env.file_name().unwrap();
+        assert_eq!(file_name, "test-env");
     }
 
     #[test]

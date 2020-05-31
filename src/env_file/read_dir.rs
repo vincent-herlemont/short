@@ -22,7 +22,7 @@ pub fn read_dir(dir: &PathBuf) -> Vec<Result<Env>> {
                     continue;
                 }
 
-                let env = Env::from_file(entry.path());
+                let env = Env::from_file_reader(entry.path());
                 envs.append(&mut vec![env]);
             }
         }

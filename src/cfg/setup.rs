@@ -1,4 +1,4 @@
-use crate::cfg::global::{GlobalProjectSetupCfg};
+use crate::cfg::global::GlobalProjectSetupCfg;
 use crate::cfg::LocalSetupCfg;
 use crate::env_file;
 use crate::env_file::{path_from_env_name, Env};
@@ -86,8 +86,8 @@ impl Setup {
         let msg_err = |env_file: &PathBuf| format!("fail to parse {} {:?}", env_name, env_file);
 
         match (self.envs_private_dir(), self.envs_public_dir()) {
-            (Some(dir), _) => Env::from_env_name(&dir, env_name).context(msg_err(&dir)),
-            (_, Some(dir)) => Env::from_env_name(&dir, env_name).context(msg_err(&dir)),
+            (Some(dir), _) => Env::from_env_name_reader(&dir, env_name).context(msg_err(&dir)),
+            (_, Some(dir)) => Env::from_env_name_reader(&dir, env_name).context(msg_err(&dir)),
             _ => Err(anyhow!("env {} not found", env_name)),
         }
     }
