@@ -1,6 +1,6 @@
 use cli_integration_test::IntegrationTestEnvironment;
 use predicates::prelude::Predicate;
-use predicates::str;
+
 use predicates::str::contains;
 
 #[test]

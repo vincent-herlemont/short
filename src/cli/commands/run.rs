@@ -14,9 +14,7 @@ pub fn run(app: &ArgMatches) -> Result<()> {
 
     let setup_name = settings.setup()?;
     let env = settings.env()?;
-    let setup = cfg
-        .current_setup(setup_name)?
-        .context(format!("setup {} not found", setup_name))?;
+    let setup = cfg.current_setup(setup_name)?;
 
     let script_file = setup.local_cfg_run_file()?;
     let env = setup.env(&env)?;

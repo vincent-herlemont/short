@@ -2,7 +2,7 @@ use crate::cli::cfg::get_cfg;
 use crate::cli::settings::get_settings;
 use crate::cli::terminal::message::success;
 
-use anyhow::{Context, Result};
+use anyhow::{Result};
 use clap::ArgMatches;
 
 pub fn r#use(app: &ArgMatches) -> Result<()> {
@@ -15,9 +15,7 @@ pub fn r#use(app: &ArgMatches) -> Result<()> {
     let env = settings.env()?;
 
     // Check if setup exist
-    let setup = cfg
-        .current_setup(setup_name)?
-        .context(format!("fail to found setup {:?}", setup_name))?;
+    let setup = cfg.current_setup(setup_name)?;
     // Check if env exist and loadable
     if !setup.env_exist(env) {
         return Err(anyhow!("fail to found env {:?}", env));

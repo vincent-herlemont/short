@@ -15,9 +15,7 @@ pub fn rename(app: &ArgMatches) -> Result<()> {
         .value_of("new_setup_name")
         .context("new setup name can not have no UTF-8 string")?;
 
-    let setup = cfg
-        .current_setup(&last_setup_name.to_string())?
-        .context(format!("fail to found setup \"{}\"", last_setup_name))?;
+    let setup = cfg.current_setup(&last_setup_name.to_string())?;
 
     setup.rename(&new_setup_name.to_string())?;
 

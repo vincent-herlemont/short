@@ -55,7 +55,7 @@ pub fn get_settings(app: &ArgMatches) -> Settings {
 #[cfg(test)]
 mod test {
     use crate::cli::settings::Settings;
-    use anyhow::{Error, Result};
+    
 
     #[test]
     fn settings() {

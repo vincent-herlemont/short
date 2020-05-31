@@ -1,4 +1,5 @@
 use crate::cfg::file::FileCfg;
+use crate::cfg::CfgError;
 use crate::cfg::{LocalCfg, SetupsCfg};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -26,10 +27,18 @@ impl GlobalCfg {
         Self { projects: vec![] }
     }
 
-    pub fn add_project(&mut self, project: GlobalProjectCfg) {
-        if let None = self.get_project_by_file(&project.file()) {
-            self.projects
-                .append(&mut vec![Rc::new(RefCell::new(project))]);
+    pub fn add_project(&mut self, project: GlobalProjectCfg) -> Result<()> {
+        if let Err(err) = self.get_project_by_file(&project.file()) {
+            match err.downcast_ref::<CfgError>() {
+                Some(CfgError::ProjectNotFound(_)) => {
+                    self.projects
+                        .append(&mut vec![Rc::new(RefCell::new(project))]);
+                    Ok(())
+                }
+                _ => Err(err),
+            }
+        } else {
+            bail!(CfgError::ProjectAlreadyAdded(project.file().to_owned()))
         }
     }
 
@@ -43,7 +52,7 @@ impl GlobalCfg {
     pub fn get_project_by_file(
         &self,
         file: &LocalCfgFile,
-    ) -> Option<Rc<RefCell<GlobalProjectCfg>>> {
+    ) -> Result<Rc<RefCell<GlobalProjectCfg>>> {
         self.projects
             .iter()
             .find(|project| {
@@ -51,6 +60,7 @@ impl GlobalCfg {
                 file == project
             })
             .map(|project| Rc::clone(project))
+            .ok_or(CfgError::ProjectNotFound(file.to_owned()).into())
     }
 
     pub fn sync_local_project(
@@ -59,12 +69,11 @@ impl GlobalCfg {
     ) -> Result<Rc<RefCell<GlobalProjectCfg>>> {
         if let Ok(local_path) = file_local_cfg.file() {
             // Upsert global project
-            let global_project = if let Some(global_project) = self.get_project_by_file(local_path)
-            {
+            let global_project = if let Ok(global_project) = self.get_project_by_file(local_path) {
                 global_project
             } else {
                 let global_project = GlobalProjectCfg::new(local_path)?;
-                self.add_project(global_project);
+                self.add_project(global_project)?;
                 self.get_project_by_file(local_path).unwrap()
             };
 
@@ -98,8 +107,10 @@ mod tests {
         let mut global_cfg = GlobalCfg::new();
 
         // Add project to global conf
-        global_cfg.add_project(project_cfg);
-        global_cfg.add_project(GlobalProjectCfg::new(&path).unwrap()); // Ensure to remove duplicate project
+        global_cfg.add_project(project_cfg).unwrap();
+        global_cfg
+            .add_project(GlobalProjectCfg::new(&path).unwrap())
+            .unwrap_err(); // Ensure to remove duplicate project
         assert!(global_cfg.projects.iter().count().eq(&1));
 
         let change_path: PathBuf = "/project_1/short.yml".into();

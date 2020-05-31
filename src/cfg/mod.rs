@@ -2,6 +2,7 @@ use crate::cfg::file::{load_local_cfg, load_or_new_global_cfg, new_local_cfg, Fi
 use crate::cfg::global::GlobalProjectCfg;
 use crate::cfg::setup::Setup;
 use anyhow::{Context, Result};
+pub use error::CfgError;
 pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
@@ -13,6 +14,7 @@ use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+mod error;
 mod file;
 mod global;
 mod local;
@@ -106,13 +108,13 @@ impl Cfg {
         Ok(setups)
     }
 
-    pub fn current_setup(&self, name: &String) -> Result<Option<Setup>> {
+    pub fn current_setup(&self, name: &String) -> Result<Setup> {
         for setup in self.current_setups()? {
             if setup.name()? == *name {
-                return Ok(Some(setup));
+                return Ok(setup);
             }
         }
-        Ok(None)
+        bail!(CfgError::SetupNotFound(name.to_owned()))
     }
 }
 
@@ -225,7 +227,7 @@ projects:
 
         e.setup();
         let cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
-        let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap().unwrap();
+        let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap();
         setup_1
             .global_setup()
             .unwrap()
@@ -316,7 +318,7 @@ ENV=dev
         e.setup();
 
         let cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
-        let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap().unwrap();
+        let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap();
         let env_public = setup_1.envs_public();
         assert!(env_public.iter().count().eq(&1));
         let env_private = setup_1.envs_private();
@@ -376,7 +378,6 @@ setups:
         let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         cfg.sync_local_to_global().unwrap();
         let setup = cfg.current_setup(&"setup_1".into()).unwrap();
-        let setup = setup.unwrap();
 
         let mut runtime = Builder::new()
             .basic_scheduler()
