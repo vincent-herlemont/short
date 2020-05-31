@@ -32,8 +32,6 @@ pub fn r#use(app: &ArgMatches) -> Result<()> {
 
     cfg.save()?;
 
-    dbg!(&setup_name, &env);
-
     success(format!("your current setup is {:?}:{:?}", setup_name, env).as_str());
 
     Ok(())
