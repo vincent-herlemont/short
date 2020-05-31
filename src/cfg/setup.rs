@@ -1,9 +1,11 @@
+use crate::cfg::error::CfgError;
 use crate::cfg::global::GlobalProjectSetupCfg;
 use crate::cfg::LocalSetupCfg;
 use crate::env_file;
 use crate::env_file::{path_from_env_name, Env};
 use anyhow::Context;
 use anyhow::Result;
+use futures::future::err;
 use serde::export::fmt::Debug;
 use serde::export::Formatter;
 use std::cell::RefCell;
@@ -86,16 +88,16 @@ impl Setup {
         let msg_err = |env_file: &PathBuf| format!("fail to parse {} {:?}", env_name, env_file);
 
         match (self.envs_private_dir(), self.envs_public_dir()) {
-            (Some(dir), _) => Env::from_env_name_reader(&dir, env_name).context(msg_err(&dir)),
-            (_, Some(dir)) => Env::from_env_name_reader(&dir, env_name).context(msg_err(&dir)),
-            _ => Err(anyhow!("env {} not found", env_name)),
+            (Ok(dir), _) => Env::from_env_name_reader(&dir, env_name).context(msg_err(&dir)),
+            (_, Ok(dir)) => Env::from_env_name_reader(&dir, env_name).context(msg_err(&dir)),
+            (_, Err(err)) => Err(err),
         }
     }
 
     pub fn env_exist(&self, env_name: &String) -> bool {
         match (self.envs_private_dir(), self.envs_public_dir()) {
-            (Some(dir), _) => path_from_env_name(&dir, env_name).exists(),
-            (_, Some(dir)) => path_from_env_name(&dir, env_name).exists(),
+            (Ok(dir), _) => path_from_env_name(&dir, env_name).exists(),
+            (_, Ok(dir)) => path_from_env_name(&dir, env_name).exists(),
             _ => false,
         }
     }
@@ -107,18 +109,18 @@ impl Setup {
         env
     }
 
-    fn envs_public_dir(&self) -> Option<PathBuf> {
+    fn envs_public_dir(&self) -> Result<PathBuf> {
         if let (Some(local_setup), Some(file)) = (&self.local_setup(), &self.local_cfg_file) {
             if let Some(root_dir) = file.parent() {
                 let local_setup = local_setup.borrow();
-                return Some(root_dir.join(local_setup.public_env_dir()));
+                return Ok(root_dir.join(local_setup.public_env_dir()));
             }
         }
-        None
+        bail!(CfgError::PublicEnvDirNotFound(self.name()?))
     }
 
     pub fn envs_public(&self) -> Vec<Result<Env>> {
-        if let Some(abs_path) = self.envs_public_dir() {
+        if let Ok(abs_path) = self.envs_public_dir() {
             let env = env_file::read_dir(&abs_path);
             return env
                 .into_iter()
@@ -128,17 +130,17 @@ impl Setup {
         vec![]
     }
 
-    fn envs_private_dir(&self) -> Option<PathBuf> {
+    fn envs_private_dir(&self) -> Result<PathBuf> {
         if let Some(global_setup) = self.global_setup() {
             if let Ok(dir) = global_setup.borrow().private_env_dir() {
-                return Some(dir.clone());
+                return Ok(dir.clone());
             }
         }
-        None
+        bail!(CfgError::PrivateEnvDirNotFound(self.name()?))
     }
 
     pub fn envs_private(&self) -> Vec<Result<Env>> {
-        if let Some(global_setup) = self.envs_private_dir() {
+        if let Ok(global_setup) = self.envs_private_dir() {
             let env = env_file::read_dir(&global_setup);
             return env
                 .into_iter()
