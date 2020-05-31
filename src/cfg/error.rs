@@ -9,6 +9,8 @@ pub enum CfgError {
     ProjectNotFound(PathBuf),
     #[error("project `{0}` already added")]
     ProjectAlreadyAdded(PathBuf),
+    #[error("private env dir not found for `{0}`")]
+    PrivateEnvDirNotFound(String),
     #[error("unknown cfg error")]
     Unknown,
 }

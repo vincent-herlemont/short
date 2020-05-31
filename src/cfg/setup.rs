@@ -130,7 +130,7 @@ impl Setup {
 
     fn envs_private_dir(&self) -> Option<PathBuf> {
         if let Some(global_setup) = self.global_setup() {
-            if let Some(dir) = global_setup.borrow().private_env_dir() {
+            if let Ok(dir) = global_setup.borrow().private_env_dir() {
                 return Some(dir.clone());
             }
         }

@@ -1,4 +1,5 @@
-use crate::cfg::{LocalSetupCfg, SetupCfg};
+use crate::cfg::{CfgError, LocalSetupCfg, SetupCfg};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -18,8 +19,10 @@ impl GlobalProjectSetupCfg {
         }
     }
 
-    pub fn private_env_dir(&self) -> Option<&PathBuf> {
-        self.private_env_dir.as_ref()
+    pub fn private_env_dir(&self) -> Result<&PathBuf> {
+        self.private_env_dir
+            .as_ref()
+            .ok_or(CfgError::PrivateEnvDirNotFound(self.name.clone()).into())
     }
 
     pub fn set_private_env_dir(&mut self, dir: PathBuf) {

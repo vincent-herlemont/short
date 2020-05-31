@@ -1,7 +1,7 @@
 use crate::cli::cfg::get_cfg;
 
 use crate::cli::terminal::message::success;
-use anyhow::{Context, Result};
+use anyhow::{Result};
 use clap::ArgMatches;
 
 pub fn rename(app: &ArgMatches) -> Result<()> {
