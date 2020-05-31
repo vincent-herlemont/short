@@ -52,7 +52,7 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
                     }
                 };
 
-                let check = if let (Some(setting_env), Some(setting_setup)) =
+                let check = if let (Ok(setting_env), Ok(setting_setup)) =
                     (settings.env(), settings.setup())
                 {
                     if setting_env == &env_name && setting_setup == &setup_name {

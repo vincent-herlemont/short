@@ -1,13 +1,9 @@
-
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::get_settings;
-
 
 use crate::run_file::{generate_env_vars, run as run_file};
 use anyhow::{Context, Result};
 use clap::ArgMatches;
-
-
 
 pub fn run(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
@@ -16,8 +12,8 @@ pub fn run(app: &ArgMatches) -> Result<()> {
 
     let settings = get_settings(app);
 
-    let setup_name = settings.setup().context("setup not found")?;
-    let env = settings.env().context("env not found")?;
+    let setup_name = settings.setup()?;
+    let env = settings.env()?;
     let setup = cfg
         .current_setup(setup_name)?
         .context(format!("setup {} not found", setup_name))?;

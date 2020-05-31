@@ -11,8 +11,8 @@ pub fn r#use(app: &ArgMatches) -> Result<()> {
     let cfg = cfg;
 
     let settings = get_settings(app);
-    let setup_name = settings.setup().context("setup not found")?;
-    let env = settings.env().context("env not found")?;
+    let setup_name = settings.setup()?;
+    let env = settings.env()?;
 
     // Check if setup exist
     let setup = cfg

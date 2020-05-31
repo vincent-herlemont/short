@@ -1,6 +1,7 @@
 use cli_integration_test::IntegrationTestEnvironment;
 use predicates::prelude::Predicate;
 use predicates::str;
+use predicates::str::contains;
 
 #[test]
 fn cmd_ls_settings() {
@@ -11,10 +12,7 @@ fn cmd_ls_settings() {
         .arg("ls")
         .assert()
         .to_string();
-    let isSetup = str::is_match(r"setup None\n").unwrap();
-    assert_eq!(isSetup.eval(r.as_str()), true);
-    let isEnv = str::is_match(r"env None\n").unwrap();
-    assert_eq!(isEnv.eval(r.as_str()), true);
+    assert!(contains("fail to load cfg").eval(&r));
 }
 
 #[test]
