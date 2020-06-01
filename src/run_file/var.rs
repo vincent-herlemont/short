@@ -76,7 +76,7 @@ mod tests {
     #[test]
     fn generate_array_var_test() {
         let array_var: ArrayVar = ("all".into(), ".*".into()).into();
-        let mut env_file = Env::new();
+        let mut env_file = Env::new("".into());
         env_file.add("VAR1", "VALUE1");
         env_file.add("VAR2", "VALUE2");
 
@@ -89,7 +89,7 @@ mod tests {
     fn generate_env_var_test() {
         let var: Var = "VAR1".into();
 
-        let mut env_file = Env::new();
+        let mut env_file = Env::new("".into());
         env_file.add("VAR1", "VALUE1");
         env_file.add("VAR2", "VALUE2");
 

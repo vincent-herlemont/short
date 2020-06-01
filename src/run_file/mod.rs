@@ -62,7 +62,7 @@ mod tests {
         let mut vars = Vars::new();
         vars.add("SETUP_NAME".into());
 
-        let mut env = Env::new();
+        let mut env = Env::new("".into());
         env.add("VAR1", "VALUE1");
         env.add("SETUP_NAME", "VALUE2");
 

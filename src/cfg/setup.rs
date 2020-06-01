@@ -109,7 +109,7 @@ impl Setup {
         env
     }
 
-    fn envs_public_dir(&self) -> Result<PathBuf> {
+    pub fn envs_public_dir(&self) -> Result<PathBuf> {
         if let (Some(local_setup), Some(file)) = (&self.local_setup(), &self.local_cfg_file) {
             if let Some(root_dir) = file.parent() {
                 let local_setup = local_setup.borrow();
@@ -130,7 +130,7 @@ impl Setup {
         vec![]
     }
 
-    fn envs_private_dir(&self) -> Result<PathBuf> {
+    pub fn envs_private_dir(&self) -> Result<PathBuf> {
         if let Some(global_setup) = self.global_setup() {
             if let Ok(dir) = global_setup.borrow().private_env_dir() {
                 return Ok(dir.clone());

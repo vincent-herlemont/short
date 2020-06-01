@@ -1,13 +1,58 @@
+use crate::utils::write_all::write_all_dir;
+use fs_extra;
+pub use read_dir::read_dir;
 use std::fmt::{Display, Formatter};
 use std::fs::OpenOptions;
-use std::io::{BufRead, BufReader, Error, ErrorKind};
+use std::io;
+use std::io::{BufRead, BufReader, ErrorKind};
 use std::path::{Path, PathBuf};
-
-pub use read_dir::read_dir;
+use thiserror::Error;
 
 mod read_dir;
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, EnvError>;
+pub type ResultParse<T> = std::result::Result<T, EnvReaderError>;
+
+#[derive(Error, Debug)]
+pub enum EnvReaderError {
+    #[error("io env reader error")]
+    Io {
+        #[from]
+        source: io::Error,
+    },
+    #[error("space on var name `{0}`")]
+    SpaceOnVarName(String),
+    #[error("unknown env error")]
+    Unknown,
+}
+
+#[derive(Error, Debug)]
+pub enum EnvError {
+    #[error("io env error")]
+    Io {
+        #[from]
+        source: io::Error,
+    },
+    #[error("fs_extra env error")]
+    FsExtra {
+        #[from]
+        source: fs_extra::error::Error,
+    },
+    #[error("fail to parse `{file:?}`")]
+    FailToParse {
+        #[source]
+        source: EnvReaderError,
+        file: PathBuf,
+    },
+    #[error("env var `{0}` not found in `{1:?}`")]
+    EnvVarNotFound(String, PathBuf),
+    #[error("env file `{0:?}` has no file name")]
+    EnvFileHasNoFileName(PathBuf),
+    #[error("env file `{0:?}` has an empty file name")]
+    EnvFileNameIsEmpty(PathBuf),
+    #[error("env file `{0:?}` has incorrect file name : it must begin with `.` char")]
+    EnvFileNameIncorrect(PathBuf),
+}
 
 #[derive(Debug, PartialEq)]
 pub struct Var {
@@ -33,7 +78,7 @@ impl Var {
         }
     }
 
-    fn from_line(line: &String) -> Result<Self> {
+    fn from_line(line: &String) -> ResultParse<Self> {
         let vars: Vec<&str> = line.rsplitn(2, "=").collect();
         match vars.as_slice() {
             [value, name] => {
@@ -43,15 +88,12 @@ impl Var {
                 let name = name.trim_start();
 
                 if name.contains(char::is_whitespace) {
-                    return Err(Error::new(
-                        ErrorKind::InvalidData,
-                        format!("space on name \"{}\"", name),
-                    ));
+                    return Err(EnvReaderError::SpaceOnVarName(name.to_owned()));
                 }
 
                 Ok(Var::new(name, value))
             }
-            _ => Err(Error::new(ErrorKind::InvalidData, "fail to parse env")),
+            _ => Err(EnvReaderError::Unknown),
         }
     }
 
@@ -100,31 +142,9 @@ impl Display for Entry {
     }
 }
 
-impl Entry {
-    fn empty(line: &String) -> Option<Entry> {
-        let line = line.trim_start();
-        let line = line.trim_end();
-        if line.len() > 0 {
-            None
-        } else {
-            Some(Entry::Empty)
-        }
-    }
-
-    fn comment(line: &String) -> Option<Entry> {
-        let comment = Comment::from_line(&line)?;
-        Some(Entry::Comment(comment))
-    }
-
-    fn var(line: &String) -> Result<Entry> {
-        let var = Var::from_line(line)?;
-        Ok(Entry::Var(var))
-    }
-}
-
 #[derive(Debug)]
 pub struct Env {
-    file: Option<PathBuf>,
+    file: PathBuf,
     entries: Vec<Entry>,
 }
 
@@ -138,16 +158,16 @@ impl Display for Env {
 }
 
 impl Env {
-    pub fn new() -> Self {
+    pub fn new(file: PathBuf) -> Self {
         Self {
-            file: None,
+            file,
             entries: vec![],
         }
     }
 
     /// ```
     /// use crate::short::env_file::Env;
-    /// let mut env = Env::new();
+    /// let mut env = Env::new("".into());
     ///
     /// env.add("var1","test");
     ///
@@ -170,7 +190,7 @@ impl Env {
 
     /// ```
     /// use crate::short::env_file::Env;
-    /// let mut env = Env::new();
+    /// let mut env = Env::new("".into());
     ///
     /// env.add("var1","test");
     ///
@@ -192,15 +212,9 @@ impl Env {
                 }
                 None
             })
-            .ok_or(Error::new(
-                ErrorKind::NotFound,
-                format!(
-                    "fail to found env var {} {}",
-                    name.as_ref().to_string(),
-                    self.name()
-                        .as_ref()
-                        .map_or(String::new(), |env| format!(" to env {} ", env))
-                ),
+            .ok_or(EnvError::EnvVarNotFound(
+                name.as_ref().to_owned(),
+                self.file.clone(),
             ))
     }
 
@@ -222,60 +236,66 @@ impl Env {
         Self::from_file_reader(file)
     }
 
-    pub fn from_file_reader<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let path = path.as_ref().to_path_buf();
-        let file = OpenOptions::new().read(true).open(&path)?;
-        let mut buf_reader = BufReader::new(file);
-        let mut env = Env::from_reader(&mut buf_reader)?;
-        env.file = Some(path);
+    pub fn from_file_reader<P: AsRef<Path>>(file: P) -> Result<Self> {
+        let file = file.as_ref().to_path_buf();
+        let concrete_file = OpenOptions::new().read(true).open(&file)?;
+        let mut buf_reader = BufReader::new(concrete_file);
+        let mut env = Env::new(file.clone());
+        env.entries_from_reader(&mut buf_reader)
+            .map_err(|err| EnvError::FailToParse {
+                source: err,
+                file: file,
+            })?;
         Ok(env)
     }
 
-    pub fn from_reader(cursor: &mut dyn BufRead) -> Result<Self> {
-        let mut entries = vec![];
+    pub fn entries_from_reader(&mut self, cursor: &mut dyn BufRead) -> ResultParse<()> {
         for line in cursor.lines() {
-            let line = line?;
-            if let Some(empty) = Entry::empty(&line) {
-                entries.append(&mut vec![empty]);
-            } else if let Some(comment) = Entry::comment(&line) {
-                entries.append(&mut vec![comment]);
+            let line = line.map_err(|err| EnvReaderError::Io { source: err })?;
+            let line = line.trim_start();
+            let line = line.trim_end();
+            if line.len() <= 0 {
+                let empty = Entry::Empty;
+                self.entries.append(&mut vec![empty]);
+            } else if let Some(comment) = Comment::from_line(&line.to_string()) {
+                let comment = Entry::Comment(comment);
+                self.entries.append(&mut vec![comment]);
             } else {
-                let var = Entry::var(&line)?;
-                entries.append(&mut vec![var]);
+                let line = Var::from_line(&line.to_string())?;
+                let var = Entry::Var(line);
+                self.entries.append(&mut vec![var]);
             }
         }
-
-        Ok(Env {
-            file: None,
-            entries,
-        })
+        Ok(())
     }
 
-    pub fn set_path(&mut self, path: &PathBuf) {
-        self.file = Some(path.to_owned());
+    pub fn set_file(&mut self, file: PathBuf) {
+        self.file = file;
+    }
+
+    pub fn file(&self) -> &PathBuf {
+        &self.file
     }
 
     pub fn file_name(&self) -> Result<String> {
-        if let Some(file) = &self.file {
-            if let Some(file_name) = file.file_name() {
-                let file_name_err = || {
-                    Error::new(
-                        ErrorKind::InvalidData,
-                        format!("fail to read file env file name {:?}", file_name),
-                    )
-                };
-                let file_name = file_name.to_str().ok_or(file_name_err())?.to_string();
-                return Ok(file_name);
-            }
+        if let Some(file_name) = self.file.file_name() {
+            let file_name = file_name.to_str().unwrap().to_string();
+            Ok(file_name)
+        } else {
+            Err(EnvError::EnvFileHasNoFileName(self.file.to_owned()))
         }
-        Err(Error::new(
-            ErrorKind::NotFound,
-            format!("env file not found",),
-        ))
     }
 
     pub fn name(&self) -> Result<String> {
         let file_name = self.file_name()?;
+        if file_name
+            .chars()
+            .next()
+            .ok_or(EnvError::EnvFileNameIsEmpty(self.file.clone()))?
+            != '.'
+        {
+            return Err(EnvError::EnvFileNameIncorrect(self.file.clone()));
+        }
         let name = file_name.trim_start_matches('.');
         return Ok(name.to_string());
     }
@@ -286,19 +306,25 @@ impl Env {
             env: &self,
         }
     }
+
+    pub fn save(&self) -> Result<()> {
+        let content = self.to_string();
+        write_all_dir(&self.file, content)?;
+        Ok(())
+    }
 }
 
 impl From<PathBuf> for Env {
     fn from(file: PathBuf) -> Self {
         Self {
-            file: Some(file.clone()),
+            file,
             entries: vec![],
         }
     }
 }
 
-pub fn path_from_env_name<P: AsRef<Path>>(path: P, env_name: &String) -> PathBuf {
-    path.as_ref()
+pub fn path_from_env_name<P: AsRef<Path>>(dir: P, env_name: &String) -> PathBuf {
+    dir.as_ref()
         .to_path_buf()
         .join(PathBuf::from(format!(".{}", env_name)))
 }
@@ -333,7 +359,7 @@ mod tests {
 
     #[test]
     fn env_iterator() {
-        let mut env = Env::new();
+        let mut env = Env::new("".into());
         env.add("name1", "value1");
         env.add_empty_line();
         env.add("name2", "value2");
@@ -367,17 +393,16 @@ mod tests {
 
     #[test]
     fn name() {
-        let mut env = Env::new();
+        let mut env = Env::new("/test-env".into());
         assert!(env.name().is_err());
-        env.set_path(&"/test-env".into());
         let file_name = env.file_name().unwrap();
         assert_eq!(file_name, "test-env");
+        env.set_file("/.test-env".into());
         let name = env.name().unwrap();
         assert_eq!(name, "test-env");
 
         // trim dot
-        let mut env = Env::new();
-        env.set_path(&"test/.test-env".into());
+        let mut env = Env::new("test/.test-env".into());
         let file_name = env.file_name().unwrap();
         assert_eq!(file_name, ".test-env");
         let name = env.name().unwrap();
@@ -386,7 +411,7 @@ mod tests {
 
     #[test]
     fn is_set() {
-        let mut env = Env::new();
+        let mut env = Env::new("".into());
         env.add("name1", "value1");
         let is_set = env.is_set("name1", "value1");
         assert!(is_set);
@@ -397,63 +422,72 @@ mod tests {
     #[test]
     fn empty() {
         let mut content = Cursor::new(br#""#);
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "")
     }
 
     #[test]
     fn once_var() {
         let mut content = Cursor::new(br#"A=a"#);
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "A=a\n")
     }
 
     #[test]
     fn name_end_with_space() {
         let mut content = Cursor::new(br#"A=a "#);
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "A=a\n")
     }
 
     #[test]
     fn name_start_with_space() {
         let mut content = Cursor::new(br#"A= a"#);
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "A=a\n")
     }
 
     #[test]
     fn value_end_with_space() {
         let mut content = Cursor::new(br#"A =a"#);
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "A=a\n");
     }
 
     #[test]
     fn value_start_with_space() {
         let mut content = Cursor::new(br#" A=a"#);
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "A=a\n");
     }
 
     #[test]
     fn value_with_space_inside() {
         let mut content = Cursor::new(br#"A B=a"#);
-        let env = Env::from_reader(&mut content);
-        assert!(env.is_err());
+        let mut env = Env::new("".into());
+        let r = env.entries_from_reader(&mut content);
+        assert!(r.is_err());
     }
 
     #[test]
     fn empty_comment() {
         let mut content = Cursor::new(br#"#"#);
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "#\n")
     }
 
     #[test]
     fn comment() {
         let mut content = Cursor::new(br#"#test"#);
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "#test\n")
     }
 
@@ -463,7 +497,8 @@ mod tests {
             br#"A=a
     B=b"#,
         );
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "A=a\nB=b\n")
     }
 
@@ -474,7 +509,8 @@ mod tests {
 #test
 B=b"#,
         );
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "A=a\n#test\nB=b\n")
     }
 
@@ -485,7 +521,8 @@ B=b"#,
 
 "#,
         );
-        let env = Env::from_reader(&mut content).unwrap();
+        let mut env = Env::new("".into());
+        env.entries_from_reader(&mut content).unwrap();
         assert_eq!(format!("{}", env), "\n\n")
     }
 }

@@ -3,6 +3,7 @@ use anyhow::{Context, Result};
 use clap::ArgMatches;
 use log::*;
 
+#[derive(Debug)]
 pub struct Settings {
     setup: Option<String>,
     env: Option<String>,
