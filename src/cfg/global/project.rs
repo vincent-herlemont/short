@@ -3,7 +3,7 @@ use crate::cfg::SetupsCfg;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use std::rc::Rc;
 
 type SetupName = String;
@@ -129,7 +129,8 @@ mod test {
             let setup_cfg = project_cfg.get_setup(&"setup".into()).unwrap();
             setup_cfg
                 .borrow_mut()
-                .set_private_env_dir("/private_env".into());
+                .set_private_env_dir("/private_env".into())
+                .unwrap();
         }
 
         let global_project_setup_cfg_1 = project_cfg.get_setup(&"setup".into()).unwrap();

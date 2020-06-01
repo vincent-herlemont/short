@@ -232,7 +232,8 @@ projects:
             .global_setup()
             .unwrap()
             .borrow_mut()
-            .set_private_env_dir("/private/env/dir2".into());
+            .set_private_env_dir("/private/env/dir2".into())
+            .unwrap();
 
         cfg.save();
 

@@ -172,6 +172,8 @@ fn run() -> Result<()> {
             commands::env_new(args)?;
         } else if let Some(args) = args.subcommand_matches("dir") {
             commands::env_dir(args)?;
+        } else if let Some(args) = args.subcommand_matches("pdir") {
+            commands::env_pdir(args)?;
         }
     }
 

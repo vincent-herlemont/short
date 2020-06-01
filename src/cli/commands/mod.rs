@@ -1,5 +1,6 @@
 mod env_dir;
 mod env_new;
+mod env_pdir;
 mod init;
 mod ls;
 mod new;
@@ -10,6 +11,7 @@ mod r#use;
 
 pub use env_dir::env_dir;
 pub use env_new::env_new;
+pub use env_pdir::env_pdir;
 pub use init::init;
 pub use ls::ls;
 pub use new::new;
