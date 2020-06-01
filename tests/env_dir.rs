@@ -16,7 +16,6 @@ fn cmd_env_dir() {
         let global_env_dev_file = itew
             .get_abs_path(PathTestEnvironment::GlobalEnvDev)
             .unwrap();
-        let _global_env_dir = global_env_dev_file.parent().unwrap();
 
         let e = itew.e();
         let mut e = e.borrow_mut();
@@ -28,8 +27,22 @@ setups:
     file: run.sh
         "#,
         );
+        e.add_dir(PathBuf::from(PROJECT).join("env"));
         e.setup();
     }
+
+    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("env")
+        .arg("dir")
+        .arg("dir_not_found")
+        .args(vec!["-s", "setup_1"])
+        .assert()
+        .failure()
+        .to_string();
+
+    assert!(contains("not found for `setup_1`").eval(&r));
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
     let r = command
@@ -39,6 +52,7 @@ setups:
         .arg("env")
         .args(vec!["-s", "setup_1"])
         .assert()
+        .success()
         .to_string();
 
     assert!(contains("env directory set to").eval(&r));

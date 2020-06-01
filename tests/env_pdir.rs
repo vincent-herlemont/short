@@ -30,14 +30,17 @@ setups:
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
-    command
+    let r = command
         .env("RUST_LOG", "debug")
         .arg("env")
         .arg("pdir")
         .arg(format!("../dir_not_found"))
         .args(vec!["-s", "setup_1"])
         .assert()
-        .failure();
+        .failure()
+        .to_string();
+
+    contains("not found for `setup_1`").eval(&r);
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
     let r = command
