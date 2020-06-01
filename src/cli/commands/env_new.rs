@@ -1,13 +1,13 @@
-use crate::cfg::LocalSetupCfg;
+
 use crate::cli::cfg::get_cfg;
 use crate::cli::terminal::message::success;
-use crate::run_file::File;
-use anyhow::{Context, Result};
+
+use anyhow::{Result};
 use clap::ArgMatches;
 
 use crate::cli::settings::get_settings;
 use crate::env_file::{path_from_env_name, Env};
-use std::path::PathBuf;
+
 
 pub fn env_new(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;

@@ -5,7 +5,7 @@ use crate::env_file;
 use crate::env_file::{path_from_env_name, Env};
 use anyhow::Context;
 use anyhow::Result;
-use futures::future::err;
+
 use serde::export::fmt::Debug;
 use serde::export::Formatter;
 use std::cell::RefCell;

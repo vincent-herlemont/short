@@ -4,7 +4,7 @@ pub use read_dir::read_dir;
 use std::fmt::{Display, Formatter};
 use std::fs::OpenOptions;
 use std::io;
-use std::io::{BufRead, BufReader, ErrorKind};
+use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use thiserror::Error;
 
@@ -402,7 +402,7 @@ mod tests {
         assert_eq!(name, "test-env");
 
         // trim dot
-        let mut env = Env::new("test/.test-env".into());
+        let env = Env::new("test/.test-env".into());
         let file_name = env.file_name().unwrap();
         assert_eq!(file_name, ".test-env");
         let name = env.name().unwrap();
