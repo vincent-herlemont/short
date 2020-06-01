@@ -26,7 +26,7 @@ declare -A all && eval all=($ALL) # Associative array with all variables.
 declare -p all                    # Print [debug]
 ```
 
-### Create environment :black_square_button:
+### Create new environment :black_square_button:
 Now you have to create an environment to your current set up, in the following example we create an environment named `dev`
 but you can choose the name as you want.
 ```

@@ -113,21 +113,23 @@ fn run() -> Result<()> {
                     SubCommand::with_name("dir")
                         .about("Change env directory")
                         .arg(
-                            Arg::with_name("env_directory")
+                            Arg::with_name("env_dir")
                                 .help("Env directory path, must be inside of your project")
                                 .index(1)
                                 .required(true),
-                        ),
+                        )
+                        .arg(setup_arg.clone()),
                 )
                 .subcommand(
                     SubCommand::with_name("pdir")
                         .about("Add or change private env directory")
                         .arg(
-                            Arg::with_name("private_env_directory")
+                            Arg::with_name("env_dir")
                                 .help("Private env directory path, must be outside of your project")
                                 .index(1)
                                 .required(true),
-                        ),
+                        )
+                        .arg(setup_arg.clone()),
                 ),
         )
         .subcommand(SubCommand::with_name("deploy").about("Deploy your set up"))
@@ -168,6 +170,8 @@ fn run() -> Result<()> {
     } else if let Some(args) = app.subcommand_matches("env") {
         if let Some(args) = args.subcommand_matches("new") {
             commands::env_new(args)?;
+        } else if let Some(args) = args.subcommand_matches("dir") {
+            commands::env_dir(args)?;
         }
     }
 
