@@ -1,9 +1,9 @@
+use crate::cfg::local::setup_vars::Vars;
 use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
+use crate::cfg::CfgError;
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-
-use crate::cfg::local::setup_vars::Vars;
-
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
@@ -80,6 +80,15 @@ impl LocalSetupCfg {
 
     pub fn set_public_env_dir(&mut self, dir: PathBuf) {
         self.public_env_dir = Some(dir)
+    }
+
+    pub fn unset_public_env_dir(&mut self) -> Result<()> {
+        if let None = self.public_env_dir {
+            bail!(CfgError::PublicEnvAlreadyUnset(self.name.clone()))
+        } else {
+            self.public_env_dir = None;
+            Ok(())
+        }
     }
 }
 

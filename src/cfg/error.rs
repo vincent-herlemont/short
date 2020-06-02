@@ -15,6 +15,8 @@ pub enum CfgError {
     PrivateEnvDirRelativePath(PathBuf, String),
     #[error("public env dir not found for `{0}`")]
     PublicEnvDirNotFound(String),
+    #[error("public env dir already unset for `{0}`")]
+    PublicEnvAlreadyUnset(String),
     #[error("unknown cfg error")]
     Unknown,
 }

@@ -4,7 +4,7 @@ extern crate anyhow;
 extern crate log;
 
 use anyhow::Result;
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{App, AppSettings, Arg, ArgGroup, SubCommand};
 use cli::commands;
 use cli::terminal::emoji;
 use short::*;
@@ -111,13 +111,14 @@ fn run() -> Result<()> {
                 )
                 .subcommand(
                     SubCommand::with_name("dir")
-                        .about("Change env directory")
+                        .about("Change env directory, [.] by default.")
                         .arg(
                             Arg::with_name("env_dir")
-                                .help("Env directory path, must be inside of your project")
+                                .help("Env directory path, must be directory child of your project")
                                 .index(1)
-                                .required(true),
                         )
+                        .arg(Arg::with_name("unset").long("unset").help("Unset directory path"))
+                        .group(ArgGroup::with_name("action").args(&["env_dir","unset"]).required(true))
                         .arg(setup_arg.clone()),
                 )
                 .subcommand(
