@@ -127,9 +127,10 @@ fn run() -> Result<()> {
                         .arg(
                             Arg::with_name("env_dir")
                                 .help("Private env directory path, must be outside of your project")
-                                .index(1)
-                                .required(true),
+                                .index(1),
                         )
+                        .arg(Arg::with_name("unset").long("unset").help("Unset private directory path"))
+                        .group(ArgGroup::with_name("action").args(&["env_dir","unset"]).required(true))
                         .arg(setup_arg.clone()),
                 ),
         )

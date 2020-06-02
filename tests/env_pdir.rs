@@ -42,6 +42,8 @@ setups:
 
     contains("not found for `setup_1`").eval(&r);
 
+    // SET
+
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
@@ -61,4 +63,40 @@ setups:
         let r = e.read_file(global_cfg_file);
         assert!(contains("private_env_dir:").count(1).eval(&r));
     }
+
+    // UNSET
+
+    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("env")
+        .arg("pdir")
+        .arg("--unset")
+        .args(vec!["-s", "setup_1"])
+        .assert()
+        .success()
+        .to_string();
+
+    assert!(contains("private env directory unset").eval(&r));
+
+    {
+        let e = itew.e();
+        let e = e.borrow();
+        let global_cfg_file = itew.get_rel_path(PathTestEnvironment::GlobalCfg).unwrap();
+        let r = e.read_file(global_cfg_file);
+        assert!(!contains("private_env_dir:").count(1).eval(&r));
+    }
+
+    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("env")
+        .arg("pdir")
+        .arg("--unset")
+        .args(vec!["-s", "setup_1"])
+        .assert()
+        .failure()
+        .to_string();
+
+    assert!(contains("private env dir already unset for `setup_1`").eval(&r));
 }

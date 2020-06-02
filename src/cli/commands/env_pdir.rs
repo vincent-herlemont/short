@@ -1,6 +1,7 @@
+use crate::cfg::Cfg;
 use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
-use crate::cli::settings::get_settings;
+use crate::cli::settings::{get_settings, Settings};
 use crate::cli::terminal::message::success;
 use anyhow::{Context, Result};
 use clap::ArgMatches;
@@ -12,9 +13,18 @@ pub fn env_pdir(app: &ArgMatches) -> Result<()> {
     cfg.sync_local_to_global()?;
     let cfg = cfg;
 
-    let env_dir: PathBuf = app.value_of("env_dir").unwrap().into();
-
     let settings = get_settings(app);
+
+    if let Some(env_dir) = app.value_of("env_dir") {
+        set(cfg, settings, env_dir.into())
+    } else if app.is_present("unset") {
+        unset(cfg, settings)
+    } else {
+        unreachable!()
+    }
+}
+
+fn set(cfg: Cfg, settings: Settings, env_dir: PathBuf) -> Result<()> {
     let setup_name = settings.setup()?;
     let setup = cfg.current_setup(setup_name)?;
 
@@ -33,6 +43,22 @@ pub fn env_pdir(app: &ArgMatches) -> Result<()> {
     cfg.save()?;
 
     success(format!("private env directory set to `{:?}`", private_env_dir).as_str());
+
+    Ok(())
+}
+
+fn unset(cfg: Cfg, settings: Settings) -> Result<()> {
+    let setup_name = settings.setup()?;
+    let setup = cfg.current_setup(setup_name)?;
+
+    let global_setup = setup.global_setup().unwrap();
+    let mut global_setup = global_setup.borrow_mut();
+    global_setup.unset_private_env_dir()?;
+    drop(global_setup);
+
+    cfg.save();
+
+    success(format!("private env directory unset").as_str());
 
     Ok(())
 }

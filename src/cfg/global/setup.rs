@@ -45,6 +45,15 @@ impl GlobalProjectSetupCfg {
         self.private_env_dir = Some(PrivateEnvDir(dir));
         Ok(())
     }
+
+    pub fn unset_private_env_dir(&mut self) -> Result<()> {
+        if let None = self.private_env_dir {
+            bail!(CfgError::PrivateEnvAlreadyUnset(self.name.clone()))
+        } else {
+            self.private_env_dir = None;
+            Ok(())
+        }
+    }
 }
 
 impl From<&LocalSetupCfg> for GlobalProjectSetupCfg {
