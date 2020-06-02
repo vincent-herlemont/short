@@ -103,7 +103,7 @@ fn run() -> Result<()> {
             SubCommand::with_name("env")
                 .setting(AppSettings::SubcommandRequiredElseHelp)
                 .setting(AppSettings::DeriveDisplayOrder)
-                .about("Manage environment")
+                .about("Manage environment files")
                 .subcommand(
                     SubCommand::with_name("new")
                         .about("Add new environment, create env file \".<environment>\", in public directory default.")
@@ -141,7 +141,6 @@ fn run() -> Result<()> {
                         .arg(setup_arg.clone()),
                 ),
         )
-        .subcommand(SubCommand::with_name("deploy").about("Deploy your set up"))
         .subcommand(SubCommand::with_name("show").about("Show your current set up"))
         .subcommand(
             SubCommand::with_name("use")
