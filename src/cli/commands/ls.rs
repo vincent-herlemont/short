@@ -10,11 +10,12 @@ use term_table::table_cell::TableCell;
 use term_table::{Table, TableStyle};
 
 pub fn ls(app: &ArgMatches) -> Result<()> {
-    let settings = get_settings(&app);
-
     let mut cfg = get_cfg()?;
     cfg.sync_local_to_global()?;
     let cfg = cfg;
+
+    let settings = get_settings(&app, &cfg);
+
     let local_setups = cfg.current_setups()?;
     let mut table = Table::new();
 

@@ -10,7 +10,7 @@ pub fn r#use(app: &ArgMatches) -> Result<()> {
     cfg.sync_local_to_global()?;
     let cfg = cfg;
 
-    let settings = get_settings(app);
+    let settings = get_settings(app, &cfg);
 
     use_workflow(&cfg, &settings)?;
 

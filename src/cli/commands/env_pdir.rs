@@ -3,7 +3,7 @@ use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
 use crate::cli::settings::{get_settings, Settings};
 use crate::cli::terminal::message::success;
-use anyhow::{Result};
+use anyhow::Result;
 use clap::ArgMatches;
 use std::env::current_dir;
 use std::path::PathBuf;
@@ -13,7 +13,7 @@ pub fn env_pdir(app: &ArgMatches) -> Result<()> {
     cfg.sync_local_to_global()?;
     let cfg = cfg;
 
-    let settings = get_settings(app);
+    let settings = get_settings(app, &cfg);
 
     if let Some(env_dir) = app.value_of("env_dir") {
         set(cfg, settings, env_dir.into())

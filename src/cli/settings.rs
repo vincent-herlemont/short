@@ -1,3 +1,4 @@
+use crate::cfg::Cfg;
 use crate::cli::terminal::emoji;
 use anyhow::{Context, Result};
 use clap::ArgMatches;
@@ -60,11 +61,9 @@ impl Display for Settings {
     }
 }
 
-pub fn get_settings(app: &ArgMatches) -> Settings {
-    let mut settings = Settings {
-        setup: None,
-        env: None,
-    };
+pub fn get_settings(app: &ArgMatches, cfg: &Cfg) -> Settings {
+    let mut settings: Settings = cfg.into();
+
     if let Some(setup) = app.value_of_lossy("setup") {
         settings.set_setup(setup.to_string());
         info!("setup {:?}", setup);
@@ -74,6 +73,27 @@ pub fn get_settings(app: &ArgMatches) -> Settings {
         info!("env {:?}", env);
     }
     settings
+}
+
+impl From<&Cfg> for Settings {
+    fn from(cfg: &Cfg) -> Self {
+        if let Ok(current_project) = cfg.current_project() {
+            let mut settings = Settings::new();
+            let current_project = current_project.borrow();
+
+            if let Some(setup_name) = current_project.current_setup_name() {
+                settings.set_setup(setup_name.clone())
+            }
+
+            if let Some(env_name) = current_project.current_env_name() {
+                settings.set_env(env_name.clone());
+            }
+
+            settings
+        } else {
+            Self::new()
+        }
+    }
 }
 
 #[cfg(test)]

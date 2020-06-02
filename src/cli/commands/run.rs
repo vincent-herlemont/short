@@ -10,7 +10,7 @@ pub fn run(app: &ArgMatches) -> Result<()> {
     cfg.sync_local_to_global()?;
     let cfg = cfg;
 
-    let settings = get_settings(app);
+    let settings = get_settings(app, &cfg);
 
     let setup_name = settings.setup()?;
     let env = settings.env()?;

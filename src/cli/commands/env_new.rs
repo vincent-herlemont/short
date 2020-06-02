@@ -5,7 +5,7 @@ use anyhow::Result;
 use clap::ArgMatches;
 
 use crate::cfg::Cfg;
-use crate::cli::settings::{get_settings};
+use crate::cli::settings::get_settings;
 use crate::env_file::{path_from_env_name, Env};
 
 pub fn env_new(app: &ArgMatches) -> Result<()> {
@@ -13,7 +13,7 @@ pub fn env_new(app: &ArgMatches) -> Result<()> {
     cfg.sync_local_to_global()?;
     let cfg = cfg;
 
-    let settings = get_settings(app);
+    let settings = get_settings(app, &cfg);
 
     let setup_name = settings.setup()?;
     let env_name: String = app.value_of("name").unwrap().into();
