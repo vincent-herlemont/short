@@ -35,11 +35,28 @@ setups:
         .env("RUST_LOG", "debug")
         .arg("use")
         .arg("setup_1")
+        .assert()
+        .to_string();
+
+    assert!(contains("your current setup is `setup_1`").eval(&r));
+
+    {
+        let e = itew.e();
+        let e = e.borrow();
+        let content = e.read_file(itew.get_rel_path(PathTestEnvironment::GlobalCfg).unwrap());
+        assert!(contains("setup: setup_1").count(1).eval(&content));
+    }
+
+    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("use")
+        .arg("setup_1")
         .arg("example")
         .assert()
         .to_string();
 
-    assert!(contains("your current setup is").eval(&r));
+    assert!(contains("your current setup is `setup_1:example`").eval(&r));
 
     {
         let e = itew.e();

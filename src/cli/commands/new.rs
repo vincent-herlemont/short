@@ -2,6 +2,7 @@ use super::env_new::env_new_workflow;
 use super::r#use::use_workflow;
 use crate::cfg::LocalSetupCfg;
 use crate::cli::cfg::get_cfg;
+use crate::cli::settings::Settings;
 use crate::cli::terminal::message::success;
 use crate::run_file::File;
 use anyhow::Result;
@@ -34,7 +35,10 @@ pub fn new(app: &ArgMatches) -> Result<()> {
     // Add env
     let env = env_new_workflow(&cfg, &setup_name, &env_name, &private)?;
     // Use new setup and env
-    use_workflow(&cfg, &setup_name, &env_name)?;
+    let mut settings = Settings::new();
+    settings.set_setup(setup_name.clone());
+    settings.set_env(env_name.clone());
+    use_workflow(&cfg, &settings)?;
 
     cfg.save()?;
 

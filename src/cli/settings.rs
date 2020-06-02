@@ -2,6 +2,8 @@ use crate::cli::terminal::emoji;
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 use log::*;
+use serde::export::Formatter;
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct Settings {
@@ -10,6 +12,13 @@ pub struct Settings {
 }
 
 impl Settings {
+    pub fn new() -> Self {
+        Self {
+            setup: None,
+            env: None,
+        }
+    }
+
     pub fn set_setup(&mut self, setup: String) {
         self.setup = Some(setup);
     }
@@ -37,6 +46,20 @@ impl Settings {
     }
 }
 
+impl Display for Settings {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        if let Some(setup) = &self.setup {
+            write!(f, "{}", setup)?;
+            if let Some(env) = &self.env {
+                write!(f, ":{}", env)?;
+            }
+        } else {
+            write!(f, "<unknown_setup>")?;
+        }
+        Ok(())
+    }
+}
+
 pub fn get_settings(app: &ArgMatches) -> Settings {
     let mut settings = Settings {
         setup: None,
@@ -56,7 +79,6 @@ pub fn get_settings(app: &ArgMatches) -> Settings {
 #[cfg(test)]
 mod test {
     use crate::cli::settings::Settings;
-    
 
     #[test]
     fn settings() {

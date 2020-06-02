@@ -156,7 +156,6 @@ fn run() -> Result<()> {
                     Arg::with_name("environment")
                         .help("The environment name to switch in")
                         .index(2)
-                        .required(true),
                 ),
         )
         .subcommand(SubCommand::with_name("ls").about("List set up and environments"))
