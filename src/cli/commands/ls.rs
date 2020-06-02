@@ -1,28 +1,29 @@
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::get_settings;
 use crate::cli::terminal::emoji;
+use crate::cli::terminal::message::message;
 use crate::env_file::Env;
 use anyhow::Result;
 use clap::ArgMatches;
 use log::*;
-use term_table::row::Row;
-use term_table::table_cell::TableCell;
-use term_table::{Table, TableStyle};
+
+fn line(msg: &str, r#use: &bool) {
+    let c = if *r#use {
+        emoji::RIGHT_POINTER.to_string()
+    } else {
+        " ".to_string()
+    };
+    message(format!("{} {}", c, msg).as_str());
+}
 
 pub fn ls(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
     cfg.sync_local_to_global()?;
     let cfg = cfg;
 
-    let settings = get_settings(&app, &cfg);
+    let settings = get_settings(app, &cfg);
 
     let local_setups = cfg.current_setups()?;
-    let mut table = Table::new();
-
-    table.style = TableStyle::blank();
-    table.has_bottom_boarder = false;
-    table.has_top_boarder = false;
-    table.separate_rows = false;
 
     for local_setup in local_setups {
         let setup_name = local_setup.name()?;
@@ -36,14 +37,19 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
                 r.ok()
             })
             .collect();
-
-        if envs.is_empty() {
-            table.add_row(Row::new(vec![
-                TableCell::new(""),
-                TableCell::new("<none>"),
-                TableCell::new(&setup_name),
-            ]));
+        let check = if let (Ok(setting_setup), Err(_)) = (settings.setup(), settings.env()) {
+            if setting_setup == &setup_name {
+                true
+            } else {
+                false
+            }
         } else {
+            false
+        };
+
+        line(&setup_name, &check);
+
+        if !envs.is_empty() {
             for env in envs {
                 let env_name = match env.name() {
                     Ok(env_name) => env_name,
@@ -57,22 +63,19 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
                     (settings.env(), settings.setup())
                 {
                     if setting_env == &env_name && setting_setup == &setup_name {
-                        Some(emoji::CHECK)
+                        true
                     } else {
-                        None
+                        false
                     }
                 } else {
-                    None
+                    false
                 };
 
-                table.add_row(Row::new(vec![
-                    TableCell::new(check.map_or("".to_string(), |s| s.to_string())),
-                    TableCell::new(&env_name),
-                    TableCell::new(&setup_name),
-                ]));
+                dbg!(check);
+
+                line(format!("   {}", &env_name).as_str(), &check);
             }
         }
     }
-    println!("{}", table.render());
     Ok(())
 }

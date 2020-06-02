@@ -157,7 +157,11 @@ fn run() -> Result<()> {
                         .index(2)
                 ),
         )
-        .subcommand(SubCommand::with_name("ls").about("List set up and environments"))
+        .subcommand(SubCommand::with_name("ls")
+            .arg(setup_arg.clone())
+            .arg(environment_arg.clone())
+            .about("List set up and environments")
+        )
         .get_matches();
 
     if let Some(_) = app.subcommand_matches("init") {
@@ -166,8 +170,8 @@ fn run() -> Result<()> {
         commands::new(&args)?;
     } else if let Some(args) = app.subcommand_matches("run") {
         commands::run(&args)?;
-    } else if let Some(_) = app.subcommand_matches("ls") {
-        commands::ls(&app)?;
+    } else if let Some(args) = app.subcommand_matches("ls") {
+        commands::ls(&args)?;
     } else if let Some(args) = app.subcommand_matches("rename") {
         commands::rename(&args)?;
     } else if let Some(args) = app.subcommand_matches("use") {
