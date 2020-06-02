@@ -3,7 +3,7 @@ use anyhow::Result;
 use serde::de::{Unexpected, Visitor};
 use serde::export::Formatter;
 use serde::{Deserialize, Deserializer, Serialize};
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 use std::result::Result as stdResult;
 
 #[derive(Debug, Serialize, Deserialize)]

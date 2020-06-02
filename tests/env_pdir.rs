@@ -1,8 +1,8 @@
-use predicates::prelude::predicate::path::exists;
+
 use predicates::prelude::Predicate;
 use predicates::str::contains;
-use std::path::PathBuf;
-use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment, ENVDIR, PROJECT};
+
+use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment, ENVDIR};
 
 mod utils;
 

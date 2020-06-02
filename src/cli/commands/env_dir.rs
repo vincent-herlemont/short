@@ -3,7 +3,7 @@ use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
 use crate::cli::settings::{get_settings, Settings};
 use crate::cli::terminal::message::success;
-use anyhow::{Context, Result};
+use anyhow::{Result};
 use clap::ArgMatches;
 use std::path::PathBuf;
 

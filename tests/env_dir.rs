@@ -1,8 +1,7 @@
-use predicates::prelude::predicate::path::exists;
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 use std::path::PathBuf;
-use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment, ENVDIR, PROJECT};
+use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment, PROJECT};
 
 mod utils;
 
@@ -70,6 +69,7 @@ setups:
         .arg("--unset")
         .args(vec!["-s", "setup_1"])
         .assert()
+        .success()
         .to_string();
 
     assert!(contains("env directory unset").eval(&r));
@@ -89,6 +89,7 @@ setups:
         .arg("--unset")
         .args(vec!["-s", "setup_1"])
         .assert()
+        .failure()
         .to_string();
 
     assert!(contains("public env dir already unset for `setup_1`").eval(&r));

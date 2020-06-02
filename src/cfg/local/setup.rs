@@ -2,7 +2,7 @@ use crate::cfg::local::setup_vars::Vars;
 use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
 use crate::cfg::CfgError;
-use anyhow::{Context, Result};
+use anyhow::{Result};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::cell::RefCell;
