@@ -55,6 +55,12 @@ fn run() -> Result<()> {
                         .help("Setup name"),
                 )
                 .arg(
+                    Arg::with_name("env_name")
+                        .index(2)
+                        .required(true)
+                        .help("Env Name"),
+                )
+                .arg(
                     Arg::with_name("file")
                         .long("file")
                         .short("f")
@@ -67,7 +73,8 @@ fn run() -> Result<()> {
                         .short("s")
                         .default_value("#!/bin/bash")
                         .help("Interpreter program"),
-                ),
+                )
+                .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory")),
         )
         .subcommand(
             SubCommand::with_name("run")

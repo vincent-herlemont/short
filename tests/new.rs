@@ -1,5 +1,6 @@
 use crate::utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment};
 
+use predicates::prelude::predicate::path::exists;
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 
@@ -25,6 +26,7 @@ setups: []
         .env("RUST_LOG", "debug")
         .arg("new")
         .arg("setup_1")
+        .arg("example")
         .assert()
         .success()
         .to_string();
@@ -34,6 +36,11 @@ setups: []
     {
         let e = itew.e();
         let e = e.borrow_mut();
+        let local_env_example = itew
+            .get_rel_path(PathTestEnvironment::LocalEnvExample)
+            .unwrap();
+        exists().eval(&local_env_example);
+
         let r = e.read_file(itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap());
         assert!(contains("setup_1").eval(&r));
 
