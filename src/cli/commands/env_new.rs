@@ -5,7 +5,7 @@ use anyhow::Result;
 use clap::ArgMatches;
 
 use crate::cfg::Cfg;
-use crate::cli::settings::{get_settings, Settings};
+use crate::cli::settings::{get_settings};
 use crate::env_file::{path_from_env_name, Env};
 
 pub fn env_new(app: &ArgMatches) -> Result<()> {

@@ -1,4 +1,5 @@
 use super::env_new::env_new_workflow;
+use super::r#use::use_workflow;
 use crate::cfg::LocalSetupCfg;
 use crate::cli::cfg::get_cfg;
 use crate::cli::terminal::message::success;
@@ -19,6 +20,7 @@ pub fn new(app: &ArgMatches) -> Result<()> {
 
     let local_setup_cfg = LocalSetupCfg::new(setup_name.clone(), setup_file.clone());
 
+    // New script file
     let mut file = File::new(setup_file.clone(), setup_shebang.to_string());
     {
         let array_vars = local_setup_cfg.array_vars().unwrap_or_default();
@@ -26,12 +28,15 @@ pub fn new(app: &ArgMatches) -> Result<()> {
         file.generate(array_vars.borrow(), vars.borrow())?;
     }
     file.save()?;
-
     cfg.add_local_setup_cfg(local_setup_cfg);
     cfg.sync_local_to_global()?;
-    cfg.save()?;
 
+    // Add env
     let env = env_new_workflow(&cfg, &setup_name, &env_name, &private)?;
+    // Use new setup and env
+    use_workflow(&cfg, &setup_name, &env_name)?;
+
+    cfg.save()?;
 
     success(format!("new setup `{}`:`{}`", setup_name, env.name()?).as_str());
 

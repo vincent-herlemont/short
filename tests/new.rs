@@ -46,5 +46,10 @@ setups: []
 
         let r = e.read_file("project/run.sh");
         assert!(contains("declare -A all && eval all=($ALL)").eval(&r));
+
+        let r = e.read_file(itew.get_rel_path(PathTestEnvironment::GlobalCfg).unwrap());
+        assert!(contains("current").count(1).eval(&r));
+        assert!(contains("setup: setup_1").count(1).eval(&r));
+        assert!(contains("env: example").count(1).eval(&r));
     }
 }
