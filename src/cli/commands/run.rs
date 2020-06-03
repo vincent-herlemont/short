@@ -1,7 +1,7 @@
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::get_settings;
 
-use crate::run_file::{generate_env_vars, run as run_file};
+use crate::run_file::{generate_env_vars, run_as_stream};
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 
@@ -27,10 +27,8 @@ pub fn run(app: &ArgMatches) -> Result<()> {
 
     let env_vars = generate_env_vars(&env, array_vars.borrow(), vars.borrow())?;
 
-    let output = run_file(&script_file, &env_vars)
+    run_as_stream(&script_file, &env_vars)
         .context(format!("fail to run {:?} with env {:?}", script_file, env))?;
-
-    dbg!(output);
 
     Ok(())
 }
