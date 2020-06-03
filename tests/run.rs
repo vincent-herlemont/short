@@ -39,7 +39,7 @@ echo "TEST"
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
-    let mut command = command
+    let command = command
         .env("RUST_LOG", "debug")
         .arg("run")
         .args(&vec!["-s", "setup_1"])

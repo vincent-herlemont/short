@@ -27,9 +27,14 @@ impl From<(Var, EnvValue)> for EnvVar {
 pub fn generate_array_env_var(env: &Env, array_var: &ArrayVar) -> Result<EnvVar> {
     let mut env_value_buf = " ".to_string();
     let re = Regex::new(array_var.pattern().as_str())?;
-    for (env_name, env_value) in env.iter() {
-        if re.is_match(&env_name) {
-            env_value_buf = format!("{}[{}]='{}' ", env_value_buf.clone(), &env_name, &env_value);
+    for var in env.iter() {
+        if re.is_match(var.name()) {
+            env_value_buf = format!(
+                "{}[{}]='{}' ",
+                env_value_buf.clone(),
+                var.name(),
+                var.value()
+            );
         }
     }
     Ok((array_var.var().clone(), env_value_buf).into())
@@ -37,9 +42,9 @@ pub fn generate_array_env_var(env: &Env, array_var: &ArrayVar) -> Result<EnvVar>
 
 pub fn generate_env_var(env: &Env, var: &Var) -> EnvVar {
     env.iter()
-        .find_map(|(env_name, env_value)| {
-            if env_name == var.to_env_var() {
-                Some((var.clone(), env_value).into())
+        .find_map(|env_var| {
+            if env_var.name() == &var.to_env_var() {
+                Some((var.clone(), env_var.value().clone()).into())
             } else {
                 None
             }

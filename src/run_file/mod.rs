@@ -8,7 +8,7 @@ use anyhow::{Context, Result};
 use std::fmt::Write as FmtWrite;
 use std::io;
 use std::io::{BufRead, BufReader, BufWriter, Read, Write};
-use std::ops::Deref;
+
 use std::path::PathBuf;
 use std::process;
 use std::process::{Command, Stdio};
@@ -123,11 +123,11 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
 
 #[cfg(test)]
 mod tests {
-    use crate::cfg::{ArrayVars, Vars};
-    use crate::env_file::Env;
-    use crate::run_file::file::File;
+    
+    
+    
     use crate::run_file::run_as_stream;
-    use crate::run_file::var::generate_env_vars;
+    
     use cli_integration_test::IntegrationTestEnvironment;
     use std::path::PathBuf;
 

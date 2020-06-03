@@ -7,10 +7,10 @@ use anyhow::Result;
 use clap::{App, AppSettings, Arg, ArgGroup, SubCommand};
 use cli::commands;
 use cli::terminal::emoji;
-use short::run_file::run_as_stream;
+
 use short::*;
 use std::env;
-use std::path::PathBuf;
+
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const BIN_NAME: &'static str = "short";

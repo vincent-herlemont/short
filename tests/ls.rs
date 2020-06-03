@@ -2,7 +2,7 @@ use cli_integration_test::IntegrationTestEnvironment;
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 mod utils;
-use crate::utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment};
+use crate::utils::{IntegrationTestEnvironmentWrapper};
 
 #[test]
 fn cmd_ls_settings() {

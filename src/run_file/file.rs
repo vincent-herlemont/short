@@ -97,7 +97,7 @@ mod tests {
     use crate::run_file::file::File;
 
     use cli_integration_test::IntegrationTestEnvironment;
-    use std::path::PathBuf;
+    
 
     #[test]
     fn file_append() {
