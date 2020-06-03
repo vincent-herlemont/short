@@ -1,3 +1,5 @@
+use predicates::prelude::Predicate;
+use predicates::str::contains;
 use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment};
 
 mod utils;
@@ -37,13 +39,11 @@ echo "TEST"
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
-    let r = command
+    let mut command = command
         .env("RUST_LOG", "debug")
         .arg("run")
         .args(&vec!["-s", "setup_1"])
-        .args(&vec!["-e", "example"])
-        .assert()
-        .to_string();
-
-    println!("{}", r);
+        .args(&vec!["-e", "example"]);
+    let r = command.assert().success().to_string();
+    assert!(contains("#> TEST").count(1).eval(&r));
 }
