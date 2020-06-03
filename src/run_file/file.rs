@@ -70,6 +70,12 @@ impl File {
         Ok(())
     }
 
+    pub fn append(&mut self, code: &str) -> Result<()> {
+        writeln!(&mut self.content, "")?;
+        writeln!(&mut self.content, "{}", code)?;
+        Ok(())
+    }
+
     pub fn save(&self) -> Result<()> {
         write_all(&self.path, self.content.as_str())?;
         set_exec_permision(&self.path)?;
@@ -91,6 +97,26 @@ mod tests {
     use crate::run_file::file::File;
 
     use cli_integration_test::IntegrationTestEnvironment;
+    use std::path::PathBuf;
+
+    #[test]
+    fn file_append() {
+        let mut file = File {
+            path: "".into(),
+            content: "".into(),
+            shebang: "".into(),
+        };
+        file.append("code_1").unwrap();
+        file.append("code_2").unwrap();
+        assert_eq!(
+            r#"
+code_1
+
+code_2
+"#,
+            file.content
+        );
+    }
 
     #[test]
     fn file_new() {
@@ -100,7 +126,7 @@ mod tests {
         let mut vars = Vars::new();
         vars.add("SETUP_NAME".into());
 
-        let e = IntegrationTestEnvironment::new("command");
+        let e = IntegrationTestEnvironment::new("file_new");
         e.setup();
         let path_file = e.path().join("run.sh");
 
