@@ -13,7 +13,6 @@ use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
-
 mod comment;
 mod entry;
 mod error;
@@ -111,11 +110,6 @@ impl Env {
         self.entries.append(&mut vec![Entry::Empty]);
     }
 
-    pub fn from_env_name_reader<P: AsRef<Path>>(path: P, env_name: &String) -> Result<Self> {
-        let file = path_from_env_name(path, env_name);
-        Self::from_file_reader(file)
-    }
-
     pub fn from_file_reader<P: AsRef<Path>>(file: P) -> Result<Self> {
         let file = file.as_ref().to_path_buf();
         let concrete_file = OpenOptions::new().read(true).open(&file)?;
@@ -129,8 +123,9 @@ impl Env {
     pub fn entries_from_reader(&mut self, cursor: &mut dyn BufRead) -> ResultParse<()> {
         for line in cursor.lines() {
             let line = line.map_err(|err| EnvReaderError::Io { source: err })?;
-            let line = line.trim_start();
-            let line = line.trim_end();
+            let line = line.trim_start_matches("\u{feff}"); // Ignore BOM
+            let line = line.trim_start(); // Ignore start spaces
+            let line = line.trim_end(); // Ignore end spaces
             if line.len() <= 0 {
                 let empty = Entry::Empty;
                 self.entries.append(&mut vec![empty]);

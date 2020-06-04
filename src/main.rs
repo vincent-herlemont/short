@@ -11,7 +11,6 @@ use cli::terminal::emoji;
 use short::*;
 use std::env;
 
-
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const BIN_NAME: &'static str = "short";
 
@@ -109,14 +108,26 @@ fn run() -> Result<()> {
                 .subcommand(
                     SubCommand::with_name("new")
                         .about("Add new environment, create env file \".<environment>\", in public directory default.")
-                        .arg(
-                            Arg::with_name("name")
+                        .arg(Arg::with_name("name")
                                 .help("Environment name")
                                 .index(1)
                                 .required(true),
                         )
                         .arg(setup_arg.clone())
                         .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory")),
+                )
+                .subcommand(SubCommand::with_name("edit")
+                    .about("Edit env file")
+                    .arg(Arg::with_name("environment")
+                        .help("Environment name")
+                        .index(1)
+                    )
+                    .arg(setup_arg.clone())
+                    .arg(Arg::with_name("editor")
+                        .long("editor")
+                        .short("e")
+                        .takes_value(true)
+                        .help("Editor"))
                 )
                 .subcommand(
                     SubCommand::with_name("dir")
@@ -183,6 +194,8 @@ fn run() -> Result<()> {
     } else if let Some(args) = app.subcommand_matches("env") {
         if let Some(args) = args.subcommand_matches("new") {
             commands::env_new(args)?;
+        } else if let Some(args) = args.subcommand_matches("edit") {
+            commands::env_edit(args)?;
         } else if let Some(args) = args.subcommand_matches("dir") {
             commands::env_dir(args)?;
         } else if let Some(args) = args.subcommand_matches("pdir") {

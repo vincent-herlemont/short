@@ -86,6 +86,12 @@ The example below configure the current set up with the directory `../penvs/` as
 $> short env pdir ../penvs/
 ```
 
+### Edit env
+You can edit env with the following command, that open the default system editor.
+```
+$> short env edit
+```
+
 ### Rename setup :black_square_button:
 
 You can simply rename setup with the following command.

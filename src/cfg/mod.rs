@@ -285,7 +285,7 @@ setups:
             &abs_env_example,
             r#"
 ENV= example
-VAR2= toto
+VAR2= value2
 VAR3= "example"
         "#,
         );

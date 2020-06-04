@@ -71,8 +71,6 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
                     false
                 };
 
-                dbg!(check);
-
                 line(format!("   {}", &env_name).as_str(), &check);
             }
         }

@@ -204,10 +204,10 @@ setups:
         let e = init_env();
         let local_cfg = LocalCfg::new();
 
-        FileCfg::new(&PathBuf::from("toto"), local_cfg).unwrap_err();
+        FileCfg::new(&PathBuf::from("example"), local_cfg).unwrap_err();
 
         let local_cfg = LocalCfg::new();
         let _file_cfg_local =
-            FileCfg::new(&e.path().join(PathBuf::from("toto")), local_cfg).unwrap();
+            FileCfg::new(&e.path().join(PathBuf::from("example")), local_cfg).unwrap();
     }
 }

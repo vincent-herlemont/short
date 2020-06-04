@@ -83,11 +83,15 @@ impl Setup {
     }
 
     pub fn env(&self, env_name: &String) -> Result<Env> {
-        let msg_err = |env_file: &PathBuf| format!("fail to parse {} {:?}", env_name, env_file);
+        let env_file = self.env_file(env_name)?;
+        let env = Env::from_file_reader(env_file)?;
+        Ok(env)
+    }
 
+    pub fn env_file(&self, env_name: &String) -> Result<PathBuf> {
         match (self.envs_private_dir(), self.envs_public_dir()) {
-            (Ok(dir), _) => Env::from_env_name_reader(&dir, env_name).context(msg_err(&dir)),
-            (_, Ok(dir)) => Env::from_env_name_reader(&dir, env_name).context(msg_err(&dir)),
+            (Ok(dir), _) => Ok(path_from_env_name(&dir, env_name)),
+            (_, Ok(dir)) => Ok(path_from_env_name(&dir, env_name)),
             (_, Err(err)) => Err(err),
         }
     }
