@@ -86,10 +86,16 @@ The example below configure the current set up with the directory `../penvs/` as
 $> short env pdir ../penvs/
 ```
 
-### Edit env
+### Edit env file
 You can edit env with the following command, that open the default system editor.
 ```
 $> short env edit
+```
+
+### Sync env files
+That allow to sync all files in order that they have all the same variables and format.
+```
+$> short env sync
 ```
 
 ### Rename setup :black_square_button:

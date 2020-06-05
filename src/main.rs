@@ -116,6 +116,10 @@ fn run() -> Result<()> {
                         .arg(setup_arg.clone())
                         .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory")),
                 )
+                .subcommand(SubCommand::with_name("sync")
+                    .about("Sync env files")
+                    .arg(setup_arg.clone())
+                )
                 .subcommand(SubCommand::with_name("edit")
                     .about("Edit env file")
                     .arg(Arg::with_name("environment")
@@ -195,6 +199,8 @@ fn run() -> Result<()> {
             commands::env_new(args)?;
         } else if let Some(args) = args.subcommand_matches("edit") {
             commands::env_edit(args)?;
+        } else if let Some(args) = args.subcommand_matches("sync") {
+            commands::env_sync(args)?;
         } else if let Some(args) = args.subcommand_matches("dir") {
             commands::env_dir(args)?;
         } else if let Some(args) = args.subcommand_matches("pdir") {

@@ -14,6 +14,7 @@ pub enum PathTestEnvironment {
     LocalCfg,
     GlobalCfg,
     LocalEnvExample,
+    LocalEnvExample2,
     GlobalEnvDev,
     GlobalEnvProd,
     Run,
@@ -34,6 +35,7 @@ impl IntegrationTestEnvironmentWrapper {
         itew.set_local_cfg();
         itew.set_global_cfg();
         itew.set_local_env_example();
+        itew.set_local_env_example2();
         itew.set_global_env_dev();
         itew.set_global_env_pro();
         itew.set_run();
@@ -97,6 +99,13 @@ impl IntegrationTestEnvironmentWrapper {
         self.set_path(
             PathTestEnvironment::LocalEnvExample,
             PathBuf::from(PROJECT).join(".example"),
+        );
+    }
+
+    pub fn set_local_env_example2(&mut self) {
+        self.set_path(
+            PathTestEnvironment::LocalEnvExample2,
+            PathBuf::from(PROJECT).join(".example2"),
         );
     }
 

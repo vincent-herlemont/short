@@ -228,6 +228,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "filetime"
+version = "0.2.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "affc17579b132fc2461adf7c575cc6e8b134ebca52c51f5411388965227dc695"
+dependencies = [
+ "cfg-if",
+ "libc",
+ "redox_syscall",
+ "winapi 0.3.8",
+]
+
+[[package]]
 name = "float-cmp"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -850,6 +862,7 @@ dependencies = [
  "console",
  "dirs",
  "env_logger",
+ "filetime",
  "fs_extra",
  "futures",
  "log",
