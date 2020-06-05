@@ -125,7 +125,6 @@ fn run() -> Result<()> {
                     .arg(setup_arg.clone())
                     .arg(Arg::with_name("editor")
                         .long("editor")
-                        .short("e")
                         .takes_value(true)
                         .help("Editor"))
                 )

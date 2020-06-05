@@ -1,7 +1,6 @@
-
 use predicates::prelude::Predicate;
 use predicates::str::contains;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment};
 
 mod utils;
@@ -47,7 +46,7 @@ echo -e "\nVAR2=VALUE2" >> $1
         .arg("example")
         .args(vec!["-s", "setup_1"])
         .args(vec![
-            "-e",
+            "--editor",
             run_abs_file.to_string_lossy().into_owned().as_str(),
         ])
         .assert()
