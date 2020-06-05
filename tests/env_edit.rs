@@ -52,12 +52,12 @@ echo -e "\nVAR2=VALUE2" >> $1
         .assert()
         .to_string();
 
-    contains("`example` edited").count(1).eval(&r);
+    assert!(contains("`example` edited").count(1).eval(&r));
 
     {
         let e = itew.e();
         let e = e.borrow_mut();
         let r = e.read_file(local_env_example);
-        contains("VAR2=VALUE2").count(1).eval(&r);
+        assert!(contains("VAR2=VALUE2").count(1).eval(&r));
     }
 }
