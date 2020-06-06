@@ -1,4 +1,5 @@
 pub use crate::env_file::comment::Comment;
+pub use crate::env_file::diff::EnvDiffController;
 pub use crate::env_file::error::{EnvError, EnvReaderError};
 pub use crate::env_file::var::Var;
 
@@ -14,16 +15,18 @@ use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
 mod comment;
+mod diff;
 mod entry;
 mod error;
 mod iter;
 mod read_dir;
+mod sync;
 mod var;
 
 pub type Result<T> = std::result::Result<T, EnvError>;
 pub type ResultParse<T> = std::result::Result<T, EnvReaderError>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Env {
     file: PathBuf,
     entries: Vec<Entry>,
@@ -181,6 +184,13 @@ impl Env {
         write_all_dir(&self.file, content)?;
         Ok(())
     }
+
+    pub fn copy(&self, file: PathBuf) -> Self {
+        Self {
+            file,
+            entries: self.entries.clone(),
+        }
+    }
 }
 
 impl From<PathBuf> for Env {
@@ -228,6 +238,17 @@ mod tests {
         assert_eq!(file_name, ".test-env");
         let name = env.name().unwrap();
         assert_eq!(name, "test-env");
+    }
+
+    #[test]
+    fn copy() {
+        let mut env = Env::new(".file1".into());
+        env.add("name1", "value1");
+        let env_copy = env.copy(".file2".into());
+        assert_eq!(env.name().unwrap(), "file1");
+        assert_eq!(env_copy.name().unwrap(), "file2");
+        let name1 = env_copy.get("name1").unwrap();
+        assert_eq!(name1.value(), "value1");
     }
 
     #[test]

@@ -1,10 +1,16 @@
 use crate::env_file::{EnvReaderError, ResultParse};
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Eq)]
 pub struct Var {
     name: String,
     value: String,
+}
+
+impl PartialEq<Var> for Var {
+    fn eq(&self, var: &Var) -> bool {
+        self.name == var.name
+    }
 }
 
 impl Display for Var {
@@ -54,5 +60,9 @@ impl Var {
 
     pub fn value(&self) -> &String {
         &self.value
+    }
+
+    pub fn set_value(&mut self, value: &str) {
+        self.value = value.to_string();
     }
 }

@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Comment {
     value: String,
 }
