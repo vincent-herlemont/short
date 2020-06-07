@@ -1,16 +1,18 @@
 use crate::cli::cfg::get_cfg;
-use crate::cli::error::CliError;
+
 use crate::cli::settings::get_settings;
+use crate::cli::terminal::confirm::{confirm, EnumConfirm};
 use crate::cli::terminal::message::success;
+use crate::env_file::{Env, EnvDiffController};
 use anyhow::{Context, Result};
 use clap::ArgMatches;
-use std::env;
-use std::fs;
-
-use crate::env_file::{Env, EnvDiffController};
 use filetime::FileTime;
 use std::borrow::Cow;
-use std::process::Command;
+
+use std::fs;
+
+
+enum_confirm!(UpdateEnum, y, n);
 
 fn last_modification_time(env: &Env) -> FileTime {
     let file = env.file();
@@ -27,7 +29,7 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
 
     let setup = cfg.current_setup(settings.setup()?)?;
     let envs = setup.envs();
-    let mut envs: Vec<_> = envs.into_iter().filter_map(|r| r.ok()).collect();
+    let envs: Vec<_> = envs.into_iter().filter_map(|r| r.ok()).collect();
 
     let recent_env = envs
         .iter()
@@ -45,12 +47,34 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
         });
     let recent_env = recent_env.context("fail to found the most recent env file")?;
 
-    let controller = EnvDiffController::new(|var| Cow::Borrowed(var), |_| true);
-
     for mut env in envs {
         if env.file() == recent_env.file() {
             continue;
         }
+        let env_name = env.name()?;
+
+        let controller = EnvDiffController::new(
+            move |var| {
+                let stdin = std::io::stdin();
+                let input = stdin.lock();
+                let output = std::io::stdout();
+                confirm(
+                    input,
+                    output,
+                    format!(
+                        "[{}] Do you want update value of `{}`=`{}` ?",
+                        env_name,
+                        var.name(),
+                        var.value()
+                    )
+                    .as_str(),
+                    UpdateEnum::to_vec(),
+                )
+                .unwrap();
+                Cow::Borrowed(var)
+            },
+            |_| true,
+        );
 
         env.update_by_diff(&recent_env, &controller);
         env.save().unwrap();

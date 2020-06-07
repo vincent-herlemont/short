@@ -1,15 +1,15 @@
-use std::fs;
-use std::path::PathBuf;
+
+
 
 use crate::env_file::Env;
-use crate::env_file::Result;
 
-pub fn sync(envs: &Vec<Env>) {}
+
+pub fn sync(_envs: &Vec<Env>) {}
 
 #[cfg(test)]
 mod tests {
     use crate::env_file::Env;
-    use fs_extra::dir::DirEntryAttr::Path;
+    
     use std::path::PathBuf;
 
     #[test]
@@ -19,6 +19,6 @@ mod tests {
         let mut e2 = e1.copy(PathBuf::new());
         e2.add("var2", "value2");
 
-        let v = vec![e1, e2];
+        let _v = vec![e1, e2];
     }
 }

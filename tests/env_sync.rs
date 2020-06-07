@@ -1,7 +1,7 @@
 use predicates::prelude::Predicate;
-use predicates::prelude::*;
+
 use predicates::str::contains;
-use std::path::PathBuf;
+
 use std::thread;
 use std::time::Duration;
 use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment};

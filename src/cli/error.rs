@@ -1,4 +1,3 @@
-
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -10,4 +9,6 @@ pub enum CliError {
     EnvDirNotFound(PathBuf, SetupName, #[source] std::io::Error),
     #[error("open editor fail")]
     OpenEditorFail,
+    #[error("bad input `{0}` try again")]
+    ConfirmBadInputTryAgain(String),
 }
