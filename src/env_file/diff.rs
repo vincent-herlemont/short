@@ -1,19 +1,18 @@
 use crate::env_file::entry::Entry;
 use crate::env_file::{Env, Var};
+use anyhow::Result;
 use std::borrow::Cow;
-
-
 
 pub struct EnvDiffController {
     update_var_fn: Box<dyn Fn(&mut Var) -> Cow<Var>>,
-    delete_var_fn: Box<dyn Fn(&Var) -> bool>,
+    delete_var_fn: Box<dyn Fn(&Var) -> Result<bool>>,
 }
 
 impl EnvDiffController {
     pub fn new<UVF: 'static, DVF: 'static>(update_var: UVF, delete_var: DVF) -> Self
     where
         UVF: Fn(&mut Var) -> Cow<Var>,
-        DVF: Fn(&Var) -> bool,
+        DVF: Fn(&Var) -> Result<bool>,
     {
         Self {
             update_var_fn: Box::new(update_var),
@@ -25,7 +24,7 @@ impl EnvDiffController {
         (&self.update_var_fn)(var)
     }
 
-    fn delete_var(&self, var: &Var) -> bool {
+    fn delete_var(&self, var: &Var) -> Result<bool> {
         (&self.delete_var_fn)(var)
     }
 }
@@ -33,7 +32,7 @@ impl EnvDiffController {
 type IndexEntry = usize;
 
 impl Env {
-    pub fn update_by_diff(&mut self, source_env: &Env, env_diff: &EnvDiffController) {
+    pub fn update_by_diff(&mut self, source_env: &Env, env_diff: &EnvDiffController) -> Result<()> {
         let mut source_entries = source_env.entries.clone();
         // Prevent delete vars.
         // Append target entry to source entry if delete control return false.
@@ -45,7 +44,7 @@ impl Env {
                 .find(|entry| *entry == target_entry)
             {
                 if let Entry::Var(var) = target_entry {
-                    if !env_diff.delete_var(var) {
+                    if !env_diff.delete_var(var)? {
                         source_entries.insert(index, target_entry.clone());
                     }
                 }
@@ -70,6 +69,7 @@ impl Env {
             }
         }
         self.entries = new_entries;
+        Ok(())
     }
 }
 
@@ -77,7 +77,7 @@ impl Env {
 mod tests {
     use crate::env_file::diff::EnvDiffController;
     use crate::env_file::Env;
-    
+
     use std::borrow::Cow;
 
     #[test]
@@ -86,7 +86,7 @@ mod tests {
         env_source.add("name1", "value1");
 
         let mut env_target = Env::new("".into());
-        let controller = EnvDiffController::new(|var| Cow::Borrowed(var), |_var| true);
+        let controller = EnvDiffController::new(|var| Cow::Borrowed(var), |_var| Ok(true));
         env_target.update_by_diff(&env_source, &controller);
 
         let mut env_expected = Env::new("".into());
@@ -105,7 +105,7 @@ mod tests {
                 var.set_value("value1.1");
                 Cow::Borrowed(var)
             },
-            |_var| true,
+            |_var| Ok(true),
         );
         env_target.update_by_diff(&env_source, &controller);
 
@@ -121,7 +121,7 @@ mod tests {
 
         let mut env_target = Env::new("".into());
         env_target.add("name1", "value1.1");
-        let controller = EnvDiffController::new(|v| Cow::Borrowed(v), |_| true);
+        let controller = EnvDiffController::new(|v| Cow::Borrowed(v), |_| Ok(true));
         env_target.update_by_diff(&env_source, &controller);
 
         let mut env_expected = Env::new("".into());
@@ -135,7 +135,7 @@ mod tests {
 
         let mut env_target = Env::new("".into());
         env_target.add("name1", "value1.1");
-        let controller = EnvDiffController::new(|v| Cow::Borrowed(v), |_| true);
+        let controller = EnvDiffController::new(|v| Cow::Borrowed(v), |_| Ok(true));
         env_target.update_by_diff(&env_source, &controller);
 
         let env_expected = Env::new("".into());
@@ -148,7 +148,7 @@ mod tests {
 
         let mut env_target = Env::new("".into());
         env_target.add("name1", "value1.1");
-        let controller = EnvDiffController::new(|v| Cow::Borrowed(v), |_| false);
+        let controller = EnvDiffController::new(|v| Cow::Borrowed(v), |_| Ok(false));
         env_target.update_by_diff(&env_source, &controller);
 
         let mut env_expected = Env::new("".into());

@@ -1,3 +1,4 @@
+
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -11,4 +12,8 @@ pub enum CliError {
     OpenEditorFail,
     #[error("bad input `{0}` try again")]
     ConfirmBadInputTryAgain(String),
+    #[error("you have not allowed to delete var `{0}`:`{1}` in {2}")]
+    DeleteVarNowAllowed(String, String, String),
+    #[error("env must be sync, please change it manually or run \"short env sync\"")]
+    EnvFileMustBeSync,
 }
