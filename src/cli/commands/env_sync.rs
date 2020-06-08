@@ -11,7 +11,6 @@ use std::borrow::Cow;
 
 use std::fs;
 
-
 enum_confirm!(UpdateEnum, y, n);
 
 fn last_modification_time(env: &Env) -> FileTime {
@@ -26,6 +25,8 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
     let cfg = cfg;
 
     let settings = get_settings(app, &cfg);
+    let action_empty = app.is_present("empty");
+    let action_not_change = app.is_present("no_change");
 
     let setup = cfg.current_setup(settings.setup()?)?;
     let envs = setup.envs();
@@ -55,23 +56,50 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
 
         let controller = EnvDiffController::new(
             move |var| {
-                let stdin = std::io::stdin();
-                let input = stdin.lock();
-                let output = std::io::stdout();
-                confirm(
-                    input,
-                    output,
-                    format!(
-                        "[{}] Do you want update value of `{}`=`{}` ?",
-                        env_name,
-                        var.name(),
-                        var.value()
-                    )
-                    .as_str(),
-                    UpdateEnum::to_vec(),
-                )
-                .unwrap();
-                Cow::Borrowed(var)
+                if action_empty {
+                    var.set_value("");
+                    return Cow::Borrowed(var);
+                }
+                if action_not_change {
+                    return Cow::Borrowed(var);
+                }
+
+                let r = loop {
+                    let stdin = std::io::stdin();
+                    let input = stdin.lock();
+                    let output = std::io::stdout();
+                    if let Ok(r) = confirm(
+                        input,
+                        output,
+                        format!(
+                            "Updating `{}`, do you want to change value of `{}`=`{}` ?",
+                            env_name,
+                            var.name(),
+                            var.value()
+                        )
+                        .as_str(),
+                        UpdateEnum::to_vec(),
+                    ) {
+                        break r;
+                    }
+                };
+
+                let new_value = match &r {
+                    UpdateEnum::y => {
+                        println!("new value `{}`=", var.name());
+                        let mut new_value = String::new();
+                        std::io::stdin().read_line(&mut new_value).unwrap();
+                        Some(new_value)
+                    }
+                    _ => None,
+                };
+
+                if let Some(new_value) = new_value {
+                    var.set_value(new_value.as_str());
+                    Cow::Borrowed(var)
+                } else {
+                    Cow::Borrowed(var)
+                }
             },
             |_| true,
         );

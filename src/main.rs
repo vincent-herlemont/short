@@ -3,7 +3,6 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 #[macro_use]
-
 use short::cli::commands;
 use short::cli::terminal::emoji;
 
@@ -119,6 +118,9 @@ fn run() -> Result<()> {
                 .subcommand(SubCommand::with_name("sync")
                     .about("Sync env files")
                     .arg(setup_arg.clone())
+                    .arg(Arg::with_name("empty").long("empty").help("Set new var with an empty value"))
+                    .arg(Arg::with_name("no_change").long("no_change").help("Set new var with the current value"))
+                    .group(ArgGroup::with_name("action").args(&["empty","no_change"]).multiple(false))
                 )
                 .subcommand(SubCommand::with_name("edit")
                     .about("Edit env file")
