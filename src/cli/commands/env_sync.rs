@@ -142,7 +142,12 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
                 if let SyncConfirmEnum::y = r {
                     Ok(true)
                 } else {
-                    Err(CliError::EnvFileMustBeSync.into())
+                    Err(CliError::DeleteVarNowAllowed(
+                        var.name().clone(),
+                        var.value().clone(),
+                        env_name_delete_var.to_string(),
+                    )
+                    .into())
                 }
             },
         );
