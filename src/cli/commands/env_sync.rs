@@ -1,5 +1,5 @@
 use crate::cli::cfg::get_cfg;
-
+use crate::cli::error::CliError;
 use crate::cli::settings::get_settings;
 use crate::cli::terminal::confirm::{confirm, EnumConfirm};
 use crate::cli::terminal::message::success;
@@ -8,10 +8,26 @@ use anyhow::{Context, Result};
 use clap::ArgMatches;
 use filetime::FileTime;
 use std::borrow::Cow;
-
-use crate::cli::error::CliError;
 use std::fs;
 use std::rc::Rc;
+
+pub struct SyncSettings {
+    pub empty: bool,
+    pub not_change: bool,
+    pub delete: bool,
+    pub no_delete: bool,
+}
+
+impl SyncSettings {
+    pub fn new(args: &ArgMatches) -> Self {
+        Self {
+            empty: args.is_present("empty"),
+            not_change: args.is_present("no_change"),
+            delete: args.is_present("delete"),
+            no_delete: args.is_present("no_delete"),
+        }
+    }
+}
 
 enum_confirm!(SyncConfirmEnum, y, n);
 
@@ -27,10 +43,7 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
     let cfg = cfg;
 
     let settings = get_settings(app, &cfg);
-    let action_empty = app.is_present("empty");
-    let action_not_change = app.is_present("no_change");
-    let action_delete = app.is_present("delete");
-    let action_no_delete = app.is_present("no_delete");
+    let sync_settings = SyncSettings::new(app);
 
     let setup = cfg.current_setup(settings.setup()?)?;
     let envs = setup.envs();
@@ -52,6 +65,15 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
         });
     let recent_env = recent_env.context("fail to found the most recent env file")?;
 
+    sync_workflow(recent_env, envs, sync_settings)?;
+
+    success("files synchronized");
+
+    Ok(())
+}
+
+pub fn sync_workflow(recent_env: Env, envs: Vec<Env>, sync_settings: SyncSettings) -> Result<()> {
+    let sync_settings = Rc::new(sync_settings);
     for mut env in envs {
         if env.file() == recent_env.file() {
             continue;
@@ -60,13 +82,16 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
         let env_name_update_var = Rc::clone(&env_name);
         let env_name_delete_var = Rc::clone(&env_name);
 
+        let sync_settings_update_var = Rc::clone(&sync_settings);
+        let sync_settings_delete_var = Rc::clone(&sync_settings);
+
         let controller = EnvDiffController::new(
             move |var| {
-                if action_empty {
+                if sync_settings_update_var.empty {
                     var.set_value("");
                     return Cow::Borrowed(var);
                 }
-                if action_not_change {
+                if sync_settings_update_var.not_change {
                     return Cow::Borrowed(var);
                 }
 
@@ -108,10 +133,10 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
                 }
             },
             move |var| {
-                if action_delete {
+                if sync_settings_delete_var.delete {
                     return Ok(true);
                 }
-                if action_no_delete {
+                if sync_settings_delete_var.no_delete {
                     return Err(CliError::DeleteVarNowAllowed(
                         var.name().clone(),
                         var.value().clone(),
@@ -156,8 +181,6 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
             .context((CliError::EnvFileMustBeSync).to_string())?;
         env.save().unwrap();
     }
-
-    success("files synchronized");
 
     Ok(())
 }
