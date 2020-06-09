@@ -35,6 +35,29 @@ fn run() -> Result<()> {
         .long("dry-run")
         .help("Disable all executions");
 
+    let env_vars = vec![
+        Arg::with_name("empty")
+            .long("empty")
+            .help("Set new vars with an empty value silently"),
+        Arg::with_name("copy")
+            .long("copy")
+            .help("Set new vars and copy the current value silently"),
+        Arg::with_name("delete")
+            .long("delete")
+            .help("Delete vars silently"),
+        Arg::with_name("no_delete")
+            .long("no_delete")
+            .help("Take care to not delete vars, command fail otherwise."),
+    ];
+    let env_group_vars = vec![
+        ArgGroup::with_name("update_action")
+            .args(&["empty", "copy"])
+            .multiple(false),
+        ArgGroup::with_name("delete_action")
+            .args(&["delete", "no_delete"])
+            .multiple(false),
+    ];
+
     let app = App::new(format!("{} short", emoji::PARASOL))
         .version(VERSION)
         .author("Vincent Herlemont <vincentherl@leszeros.com>")
@@ -118,12 +141,8 @@ fn run() -> Result<()> {
                 .subcommand(SubCommand::with_name("sync")
                     .about("Sync env files")
                     .arg(setup_arg.clone())
-                    .arg(Arg::with_name("empty").long("empty").help("Set new vars with an empty value silently"))
-                    .arg(Arg::with_name("copy").long("copy").help("Set new vars and copy the current value silently"))
-                    .arg(Arg::with_name("delete").long("delete").help("Delete vars silently"))
-                    .arg(Arg::with_name("no_delete").long("no_delete").help("Take care to not delete vars, command fail otherwise."))
-                    .group(ArgGroup::with_name("update_action").args(&["empty","copy"]).multiple(false))
-                    .group(ArgGroup::with_name("delete_action").args(&["delete","no_delete"]).multiple(false))
+                    .args(&env_vars)
+                    .groups(&env_group_vars)
                 )
                 .subcommand(SubCommand::with_name("edit")
                     .about("Edit env file")
@@ -136,6 +155,8 @@ fn run() -> Result<()> {
                         .long("editor")
                         .takes_value(true)
                         .help("Editor"))
+                    .args(&env_vars)
+                    .groups(&env_group_vars)
                 )
                 .subcommand(
                     SubCommand::with_name("dir")
