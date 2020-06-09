@@ -136,7 +136,9 @@ fn run() -> Result<()> {
                                 .required(true),
                         )
                         .arg(setup_arg.clone())
-                        .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory")),
+                        .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory"))
+                        .args(&env_vars)
+                        .groups(&env_group_vars)
                 )
                 .subcommand(SubCommand::with_name("sync")
                     .about("Sync env files")

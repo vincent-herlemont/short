@@ -9,17 +9,9 @@ mod utils;
 #[test]
 fn cmd_env_new_public() {
     let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_use");
-
     {
-        let _local_cfg_abs_path = itew.get_abs_path(PathTestEnvironment::LocalCfg).unwrap();
-        let global_env_dev_file = itew
-            .get_abs_path(PathTestEnvironment::GlobalEnvDev)
-            .unwrap();
-        let _global_env_dir = global_env_dev_file.parent().unwrap();
-
         let e = itew.e();
         let mut e = e.borrow_mut();
-        e.add_file(&global_env_dev_file, r#"VAR1=VALUE1"#);
         let local_cfg_file = itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap();
         e.add_file(
             &local_cfg_file,
@@ -62,10 +54,8 @@ fn cmd_env_new_private() {
             .get_abs_path(PathTestEnvironment::GlobalEnvDev)
             .unwrap();
         let global_env_dir = global_env_dev_file.parent().unwrap();
-
         let e = itew.e();
         let mut e = e.borrow_mut();
-        e.add_file(&global_env_dev_file, r#"VAR1=VALUE1"#);
         let local_cfg_file = itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap();
         e.add_file(
             &local_cfg_file,
@@ -113,5 +103,51 @@ setups:
         let e = itew.e();
         let e = e.borrow();
         assert!(exists().eval(&e.path().join(PathBuf::from(ENVDIR).join(".dev"))));
+    }
+}
+
+#[test]
+fn cmd_env_new_public_with_sync() {
+    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_use");
+    let initial_env_file = PathBuf::from(PROJECT).join("env/.initial");
+    let initial_env_content = r#"VAR1=VAR1
+"#;
+    {
+        let e = itew.e();
+        let mut e = e.borrow_mut();
+        let local_cfg_file = itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap();
+        e.add_file(&initial_env_file, initial_env_content);
+        e.add_file(
+            &local_cfg_file,
+            r#"
+setups:
+  - name: setup_1
+    file: run.sh
+    public_env_dir: env
+        "#,
+        );
+        e.setup();
+    }
+
+    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("env")
+        .arg("new")
+        .arg("example")
+        .arg("--copy")
+        .args(vec!["-s", "setup_1"])
+        .assert()
+        .to_string();
+
+    assert!(contains("env `example` created").eval(&r));
+
+    {
+        let e = itew.e();
+        let e = e.borrow();
+        let new_env_file = PathBuf::from(PROJECT).join("env/.example");
+        assert!(exists().eval(&e.path().join(&new_env_file)));
+        let r = e.read_file(&new_env_file);
+        assert_eq!(r, initial_env_content);
     }
 }
