@@ -1,16 +1,15 @@
-pub use crate::env_file::comment::Comment;
-pub use crate::env_file::diff::EnvDiffController;
-pub use crate::env_file::error::{EnvError, EnvReaderError};
-pub use crate::env_file::var::Var;
+pub use comment::Comment;
+pub use diff::EnvDiffController;
+pub use error::{EnvError, EnvReaderError};
+pub use read_dir::read_dir;
+pub use var::Var;
 
 use crate::env_file::entry::Entry;
 use crate::env_file::iter::EnvIterator;
 use crate::utils::write_all::write_all_dir;
 
-pub use read_dir::read_dir;
 use std::fmt::{Display, Formatter};
 use std::fs::OpenOptions;
-
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
@@ -20,6 +19,7 @@ mod entry;
 mod error;
 mod iter;
 mod read_dir;
+mod recent;
 mod sync;
 mod var;
 
