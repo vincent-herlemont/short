@@ -78,7 +78,7 @@ VAR2=VALUE2
 }
 
 #[test]
-fn cmd_env_sync_add_no_change() {
+fn cmd_env_sync_add_copy() {
     let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_use");
     let target_local_env_example = itew
         .get_abs_path(PathTestEnvironment::LocalEnvExample)
@@ -119,7 +119,7 @@ VAR2=VALUE2
         .env("RUST_LOG", "debug")
         .arg("env")
         .arg("sync")
-        .arg("--no_change")
+        .arg("--copy")
         .args(vec!["-s", "setup_1"])
         .assert()
         .to_string();

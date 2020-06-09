@@ -13,7 +13,7 @@ use std::rc::Rc;
 
 pub struct SyncSettings {
     pub empty: bool,
-    pub not_change: bool,
+    pub copy: bool,
     pub delete: bool,
     pub no_delete: bool,
 }
@@ -22,7 +22,7 @@ impl SyncSettings {
     pub fn new(args: &ArgMatches) -> Self {
         Self {
             empty: args.is_present("empty"),
-            not_change: args.is_present("no_change"),
+            copy: args.is_present("copy"),
             delete: args.is_present("delete"),
             no_delete: args.is_present("no_delete"),
         }
@@ -91,7 +91,7 @@ pub fn sync_workflow(recent_env: Env, envs: Vec<Env>, sync_settings: SyncSetting
                     var.set_value("");
                     return Cow::Borrowed(var);
                 }
-                if sync_settings_update_var.not_change {
+                if sync_settings_update_var.copy {
                     return Cow::Borrowed(var);
                 }
 
