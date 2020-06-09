@@ -1,3 +1,4 @@
+use crate::env_file::Env;
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -15,6 +16,8 @@ pub enum CliError {
     DeleteVarNowAllowed(String, String, String),
     #[error("env must be sync, please change it manually or run \"short env sync\"")]
     EnvFileMustBeSync,
-    #[error("env file `0:?` already exist")]
-    EnvFileAlreadyExist(PathBuf),
+    #[error("env file `{0:?}` already exist")]
+    EnvFileAlreadyExist(PathBuf, Env),
+    #[error("Unknown error")]
+    UnknownError(#[from] anyhow::Error),
 }

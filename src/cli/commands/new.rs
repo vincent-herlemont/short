@@ -2,6 +2,8 @@ use super::env_new::env_new_workflow;
 use super::r#use::use_workflow;
 use crate::cfg::LocalSetupCfg;
 use crate::cli::cfg::get_cfg;
+use crate::cli::error::CliError;
+use crate::cli::error::CliError::UnknownError;
 use crate::cli::settings::Settings;
 use crate::cli::terminal::message::success;
 use crate::run_file::File;
@@ -33,7 +35,15 @@ pub fn new(app: &ArgMatches) -> Result<()> {
     cfg.sync_local_to_global()?;
 
     // Add env
-    let env = env_new_workflow(&cfg, &setup_name, &env_name, &private)?;
+    let env = match env_new_workflow(&cfg, &setup_name, &env_name, &private) {
+        Ok(env) => env,
+        Err(err) => match err.downcast::<CliError>() {
+            Ok(CliError::EnvFileAlreadyExist(_, env)) => Ok(env.clone()),
+            Ok(err) => Err(err),
+            Err(err) => Err(UnknownError(err)),
+        }?,
+    };
+
     // Use new setup and env
     let mut settings = Settings::new();
     settings.set_setup(setup_name.clone());

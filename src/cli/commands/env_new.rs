@@ -26,8 +26,6 @@ pub fn env_new(app: &ArgMatches) -> Result<()> {
     let mut envs = setup.envs().into_iter().filter_map(|r| r.ok()).collect();
     let recent_env = Env::recent(&envs);
 
-    dbg!(&recent_env);
-
     let env = env_new_workflow(&cfg, &setup_name, &env_name, &private)?;
     envs.push(env.clone());
 
@@ -56,7 +54,7 @@ pub fn env_new_workflow(
     let env = path_from_env_name(env_dir, &env_name);
     let env: Env = env.into();
     if env.file().exists() {
-        return Err(CliError::EnvFileAlreadyExist(env.file().clone()).into());
+        return Err(CliError::EnvFileAlreadyExist(env.file().clone(), env.clone()).into());
     }
     env.save()?;
     Ok(env)
