@@ -38,7 +38,7 @@ pub fn new(app: &ArgMatches) -> Result<()> {
     let env = match env_new_workflow(&cfg, &setup_name, &env_name, &private) {
         Ok(env) => env,
         Err(err) => match err.downcast::<CliError>() {
-            Ok(CliError::EnvFileAlreadyExist(_, env)) => Ok(env.clone()),
+            Ok(CliError::EnvFileAlreadyExists(_, env)) => Ok(env.clone()),
             Ok(err) => Err(err),
             Err(err) => Err(UnknownError(err)),
         }?,

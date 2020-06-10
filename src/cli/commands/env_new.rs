@@ -4,11 +4,13 @@ use crate::cli::terminal::message::success;
 use anyhow::Result;
 use clap::ArgMatches;
 
-use crate::cfg::Cfg;
+use crate::cfg::{Cfg};
 use crate::cli::commands::env_sync::{sync_workflow, SyncSettings};
 use crate::cli::error::CliError;
 use crate::cli::settings::get_settings;
 use crate::env_file::{path_from_env_name, Env};
+
+use std::path::PathBuf;
 
 pub fn env_new(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
@@ -45,17 +47,32 @@ pub fn env_new_workflow(
 ) -> Result<Env> {
     let setup = cfg.current_setup(setup_name)?;
 
-    let env_dir = if *private {
-        setup.envs_private_dir()?
-    } else {
-        setup.envs_public_dir()?
+    let retrieve_env_is_not_exists = |dir: PathBuf| -> Result<Env> {
+        let env = path_from_env_name(dir, env_name);
+        let env: Env = env.into();
+        if env.file().exists() {
+            return Err(CliError::EnvFileAlreadyExists(env.file().clone(), env.clone()).into());
+        } else {
+            Ok(env)
+        }
     };
 
-    let env = path_from_env_name(env_dir, &env_name);
-    let env: Env = env.into();
-    if env.file().exists() {
-        return Err(CliError::EnvFileAlreadyExist(env.file().clone(), env.clone()).into());
-    }
+    let public_env = setup.envs_public_dir().map(retrieve_env_is_not_exists);
+    if let Ok(Err(err)) = public_env {
+        return Err(err);
+    };
+
+    let private_env = setup.envs_private_dir().map(retrieve_env_is_not_exists);
+    if let Ok(Err(err)) = private_env {
+        return Err(err);
+    };
+
+    let env = if *private {
+        private_env??
+    } else {
+        public_env??
+    };
     env.save()?;
+
     Ok(env)
 }

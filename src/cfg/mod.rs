@@ -1,18 +1,19 @@
 use crate::cfg::file::{load_local_cfg, load_or_new_global_cfg, new_local_cfg, FileCfg};
 use crate::cfg::global::GlobalProjectCfg;
-use crate::cfg::setup::Setup;
 use anyhow::{Context, Result};
+use std::cell::RefCell;
+use std::path::PathBuf;
+use std::rc::Rc;
+
 pub use error::CfgError;
 pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
 pub use local::{ArrayVar, ArrayVars};
 pub use local::{Var, Vars};
+pub use setup::Setup;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
-use std::cell::RefCell;
-use std::path::PathBuf;
-use std::rc::Rc;
 
 mod error;
 mod file;

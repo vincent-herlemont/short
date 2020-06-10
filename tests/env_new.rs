@@ -151,3 +151,60 @@ setups:
         assert_eq!(r, initial_env_content);
     }
 }
+
+#[test]
+fn cmd_env_new_duplicate_cross_public_private() {
+    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_env_new_private_duplicate");
+    {
+        let local_cfg_abs_path = itew.get_abs_path(PathTestEnvironment::LocalCfg).unwrap();
+        let global_env_dev_file = itew
+            .get_abs_path(PathTestEnvironment::GlobalEnvDev)
+            .unwrap();
+        let global_env_dir = global_env_dev_file.parent().unwrap();
+        let e = itew.e();
+        let mut e = e.borrow_mut();
+        e.add_file(&global_env_dev_file, "");
+        let local_cfg_file = itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap();
+        e.add_file(
+            &local_cfg_file,
+            r#"
+setups:
+  - name: setup_1
+    file: run.sh
+        "#,
+        );
+
+        let local_cfg_file = itew.get_rel_path(PathTestEnvironment::GlobalCfg).unwrap();
+
+        e.add_file(
+            &local_cfg_file,
+            format!(
+                r#"
+        projects:
+          - file: {file}
+            current:
+                setup: setup_1
+            setups:
+              - name: setup_1
+                private_env_dir: {private_env_dir}
+                "#,
+                file = local_cfg_abs_path.to_string_lossy(),
+                private_env_dir = global_env_dir.to_string_lossy()
+            ),
+        );
+        e.setup();
+    }
+
+    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("env")
+        .arg("new")
+        .arg("dev")
+        .args(vec!["-s", "setup_1"])
+        .assert()
+        .failure()
+        .to_string();
+
+    assert!(contains("already exists").eval(&r));
+}
