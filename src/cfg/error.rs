@@ -19,6 +19,10 @@ pub enum CfgError {
     PublicEnvAlreadyUnset(String),
     #[error("private env dir already unset for `{0}`")]
     PrivateEnvAlreadyUnset(String),
+    #[error("there is two `{0}` env `{1:?}` and `{2:?}`, please remove once")]
+    EnvExistTwice(String, PathBuf, PathBuf),
+    #[error("env {0} not found")]
+    EnvNotFound(String),
     #[error("unknown cfg error")]
     Unknown,
 }

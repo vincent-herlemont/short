@@ -4,6 +4,7 @@ use crate::cfg::LocalSetupCfg;
 use crate::env_file;
 use crate::env_file::{path_from_env_name, Env};
 use anyhow::{Context, Result};
+use fs_extra::error::ErrorKind::NotFound;
 use serde::export::fmt::Debug;
 use serde::export::Formatter;
 use std::cell::RefCell;
@@ -90,17 +91,36 @@ impl Setup {
 
     pub fn env_file(&self, env_name: &String) -> Result<PathBuf> {
         match (self.envs_private_dir(), self.envs_public_dir()) {
-            (Ok(dir), _) => Ok(path_from_env_name(&dir, env_name)),
-            (_, Ok(dir)) => Ok(path_from_env_name(&dir, env_name)),
+            (Ok(private_dir), Ok(public_dir)) => {
+                let public_env = path_from_env_name(&public_dir, env_name);
+                let private_env = path_from_env_name(&private_dir, env_name);
+                if private_env.exists() && public_env.exists() {
+                    Err(CfgError::EnvExistTwice(env_name.clone(), public_env, private_env).into())
+                } else if private_env.exists() {
+                    Ok(private_env)
+                } else if public_env.exists() {
+                    Ok(public_env)
+                } else {
+                    Err(CfgError::EnvNotFound(env_name.clone()).into())
+                }
+            }
+            (Ok(private_dir), Err(_)) => {
+                let private_env = path_from_env_name(&private_dir, env_name);
+                if private_env.exists() {
+                    Ok(private_env)
+                } else {
+                    Err(CfgError::EnvNotFound(env_name.clone()).into())
+                }
+            }
+            (Err(_), Ok(public_env)) => {
+                let public_env = path_from_env_name(&public_env, env_name);
+                if public_env.exists() {
+                    Ok(public_env)
+                } else {
+                    Err(CfgError::EnvNotFound(env_name.clone()).into())
+                }
+            }
             (_, Err(err)) => Err(err),
-        }
-    }
-
-    pub fn env_exist(&self, env_name: &String) -> bool {
-        match (self.envs_private_dir(), self.envs_public_dir()) {
-            (Ok(dir), _) => path_from_env_name(&dir, env_name).exists(),
-            (_, Ok(dir)) => path_from_env_name(&dir, env_name).exists(),
-            _ => false,
         }
     }
 

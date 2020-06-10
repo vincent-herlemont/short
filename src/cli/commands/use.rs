@@ -2,7 +2,7 @@ use crate::cfg::Cfg;
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::{get_settings, Settings};
 use crate::cli::terminal::message::success;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::ArgMatches;
 
 pub fn r#use(app: &ArgMatches) -> Result<()> {
@@ -32,9 +32,9 @@ pub fn use_workflow(cfg: &Cfg, settings: &Settings) -> Result<()> {
         let setup_name = settings.setup()?;
         global_project.set_current_setup_name(setup_name.to_owned());
         if let Ok(env_name) = settings.env() {
-            if !setup.env_exist(env_name) {
-                return Err(anyhow!("fail to found env {:?}", env_name));
-            }
+            setup
+                .env_file(env_name)
+                .context(format!("fail to found env {:?}", env_name))?;
             global_project.set_current_env_name(env_name.to_owned());
         }
     }
