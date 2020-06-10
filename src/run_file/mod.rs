@@ -44,21 +44,21 @@ impl From<process::Output> for Output {
 
 pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
     let file = file.canonicalize()?;
-    let mut output = Command::new(&file);
-    output.env_clear();
+    let mut command = Command::new(&file);
+    command.env_clear();
 
     for env_var in vars.iter() {
-        output.env(env_var.var().to_env_var(), env_var.env_value());
+        command.env(env_var.var().to_env_var(), env_var.env_value());
     }
 
-    let mut command = Command::new(&file)
+    let mut child = command
         .stdout(Stdio::piped())
         .stdin(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .context(format!("command {} fail", &file.to_string_lossy()))?;
 
-    let mut command_stdin = command.stdin.take().expect("fail to get stdin");
+    let mut command_stdin = child.stdin.take().expect("fail to get stdin");
     let read_stdin = thread::spawn(move || loop {
         // /!\ Manually tested
         let mut buff_writer = BufWriter::new(&mut command_stdin);
@@ -69,7 +69,7 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
 
     let output = Arc::new(Mutex::new(Output::new()));
 
-    let read_stdout = if let Some(stdout) = command.stdout.take() {
+    let read_stdout = if let Some(stdout) = child.stdout.take() {
         let output = Arc::clone(&output);
         Some(thread::spawn(move || {
             let buf = BufReader::new(stdout);
@@ -85,7 +85,7 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
     } else {
         None
     };
-    let read_err = if let Some(stderr) = command.stderr.take() {
+    let read_err = if let Some(stderr) = child.stderr.take() {
         let output = Arc::clone(&output);
         Some(thread::spawn(move || {
             let buf = BufReader::new(stderr);
@@ -110,7 +110,7 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
     }
     drop(read_stdin);
 
-    let exit_status = command.wait().unwrap();
+    let exit_status = child.wait().unwrap();
     {
         let mut output = output.lock().unwrap();
         output.status = exit_status.code().unwrap_or_default();
@@ -123,11 +123,9 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
 
 #[cfg(test)]
 mod tests {
-    
-    
-    
+
     use crate::run_file::run_as_stream;
-    
+
     use cli_integration_test::IntegrationTestEnvironment;
     use std::path::PathBuf;
 

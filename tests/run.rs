@@ -24,14 +24,17 @@ fn cmd_run() {
 setups:
   - name: setup_1
     file: run.sh
-    array_vars: {}
+    array_vars:
+      ALL: .*
+    vars: [ VAR1 ]
         "#,
         );
         let run_file = itew.get_rel_path(PathTestEnvironment::Run).unwrap();
         e.add_file(
             &run_file,
             r#"#!/bin/bash
-echo "TEST"
+echo "TEST VAR1=$VAR1"
+declare -p ALL
         "#,
         );
         e.setup();
@@ -45,5 +48,8 @@ echo "TEST"
         .args(&vec!["-s", "setup_1"])
         .args(&vec!["-e", "example"]);
     let r = command.assert().success().to_string();
-    assert!(contains("#> TEST").count(1).eval(&r));
+    assert!(contains("#> TEST VAR1=VALUE1").count(1).eval(&r));
+    assert!(contains("#> declare -x ALL=\" [VAR1]='VALUE1' \"")
+        .count(1)
+        .eval(&r));
 }
