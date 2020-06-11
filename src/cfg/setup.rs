@@ -4,7 +4,7 @@ use crate::cfg::LocalSetupCfg;
 use crate::env_file;
 use crate::env_file::{path_from_env_name, Env};
 use anyhow::{Context, Result};
-use fs_extra::error::ErrorKind::NotFound;
+
 use serde::export::fmt::Debug;
 use serde::export::Formatter;
 use std::cell::RefCell;

@@ -6,4 +6,5 @@ pub mod cfg;
 pub mod cli;
 pub mod env_file;
 pub mod run_file;
+pub mod template;
 pub mod utils;
