@@ -11,7 +11,7 @@ use anyhow::Result;
 use clap::ArgMatches;
 use std::path::PathBuf;
 
-pub fn new(app: &ArgMatches) -> Result<()> {
+pub fn generate(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
     let setup_name: String = app.value_of("setup_name").unwrap().into();
     let env_name: String = app.value_of("env_name").unwrap().into();
@@ -52,7 +52,7 @@ pub fn new(app: &ArgMatches) -> Result<()> {
 
     cfg.save()?;
 
-    success(format!("new setup `{}`:`{}`", setup_name, env.name()?).as_str());
+    success(format!("generate setup `{}`:`{}`", setup_name, env.name()?).as_str());
 
     Ok(())
 }

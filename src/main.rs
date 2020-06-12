@@ -69,8 +69,8 @@ fn run() -> Result<()> {
                 .about("Init project, create an empty \"short.yml\" configuration file"),
         )
         .subcommand(
-            SubCommand::with_name("new")
-                .about("Create new setup")
+            SubCommand::with_name("generate")
+                .about("Generate setup")
                 .arg(
                     Arg::with_name("setup_name")
                         .index(1)
@@ -210,8 +210,8 @@ fn run() -> Result<()> {
 
     if let Some(_) = app.subcommand_matches("init") {
         commands::init(&app)?;
-    } else if let Some(args) = app.subcommand_matches("new") {
-        commands::new(&args)?;
+    } else if let Some(args) = app.subcommand_matches("generate") {
+        commands::generate(&args)?;
     } else if let Some(args) = app.subcommand_matches("run") {
         commands::run(&args)?;
     } else if let Some(args) = app.subcommand_matches("ls") {

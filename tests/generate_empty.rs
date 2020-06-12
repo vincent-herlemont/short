@@ -4,11 +4,10 @@ use predicates::prelude::predicate::path::exists;
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 
-
 mod utils;
 
 #[test]
-fn cmd_new() {
+fn cmd_generate() {
     let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_init");
     {
         let e = itew.e();
@@ -25,14 +24,14 @@ setups: []
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("new")
+        .arg("generate")
         .arg("setup_1")
         .arg("example")
         .assert()
         .success()
         .to_string();
 
-    assert!(contains("new setup").eval(&r));
+    assert!(contains("generate setup").eval(&r));
 
     {
         let e = itew.e();
@@ -56,8 +55,8 @@ setups: []
 }
 
 #[test]
-fn cmd_new_with_existing_env() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_new_with_existing_env");
+fn cmd_generate_with_existing_env() {
+    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_generate_with_existing_env");
     let local_env_example = itew
         .get_rel_path(PathTestEnvironment::LocalEnvExample)
         .unwrap();
@@ -78,14 +77,14 @@ setups: []
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("new")
+        .arg("generate")
         .arg("setup_1")
         .arg("example")
         .assert()
         .success()
         .to_string();
 
-    assert!(contains("new setup").eval(&r));
+    assert!(contains("generate setup").eval(&r));
 
     {
         let e = itew.e();
