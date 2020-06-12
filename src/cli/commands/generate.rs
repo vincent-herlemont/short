@@ -7,11 +7,36 @@ use crate::cli::error::CliError::UnknownError;
 use crate::cli::settings::Settings;
 use crate::cli::terminal::message::success;
 use crate::run_file::File;
-use anyhow::Result;
+use crate::template::Registry;
+use anyhow::{Context, Result};
 use clap::ArgMatches;
+
+use std::env::{current_dir};
 use std::path::PathBuf;
+use tempdir::TempDir;
 
 pub fn generate(app: &ArgMatches) -> Result<()> {
+    if app.is_present("template") {
+        generate_template_workflow(app)
+    } else {
+        generate_empty_workflow(app)
+    }
+}
+
+fn generate_template_workflow(app: &ArgMatches) -> Result<()> {
+    let _cfg = get_cfg()?;
+
+    let template_name: String = app.value_of("template").unwrap().into();
+    let registry = Registry::new();
+    let mut template = registry.get(template_name.as_str())?;
+    let temp_dir = TempDir::new(format!("generate_template_{}", template_name).as_str())?;
+    template.checkout(temp_dir.path().clone().to_path_buf())?;
+    let target_dir = current_dir()?;
+    template.copy(target_dir).context("fail to copy files")?;
+    Ok(())
+}
+
+fn generate_empty_workflow(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
     let setup_name: String = app.value_of("setup_name").unwrap().into();
     let env_name: String = app.value_of("env_name").unwrap().into();

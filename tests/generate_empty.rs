@@ -31,6 +31,8 @@ setups: []
         .success()
         .to_string();
 
+    println!("{}", &r);
+
     assert!(contains("generate setup").eval(&r));
 
     {

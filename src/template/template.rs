@@ -36,7 +36,10 @@ impl Template {
                     let path = e.path();
                     if let Ok(striped_path) = path.strip_prefix(dir) {
                         let str = striped_path.to_string_lossy();
-                        if !str.starts_with(".git") && !str.is_empty() {
+                        if !str.starts_with(".git")
+                            && !str.is_empty()
+                            && str.into_owned() != "short.yml"
+                        {
                             return Some(path.to_path_buf());
                         }
                     }

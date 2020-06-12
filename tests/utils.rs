@@ -5,11 +5,15 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
+#[deprecated]
 pub const HOME: &'static str = "home";
+#[deprecated]
 pub const PROJECT: &'static str = "project";
+#[deprecated]
 pub const ENVDIR: &'static str = "private_env";
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[deprecated]
 pub enum PathTestEnvironment {
     LocalCfg,
     GlobalCfg,
@@ -20,12 +24,14 @@ pub enum PathTestEnvironment {
     Run,
 }
 
+#[deprecated]
 pub struct IntegrationTestEnvironmentWrapper {
     e: Rc<RefCell<IntegrationTestEnvironment>>,
     paths: HashMap<PathTestEnvironment, PathBuf>,
 }
 
 impl IntegrationTestEnvironmentWrapper {
+    #[deprecated]
     pub fn init_all<S: AsRef<str>>(label: S) -> Self {
         let mut itew = Self {
             e: Rc::new(RefCell::new(IntegrationTestEnvironment::new(label))),
@@ -51,6 +57,7 @@ impl IntegrationTestEnvironmentWrapper {
         return itew;
     }
 
+    #[deprecated]
     pub fn command<C>(&self, crate_name: C) -> Command
     where
         C: AsRef<str>,
@@ -63,24 +70,29 @@ impl IntegrationTestEnvironmentWrapper {
         command
     }
 
+    #[deprecated]
     pub fn e(&self) -> Rc<RefCell<IntegrationTestEnvironment>> {
         Rc::clone(&self.e)
     }
 
+    #[deprecated]
     pub fn get_rel_path(&self, path: PathTestEnvironment) -> Option<PathBuf> {
         self.paths.get(&path).map(|path| path.clone())
     }
 
+    #[deprecated]
     pub fn get_abs_path(&self, path: PathTestEnvironment) -> Option<PathBuf> {
         let e = self.e();
         let e = e.borrow_mut();
         self.get_rel_path(path).map(|path| e.path().join(&path))
     }
 
+    #[deprecated]
     pub fn set_path<P: AsRef<Path>>(&mut self, setup_path: PathTestEnvironment, path: P) {
         self.paths.insert(setup_path, path.as_ref().to_path_buf());
     }
 
+    #[deprecated]
     pub fn set_local_cfg(&mut self) {
         self.set_path(
             PathTestEnvironment::LocalCfg,
@@ -88,6 +100,7 @@ impl IntegrationTestEnvironmentWrapper {
         );
     }
 
+    #[deprecated]
     pub fn set_global_cfg(&mut self) {
         self.set_path(
             PathTestEnvironment::GlobalCfg,
@@ -95,6 +108,7 @@ impl IntegrationTestEnvironmentWrapper {
         );
     }
 
+    #[deprecated]
     pub fn set_local_env_example(&mut self) {
         self.set_path(
             PathTestEnvironment::LocalEnvExample,
@@ -102,6 +116,7 @@ impl IntegrationTestEnvironmentWrapper {
         );
     }
 
+    #[deprecated]
     pub fn set_local_env_example2(&mut self) {
         self.set_path(
             PathTestEnvironment::LocalEnvExample2,
@@ -109,6 +124,7 @@ impl IntegrationTestEnvironmentWrapper {
         );
     }
 
+    #[deprecated]
     pub fn set_global_env_dev(&mut self) {
         self.set_path(
             PathTestEnvironment::GlobalEnvDev,
@@ -116,12 +132,15 @@ impl IntegrationTestEnvironmentWrapper {
         );
     }
 
+    #[deprecated]
     pub fn set_global_env_pro(&mut self) {
         self.set_path(
             PathTestEnvironment::GlobalEnvProd,
             PathBuf::from(ENVDIR).join(".prod"),
         );
     }
+
+    #[deprecated]
     pub fn set_run(&mut self) {
         self.set_path(
             PathTestEnvironment::Run,

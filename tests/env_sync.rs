@@ -10,7 +10,7 @@ mod utils;
 
 #[test]
 fn cmd_env_sync_add_empty() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_use");
+    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_env_sync_add_empty");
     let target_local_env_example = itew
         .get_abs_path(PathTestEnvironment::LocalEnvExample)
         .unwrap();
@@ -79,7 +79,7 @@ VAR2=VALUE2
 
 #[test]
 fn cmd_env_sync_add_copy() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_use");
+    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_env_sync_add_copy");
     let target_local_env_example = itew
         .get_abs_path(PathTestEnvironment::LocalEnvExample)
         .unwrap();
@@ -137,7 +137,7 @@ VAR2=VALUE2
 
 #[test]
 fn cmd_env_sync_delete() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_use");
+    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_env_sync_delete");
     let target_local_env_example = itew
         .get_abs_path(PathTestEnvironment::LocalEnvExample)
         .unwrap();
@@ -195,7 +195,7 @@ setups:
 
 #[test]
 fn cmd_env_sync_no_delete() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_use");
+    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_env_sync_no_delete");
     let target_local_env_example = itew
         .get_abs_path(PathTestEnvironment::LocalEnvExample)
         .unwrap();

@@ -97,6 +97,7 @@ fn run() -> Result<()> {
                         .default_value("#!/bin/bash")
                         .help("Interpreter program"),
                 )
+                .arg(Arg::with_name("template").long("template").short("t").takes_value(true).help("specified your template name"))
                 .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory")),
         )
         .subcommand(

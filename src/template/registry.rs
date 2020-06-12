@@ -11,16 +11,24 @@ type Url = String;
 pub struct Registry {}
 
 impl Registry {
+    pub fn new() -> Self {
+        Self {}
+    }
+
     fn index() -> HashMap<Name, Url> {
         let mut data = HashMap::new();
         data.insert(
             "aws-sam".to_string(),
             "https://github.com/vincent-herlemont/aws-sam-short-template.git".to_string(),
         );
+        data.insert(
+            "test".to_string(),
+            "https://github.com/vincent-herlemont/test-short-template.git".to_string(),
+        );
         data
     }
 
-    fn get(&self, name: &str) -> Result<Template> {
+    pub fn get(&self, name: &str) -> Result<Template> {
         let index = Registry::index();
         let url = index
             .get(name)
