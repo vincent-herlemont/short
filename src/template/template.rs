@@ -1,31 +1,40 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
+use fs_extra::copy_items;
+use fs_extra::dir;
 use git2::Repository;
 use std::fs::read_dir;
 use std::path::PathBuf;
 
 pub struct Template {
+    name: String,
     url: String,
-    tmp_dir: PathBuf,
+    dir: Option<PathBuf>,
 }
-use fs_extra::copy_items;
-use fs_extra::dir;
-
 
 impl Template {
-    pub fn new(url: String, tmp_dir: PathBuf) -> Self {
-        Self { url, tmp_dir }
+    pub fn new(name: String, url: String) -> Self {
+        Self {
+            name,
+            url,
+            dir: None,
+        }
     }
 
-    pub fn checkout(&self, target_dir: PathBuf) -> Result<()> {
-        let tmp_dir = self.tmp_dir.as_path();
-        Repository::clone(self.url.as_str(), tmp_dir)?;
+    pub fn checkout(&mut self, target_dir: PathBuf) -> Result<()> {
+        Repository::clone(self.url.as_str(), target_dir.as_path())
+            .context("fail to clone repository")?;
+        self.dir = Some(target_dir);
+        Ok(())
+    }
 
-        let paths: Vec<_> = read_dir(tmp_dir)?
+    pub fn copy(&self, target_dir: PathBuf) -> Result<()> {
+        let dir = self.dir.as_ref().context("please checkout before copy")?;
+        let paths: Vec<_> = read_dir(dir)?
             .into_iter()
             .filter_map(|e| {
                 if let Ok(e) = e {
                     let path = e.path();
-                    if let Ok(striped_path) = path.strip_prefix(tmp_dir) {
+                    if let Ok(striped_path) = path.strip_prefix(dir) {
                         let str = striped_path.to_string_lossy();
                         if !str.starts_with(".git") && !str.is_empty() {
                             return Some(path.to_path_buf());
@@ -57,14 +66,13 @@ mod tests {
         e.add_dir(TEMPLATE_TARGET_DIR);
         e.setup();
 
-        let template = Template::new(
+        let mut template = Template::new(
+            "".to_string(),
             "https://github.com/vincent-herlemont/test-short-template.git".to_string(),
-            e.path().join(TEMPLATE_TMP_DIR),
         );
 
-        template
-            .checkout(e.path().join(TEMPLATE_TARGET_DIR))
-            .unwrap();
+        template.checkout(e.path().join(TEMPLATE_TMP_DIR)).unwrap();
+        template.copy(e.path().join(TEMPLATE_TARGET_DIR)).unwrap();
 
         assert!(e.path().join(TEMPLATE_TARGET_DIR).join("run.sh").exists());
         assert!(e.path().join(TEMPLATE_TARGET_DIR).join("env/.dev").exists());
