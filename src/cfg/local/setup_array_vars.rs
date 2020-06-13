@@ -7,7 +7,7 @@ use std::fmt;
 
 type Pattern = String;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ArrayVars(Vec<ArrayVar>);
 
 impl ArrayVars {
@@ -83,7 +83,7 @@ impl<'de> Deserialize<'de> for ArrayVars {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ArrayVar(Var, Pattern);
 
 impl ArrayVar {

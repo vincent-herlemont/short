@@ -1,4 +1,4 @@
-use crate::cfg::file::{load_local_cfg, load_or_new_global_cfg, new_local_cfg, FileCfg};
+use crate::cfg::file::{load_or_new_global_cfg, new_local_cfg};
 use crate::cfg::global::GlobalProjectCfg;
 use anyhow::{Context, Result};
 use std::cell::RefCell;
@@ -6,6 +6,8 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 pub use error::CfgError;
+pub use file::load_local_cfg;
+pub use file::FileCfg;
 pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;

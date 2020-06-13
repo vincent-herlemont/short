@@ -1,7 +1,7 @@
-
 use cli_integration_test::IntegrationTestEnvironment;
 
 pub const HOME_DIR: &'static str = "home";
+pub const HOME_CFG_FILE: &'static str = "home/.short/cfg.yml";
 pub const PROJECT_DIR: &'static str = "project";
 pub const PROJECT_CFG_FILE: &'static str = "project/short.yml";
 pub const PRIVATE_ENV_DIR: &'static str = "private_env";

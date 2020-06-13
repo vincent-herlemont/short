@@ -2,7 +2,7 @@ use crate::cfg::local::setup_vars::Vars;
 use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
 use crate::cfg::CfgError;
-use anyhow::{Result};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -23,6 +23,30 @@ pub struct LocalSetupCfg {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     vars: Option<Rc<RefCell<Vars>>>,
+}
+
+impl Clone for LocalSetupCfg {
+    fn clone(&self) -> Self {
+        let array_vars = self.array_vars.as_ref().map(|array_vars| {
+            let array_vars = Rc::clone(array_vars);
+            let array_vars = (&*array_vars).clone();
+            Rc::new(array_vars)
+        });
+
+        let vars = self.vars.as_ref().map(|vars| {
+            let vars = Rc::clone(vars);
+            let vars = (&*vars).clone();
+            Rc::new(vars)
+        });
+
+        Self {
+            name: self.name.clone(),
+            public_env_dir: self.public_env_dir.clone(),
+            file: self.file.clone(),
+            array_vars,
+            vars,
+        }
+    }
 }
 
 impl LocalSetupCfg {

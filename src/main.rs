@@ -80,7 +80,6 @@ fn run() -> Result<()> {
                 .arg(
                     Arg::with_name("env_name")
                         .index(2)
-                        .required(true)
                         .help("Env Name"),
                 )
                 .arg(
@@ -98,7 +97,8 @@ fn run() -> Result<()> {
                         .help("Interpreter program"),
                 )
                 .arg(Arg::with_name("template").long("template").short("t").takes_value(true).help("specified your template name"))
-                .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory")),
+                .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory"))
+                .group(ArgGroup::with_name("if_template").args(&["env_name","template"]).required(true)),
         )
         .subcommand(
             SubCommand::with_name("run")
