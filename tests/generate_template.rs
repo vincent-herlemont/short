@@ -23,7 +23,7 @@ setups: []
         .assert()
         .to_string();
 
-    contains("generate setup `test_setup_1`:`dev`").eval(&r);
+    assert!(contains("generate setup `test_setup_1`:`dev`").eval(&r));
 
     let env_dev = e.path().join(PROJECT_DIR).join("env/.dev");
     assert!(env_dev.exists());

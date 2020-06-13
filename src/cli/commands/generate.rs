@@ -90,9 +90,9 @@ fn generate_template_workflow(
 fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSettings) -> Result<()> {
     let mut cfg = get_cfg()?;
     let setup_name: String = generate_settings.setup_name.clone();
-    let env_name: String = app.value_of("env_name").unwrap().into();
-    let setup_file = app.value_of("file").unwrap();
-    let setup_shebang = app.value_of("shebang").unwrap();
+    let env_name = app.value_of("env_name").unwrap().to_string();
+    let setup_file = app.value_of("file").unwrap_or("run.sh").to_string();
+    let setup_shebang = app.value_of("shebang").unwrap_or("#!/bin/bash").to_string();
     let private = app.is_present("private");
 
     let setup_file = PathBuf::from(setup_file);

@@ -86,19 +86,23 @@ fn run() -> Result<()> {
                     Arg::with_name("file")
                         .long("file")
                         .short("f")
-                        .default_value("run.sh")
                         .help("Path script"),
                 )
                 .arg(
                     Arg::with_name("shebang")
                         .long("shebang")
                         .short("s")
-                        .default_value("#!/bin/bash")
-                        .help("Interpreter program"),
+                        .help("Interpreter program")
                 )
                 .arg(Arg::with_name("template").long("template").short("t").takes_value(true).help("specified your template name"))
                 .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory"))
-                .group(ArgGroup::with_name("if_template").args(&["env_name","template"]).required(true)),
+                .group(ArgGroup::with_name("generate_type").args(&["env_name","template"]).required(true))
+                .group(ArgGroup::with_name("exclude_for_generate_template")
+                    .args(&["file","shebang","private"])
+                    .multiple(true)
+                    .required(false)
+                    .conflicts_with("template")
+                )
         )
         .subcommand(
             SubCommand::with_name("run")
