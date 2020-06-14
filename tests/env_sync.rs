@@ -34,8 +34,6 @@ setups:
     file: run.sh
         "#,
         );
-        e.setup();
-        thread::sleep(Duration::from_secs(2));
         e.add_file(
             &source_local_env_example2,
             r#"VAR1=VALUE1
@@ -43,6 +41,8 @@ VAR2=VALUE2
 "#,
         );
         e.setup();
+        thread::sleep(Duration::from_secs(2));
+        e.set_update_file_time(&source_local_env_example2).unwrap();
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
@@ -103,8 +103,6 @@ setups:
     file: run.sh
         "#,
         );
-        e.setup();
-        thread::sleep(Duration::from_secs(2));
         e.add_file(
             &source_local_env_example2,
             r#"VAR1=VALUE1
@@ -112,6 +110,8 @@ VAR2=VALUE2
 "#,
         );
         e.setup();
+        thread::sleep(Duration::from_secs(2));
+        e.set_update_file_time(&source_local_env_example2).unwrap();
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
@@ -162,14 +162,14 @@ setups:
     file: run.sh
         "#,
         );
-        e.setup();
-        thread::sleep(Duration::from_secs(2));
         e.add_file(
             &source_local_env_example2,
             r#"VAR1=VALUE1
 "#,
         );
         e.setup();
+        thread::sleep(Duration::from_secs(2));
+        e.set_update_file_time(&source_local_env_example2).unwrap();
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));
@@ -220,10 +220,10 @@ setups:
     file: run.sh
         "#,
         );
-        e.setup();
-        thread::sleep(Duration::from_secs(2));
         e.add_file(&source_local_env_example2, &inital_source);
         e.setup();
+        thread::sleep(Duration::from_secs(2));
+        e.set_update_file_time(&source_local_env_example2);
     }
 
     let mut command = itew.command(env!("CARGO_PKG_NAME"));

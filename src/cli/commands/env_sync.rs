@@ -7,10 +7,12 @@ use crate::env_file::{Env, EnvDiffController};
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 use filetime::FileTime;
+use log::*;
 use std::borrow::Cow;
 use std::fs;
 use std::rc::Rc;
 
+#[derive(Debug)]
 pub struct SyncSettings {
     pub empty: bool,
     pub copy: bool,
@@ -30,13 +32,6 @@ impl SyncSettings {
 }
 
 enum_confirm!(SyncConfirmEnum, y, n);
-
-#[deprecated]
-fn last_modification_time(env: &Env) -> FileTime {
-    let file = env.file();
-    let metadata = fs::metadata(file).unwrap();
-    FileTime::from_last_modification_time(&metadata)
-}
 
 pub fn env_sync(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
@@ -75,6 +70,7 @@ pub fn sync_workflow(recent_env: Env, envs: Vec<Env>, sync_settings: SyncSetting
 
         let controller = EnvDiffController::new(
             move |var| {
+                info!("{:?}", &sync_settings_update_var);
                 if sync_settings_update_var.empty {
                     var.set_value("");
                     return Cow::Borrowed(var);
