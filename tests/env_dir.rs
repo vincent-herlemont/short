@@ -1,30 +1,26 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 use std::path::PathBuf;
-use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment, PROJECT};
+use test_utils::init;
+use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_DIR};
 
-mod utils;
+mod test_utils;
 
 #[test]
 fn cmd_env_dir() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_use");
-    let local_cfg_file = itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap();
-    {
-        let e = itew.e();
-        let mut e = e.borrow_mut();
-        e.add_file(
-            &local_cfg_file,
-            r#"
+    let mut e = init("cmd_env_dir");
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
 setups:
   - name: setup_1
     file: run.sh
         "#,
-        );
-        e.add_dir(PathBuf::from(PROJECT).join("env"));
-        e.setup();
-    }
+    );
+    e.add_dir(PROJECT_ENV_DIR);
+    e.setup();
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
         .arg("env")
@@ -39,7 +35,7 @@ setups:
 
     // SET
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
         .arg("env")
@@ -52,16 +48,12 @@ setups:
 
     assert!(contains("env directory set to").eval(&r));
 
-    {
-        let e = itew.e();
-        let e = e.borrow();
-        let r = e.read_file(&local_cfg_file);
-        assert!(contains("public_env_dir: env").count(1).eval(&r));
-    }
+    let r = e.read_file(PROJECT_CFG_FILE);
+    assert!(contains("public_env_dir: env").count(1).eval(&r));
 
     // UNSET
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
         .arg("env")
@@ -74,14 +66,10 @@ setups:
 
     assert!(contains("env directory unset").eval(&r));
 
-    {
-        let e = itew.e();
-        let e = e.borrow();
-        let r = e.read_file(&local_cfg_file);
-        assert!(!contains("public_env_dir: env").count(1).eval(&r));
-    }
+    let r = e.read_file(PROJECT_CFG_FILE);
+    assert!(!contains("public_env_dir: env").count(1).eval(&r));
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
         .arg("env")
