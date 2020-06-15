@@ -6,10 +6,10 @@ use crate::cli::terminal::message::success;
 use crate::env_file::{Env, EnvDiffController};
 use anyhow::{Context, Result};
 use clap::ArgMatches;
-use filetime::FileTime;
+
 use log::*;
 use std::borrow::Cow;
-use std::fs;
+
 use std::rc::Rc;
 
 #[derive(Debug)]

@@ -9,6 +9,7 @@ pub const PROJECT_ENV_EXAMPLE_1_FILE: &'static str = "project/.example1";
 pub const PROJECT_ENV_EXAMPLE_2_FILE: &'static str = "project/.example2";
 pub const PROJECT_ENV_DIR: &'static str = "project/env";
 pub const PRIVATE_ENV_DIR: &'static str = "private_env";
+pub const PRIVATE_ENV_DEV_FILE: &'static str = "private_env/.dev";
 pub const TMP_DIR: &'static str = "tmp";
 
 pub fn init<L: AsRef<str>>(label: L) -> IntegrationTestEnvironment {

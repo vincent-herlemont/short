@@ -1,9 +1,9 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
-use std::path::PathBuf;
+
 use test_utils::init;
 use test_utils::{
-    PROJECT_CFG_FILE, PROJECT_ENV_DIR, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE,
+    PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE,
 };
 
 mod test_utils;
@@ -32,7 +32,7 @@ echo -e "\nVAR2=VALUE2" >> $1
     e.setup();
     e.set_exec_permission(MOCK_EDITOR_FILE).unwrap();
 
-    let mut mock_editor_file_abs = e.path().join(MOCK_EDITOR_FILE);
+    let mock_editor_file_abs = e.path().join(MOCK_EDITOR_FILE);
 
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command

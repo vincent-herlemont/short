@@ -1,14 +1,18 @@
-use crate::utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment};
-use predicates::prelude::predicate::path::exists;
-use predicates::prelude::Predicate;
 
-mod utils;
+
+use test_utils::init;
+use test_utils::{
+    HOME_CFG_FILE,
+};
+
+mod test_utils;
 
 #[test]
 fn cmd_init() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_init");
+    let e = init("cmd_init");
+    e.setup();
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let _r = command
         .env("RUST_LOG", "debug")
         .arg("init")
@@ -17,10 +21,9 @@ fn cmd_init() {
         .to_string();
 
     // Check the new local cfg file
-    let path = &itew.get_abs_path(PathTestEnvironment::LocalCfg).unwrap();
-    assert!(exists().eval(path));
+    assert!(e.file_exists(HOME_CFG_FILE));
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command.env("RUST_LOG", "debug").arg("init").assert();
     r.failure();
 }

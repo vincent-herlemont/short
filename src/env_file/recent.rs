@@ -21,9 +21,9 @@ impl Env {
             .fold(None, |last_env, next_env| match (last_env, next_env) {
                 (None, next_env) => Some(next_env.clone()),
                 (Some(last_env), next_env) => {
-                    let (last_env_modification_time, last_env_create_time) =
+                    let (last_env_modification_time, _last_env_create_time) =
                         env_file_time(&last_env);
-                    let (next_env_modification_time, next_env_create_time) =
+                    let (next_env_modification_time, _next_env_create_time) =
                         env_file_time(next_env);
                     if last_env_modification_time < next_env_modification_time {
                         Some((*next_env).clone())

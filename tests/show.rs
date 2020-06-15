@@ -1,28 +1,26 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
-use utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment};
+use test_utils::init;
+use test_utils::{
+    HOME_CFG_FILE, PRIVATE_ENV_DEV_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE, PROJECT_ENV_DIR,
+    PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE, PROJECT_RUN_FILE,
+};
 
-mod utils;
+mod test_utils;
 
 #[test]
 fn cmd_show_no_setup_no_env() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_show");
+    let mut e = init("cmd_show_no_setup_no_env");
 
-    {
-        let e = itew.e();
-        let mut e = e.borrow_mut();
-
-        let local_cfg_file = itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap();
-        e.add_file(
-            &local_cfg_file,
-            r#"
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
 setups: []
         "#,
-        );
-        e.setup();
-    }
+    );
+    e.setup();
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -34,39 +32,31 @@ setups: []
 
 #[test]
 fn cmd_show_no_setup() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_show");
+    let mut e = init("cmd_show_no_setup");
 
-    {
-        let local_cfg_abs_path = itew.get_abs_path(PathTestEnvironment::LocalCfg).unwrap();
-        let e = itew.e();
-        let mut e = e.borrow_mut();
-
-        let local_cfg_file = itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap();
-        e.add_file(
-            &local_cfg_file,
-            r#"
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
 setups: []
         "#,
-        );
+    );
 
-        let local_cfg_file = itew.get_rel_path(PathTestEnvironment::GlobalCfg).unwrap();
-        e.add_file(
-            &local_cfg_file,
-            format!(
-                r#"
+    e.add_file(
+        HOME_CFG_FILE,
+        format!(
+            r#"
 projects:
-  - file: {}
+  - file: {file}
     current:
         setup: setup_1
     setups: []
         "#,
-                local_cfg_abs_path.to_string_lossy()
-            ),
-        );
-        e.setup();
-    }
+            file = e.path().join(PROJECT_CFG_FILE).to_string_lossy()
+        ),
+    );
+    e.setup();
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -78,40 +68,32 @@ projects:
 
 #[test]
 fn cmd_show() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_show");
+    let mut e = init("cmd_show");
 
-    {
-        let local_cfg_abs_path = itew.get_abs_path(PathTestEnvironment::LocalCfg).unwrap();
-        let e = itew.e();
-        let mut e = e.borrow_mut();
-
-        let local_cfg_file = itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap();
-        e.add_file(
-            &local_cfg_file,
-            r#"
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
 setups: []
         "#,
-        );
+    );
 
-        let local_cfg_file = itew.get_rel_path(PathTestEnvironment::GlobalCfg).unwrap();
-        e.add_file(
-            &local_cfg_file,
-            format!(
-                r#"
+    e.add_file(
+        HOME_CFG_FILE,
+        format!(
+            r#"
 projects:
-  - file: {}
+  - file: {file}
     current:
         setup: setup_1
         env: example
     setups: []
         "#,
-                local_cfg_abs_path.to_string_lossy()
-            ),
-        );
-        e.setup();
-    }
+            file = e.path().join(PROJECT_CFG_FILE).to_string_lossy()
+        ),
+    );
+    e.setup();
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")

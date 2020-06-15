@@ -1,6 +1,6 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
-use std::path::PathBuf;
+
 use test_utils::init;
 use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_DIR};
 

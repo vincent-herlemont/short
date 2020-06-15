@@ -1,7 +1,7 @@
 use crate::test_utils::{
     HOME_CFG_FILE, PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_RUN_FILE,
 };
-use predicates::prelude::predicate::path::exists;
+
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 use test_utils::init;
