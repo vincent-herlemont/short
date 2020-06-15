@@ -1,8 +1,9 @@
-mod test_utils;
 use crate::test_utils::{HOME_CFG_FILE, PROJECT_CFG_FILE, PROJECT_DIR};
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 use test_utils::init;
+
+mod test_utils;
 
 #[test]
 fn generate_template() {

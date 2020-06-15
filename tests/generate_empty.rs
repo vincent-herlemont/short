@@ -1,80 +1,64 @@
-use crate::utils::{IntegrationTestEnvironmentWrapper, PathTestEnvironment};
-
+use crate::test_utils::{
+    HOME_CFG_FILE, PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_RUN_FILE,
+};
 use predicates::prelude::predicate::path::exists;
 use predicates::prelude::Predicate;
 use predicates::str::contains;
+use test_utils::init;
 
-mod utils;
+mod test_utils;
 
 #[test]
 fn cmd_generate() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_init");
-    {
-        let e = itew.e();
-        let mut e = e.borrow_mut();
-        e.add_file(
-            &itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap(),
-            r#"
-setups: []
-        "#,
-        );
-        e.setup();
-    }
+    let mut e = init("cmd_generate");
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
+setups: []
+"#,
+    );
+    e.setup();
+
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
         .arg("setup_1")
-        .arg("example")
+        .arg("example1")
         .assert()
         .success()
         .to_string();
 
     assert!(contains("generate setup").eval(&r));
+    debug_assert!(e.exist_file(PROJECT_ENV_EXAMPLE_1_FILE));
 
-    {
-        let e = itew.e();
-        let e = e.borrow_mut();
-        let local_env_example = itew
-            .get_rel_path(PathTestEnvironment::LocalEnvExample)
-            .unwrap();
-        exists().eval(&local_env_example);
+    let r = e.read_file(PROJECT_CFG_FILE);
+    assert!(contains("setup_1").eval(&r));
 
-        let r = e.read_file(itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap());
-        assert!(contains("setup_1").eval(&r));
+    let r = e.read_file(PROJECT_RUN_FILE);
+    assert!(contains("declare -A all && eval all=($ALL)").eval(&r));
 
-        let r = e.read_file("project/run.sh");
-        assert!(contains("declare -A all && eval all=($ALL)").eval(&r));
-
-        let r = e.read_file(itew.get_rel_path(PathTestEnvironment::GlobalCfg).unwrap());
-        assert!(contains("current").count(1).eval(&r));
-        assert!(contains("setup: setup_1").count(1).eval(&r));
-        assert!(contains("env: example").count(1).eval(&r));
-    }
+    let r = e.read_file(HOME_CFG_FILE);
+    assert!(contains("current").count(1).eval(&r));
+    assert!(contains("setup: setup_1").count(1).eval(&r));
+    assert!(contains("env: example").count(1).eval(&r));
 }
 
 #[test]
 fn cmd_generate_with_existing_env() {
-    let itew = IntegrationTestEnvironmentWrapper::init_all("cmd_generate_with_existing_env");
-    let local_env_example = itew
-        .get_rel_path(PathTestEnvironment::LocalEnvExample)
-        .unwrap();
+    let mut e = init("cmd_generate_with_existing_env");
     let local_env_example_content = r#"VAR1=VALUE1"#;
-    {
-        let e = itew.e();
-        let mut e = e.borrow_mut();
-        e.add_file(&local_env_example, local_env_example_content);
-        e.add_file(
-            &itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap(),
-            r#"
+    e.add_file(PROJECT_ENV_EXAMPLE_1_FILE, local_env_example_content);
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
 setups: []
-        "#,
-        );
-        e.setup();
-    }
+    "#,
+    );
+    e.setup();
 
-    let mut command = itew.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -86,22 +70,18 @@ setups: []
 
     assert!(contains("generate setup").eval(&r));
 
-    {
-        let e = itew.e();
-        let e = e.borrow_mut();
-        exists().eval(&local_env_example);
-        let r = e.read_file(&local_env_example);
-        assert_eq!(r, local_env_example_content);
+    assert!(e.exist_file(PROJECT_ENV_EXAMPLE_1_FILE));
+    let r = e.read_file(PROJECT_ENV_EXAMPLE_1_FILE);
+    assert_eq!(r, local_env_example_content);
 
-        let r = e.read_file(itew.get_rel_path(PathTestEnvironment::LocalCfg).unwrap());
-        assert!(contains("setup_1").eval(&r));
+    let r = e.read_file(PROJECT_CFG_FILE);
+    assert!(contains("setup_1").eval(&r));
 
-        let r = e.read_file("project/run.sh");
-        assert!(contains("declare -A all && eval all=($ALL)").eval(&r));
+    let r = e.read_file(PROJECT_RUN_FILE);
+    assert!(contains("declare -A all && eval all=($ALL)").eval(&r));
 
-        let r = e.read_file(itew.get_rel_path(PathTestEnvironment::GlobalCfg).unwrap());
-        assert!(contains("current").count(1).eval(&r));
-        assert!(contains("setup: setup_1").count(1).eval(&r));
-        assert!(contains("env: example").count(1).eval(&r));
-    }
+    let r = e.read_file(HOME_CFG_FILE);
+    assert!(contains("current").count(1).eval(&r));
+    assert!(contains("setup: setup_1").count(1).eval(&r));
+    assert!(contains("env: example").count(1).eval(&r));
 }
