@@ -30,7 +30,7 @@ git2 = "0.13"
 
 [dev-dependencies]
 predicates = "1.0.4"
-cli_integration_test = { path = "../cli_integration_test" }
+cli_integration_test = "0.2.2"
 
 [lib]
 name = "short"

@@ -31,7 +31,7 @@ setups: []
         .to_string();
 
     assert!(contains("generate setup").eval(&r));
-    debug_assert!(e.exist_file(PROJECT_ENV_EXAMPLE_1_FILE));
+    debug_assert!(e.file_exists(PROJECT_ENV_EXAMPLE_1_FILE));
 
     let r = e.read_file(PROJECT_CFG_FILE);
     assert!(contains("setup_1").eval(&r));
@@ -70,7 +70,7 @@ setups: []
 
     assert!(contains("generate setup").eval(&r));
 
-    assert!(e.exist_file(PROJECT_ENV_EXAMPLE_1_FILE));
+    assert!(e.file_exists(PROJECT_ENV_EXAMPLE_1_FILE));
     let r = e.read_file(PROJECT_ENV_EXAMPLE_1_FILE);
     assert_eq!(r, local_env_example_content);
 
