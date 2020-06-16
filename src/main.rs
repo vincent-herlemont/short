@@ -49,6 +49,11 @@ fn run() -> Result<()> {
         Arg::with_name("no_delete")
             .long("no_delete")
             .help("Take care to not delete vars, command fail otherwise."),
+        Arg::with_name("file")
+            .long("file")
+            .short("f")
+            .takes_value(true)
+            .help("Source env file, take as model for envs synchronisation."),
     ];
     let env_group_vars = vec![
         ArgGroup::with_name("update_action")

@@ -18,6 +18,7 @@ pub struct SyncSettings {
     pub copy: bool,
     pub delete: bool,
     pub no_delete: bool,
+    pub file: Option<String>,
 }
 
 impl SyncSettings {
@@ -27,6 +28,7 @@ impl SyncSettings {
             copy: args.is_present("copy"),
             delete: args.is_present("delete"),
             no_delete: args.is_present("no_delete"),
+            file: args.value_of("file").map(|f| f.to_string()),
         }
     }
 }
@@ -56,7 +58,14 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
 }
 
 pub fn sync_workflow(recent_env: Env, envs: Vec<Env>, sync_settings: SyncSettings) -> Result<()> {
+    let recent_env = if let Some(file) = sync_settings.file.as_ref() {
+        Env::from_file_reader(file)?
+    } else {
+        recent_env
+    };
+
     let sync_settings = Rc::new(sync_settings);
+
     for mut env in envs {
         if env.file() == recent_env.file() {
             continue;
