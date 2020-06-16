@@ -11,7 +11,7 @@ use test_utils::{
 mod test_utils;
 
 #[test]
-fn cmd_env_sync_add_empty() {
+fn cmd_sync_add_empty() {
     let mut e = init("cmd_env_sync_add_empty");
     e.add_file(
         PROJECT_ENV_EXAMPLE_1_FILE,
@@ -39,7 +39,6 @@ VAR2=VALUE2
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("sync")
         .arg("--empty")
         .args(vec!["-s", "setup_1"])
@@ -65,7 +64,7 @@ VAR2=VALUE2
 }
 
 #[test]
-fn cmd_env_sync_add_copy() {
+fn cmd_sync_add_copy() {
     let mut e = init("cmd_env_sync_add_copy");
     e.add_file(
         PROJECT_ENV_EXAMPLE_1_FILE,
@@ -94,7 +93,6 @@ setups:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("sync")
         .arg("--copy")
         .args(vec!["-s", "setup_1"])
@@ -109,7 +107,7 @@ setups:
 }
 
 #[test]
-fn cmd_env_sync_delete() {
+fn cmd_sync_delete() {
     let mut e = init("cmd_env_sync_delete");
     e.add_file(
         PROJECT_ENV_EXAMPLE_1_FILE,
@@ -138,7 +136,6 @@ setups:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("sync")
         .arg("--delete")
         .args(vec!["-s", "setup_1"])
@@ -153,7 +150,7 @@ setups:
 }
 
 #[test]
-fn cmd_env_sync_no_delete() {
+fn cmd_sync_no_delete() {
     let mut e = init("cmd_env_sync_no_delete");
     let initial_target = r#"VAR1=VALUE1
 VAR3=VALUE3
@@ -178,7 +175,6 @@ setups:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("sync")
         .arg("--no_delete")
         .args(vec!["-s", "setup_1"])

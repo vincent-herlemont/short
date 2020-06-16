@@ -7,7 +7,7 @@ use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_DIR};
 mod test_utils;
 
 #[test]
-fn cmd_env_dir() {
+fn cmd_dir() {
     let mut e = init("cmd_env_dir");
     e.add_file(
         PROJECT_CFG_FILE,
@@ -23,7 +23,6 @@ setups:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("dir")
         .arg("dir_not_found")
         .args(vec!["-s", "setup_1"])
@@ -38,7 +37,6 @@ setups:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("dir")
         .arg("env")
         .args(vec!["-s", "setup_1"])
@@ -56,7 +54,6 @@ setups:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("dir")
         .arg("--unset")
         .args(vec!["-s", "setup_1"])
@@ -72,7 +69,6 @@ setups:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("dir")
         .arg("--unset")
         .args(vec!["-s", "setup_1"])

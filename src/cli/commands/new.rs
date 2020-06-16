@@ -4,8 +4,8 @@ use crate::cli::terminal::message::success;
 use anyhow::Result;
 use clap::ArgMatches;
 
-use crate::cfg::{Cfg};
-use crate::cli::commands::env_sync::{sync_workflow, SyncSettings};
+use crate::cfg::Cfg;
+use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::error::CliError;
 use crate::cli::settings::get_settings;
 use crate::env_file::{path_from_env_name, Env};

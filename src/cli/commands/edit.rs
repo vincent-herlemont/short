@@ -1,4 +1,4 @@
-use super::env_sync::{sync_workflow, SyncSettings};
+use super::sync::{sync_workflow, SyncSettings};
 use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
 use crate::cli::settings::get_settings;

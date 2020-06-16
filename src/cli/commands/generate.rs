@@ -1,4 +1,4 @@
-use super::env_new::env_new_workflow;
+use super::new::env_new_workflow;
 use super::r#use::use_workflow;
 use crate::cfg::{load_local_cfg, LocalSetupCfg, SetupCfg, SetupsCfg};
 use crate::cli::cfg::get_cfg;

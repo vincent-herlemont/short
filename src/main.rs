@@ -2,6 +2,7 @@
 extern crate anyhow;
 #[macro_use]
 extern crate log;
+
 #[macro_use]
 use short::cli::commands;
 use short::cli::terminal::emoji;
@@ -96,9 +97,9 @@ fn run() -> Result<()> {
                 )
                 .arg(Arg::with_name("template").long("template").short("t").takes_value(true).help("specified your template name"))
                 .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory"))
-                .group(ArgGroup::with_name("generate_type").args(&["env_name","template"]).required(true))
+                .group(ArgGroup::with_name("generate_type").args(&["env_name", "template"]).required(true))
                 .group(ArgGroup::with_name("exclude_for_generate_template")
-                    .args(&["file","shebang","private"])
+                    .args(&["file", "shebang", "private"])
                     .multiple(true)
                     .required(false)
                     .conflicts_with("template")
@@ -128,67 +129,61 @@ fn run() -> Result<()> {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("env")
-                .setting(AppSettings::SubcommandRequiredElseHelp)
-                .setting(AppSettings::DeriveDisplayOrder)
-                .about("Manage environment files")
-                .subcommand(
-                    SubCommand::with_name("new")
-                        .about("Add new environment, create env file \".<environment>\", in public directory default.")
-                        .arg(Arg::with_name("name")
-                                .help("Environment name")
-                                .index(1)
-                                .required(true),
-                        )
-                        .arg(setup_arg.clone())
-                        .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory"))
-                        .args(&env_vars)
-                        .groups(&env_group_vars)
+            SubCommand::with_name("new")
+                .about("Add new environment, create env file \".<environment>\", in public directory default.")
+                .arg(Arg::with_name("name")
+                         .help("Environment name")
+                         .index(1)
+                         .required(true),
                 )
-                .subcommand(SubCommand::with_name("sync")
-                    .about("Sync env files")
-                    .arg(setup_arg.clone())
-                    .args(&env_vars)
-                    .groups(&env_group_vars)
-                )
-                .subcommand(SubCommand::with_name("edit")
-                    .about("Edit env file")
-                    .arg(Arg::with_name("environment")
-                        .help("Environment name")
+                .arg(setup_arg.clone())
+                .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory"))
+                .args(&env_vars)
+                .groups(&env_group_vars)
+        )
+        .subcommand(SubCommand::with_name("sync")
+            .about("Sync env files")
+            .arg(setup_arg.clone())
+            .args(&env_vars)
+            .groups(&env_group_vars)
+        )
+        .subcommand(SubCommand::with_name("edit")
+            .about("Edit env file")
+            .arg(Arg::with_name("environment")
+                .help("Environment name")
+                .index(1)
+            )
+            .arg(setup_arg.clone())
+            .arg(Arg::with_name("editor")
+                .long("editor")
+                .takes_value(true)
+                .help("Editor"))
+            .args(&env_vars)
+            .groups(&env_group_vars)
+        )
+        .subcommand(
+            SubCommand::with_name("dir")
+                .about("Change env directory, [.] by default.")
+                .arg(
+                    Arg::with_name("env_dir")
+                        .help("Env directory path, must be directory child of your project")
                         .index(1)
-                    )
-                    .arg(setup_arg.clone())
-                    .arg(Arg::with_name("editor")
-                        .long("editor")
-                        .takes_value(true)
-                        .help("Editor"))
-                    .args(&env_vars)
-                    .groups(&env_group_vars)
                 )
-                .subcommand(
-                    SubCommand::with_name("dir")
-                        .about("Change env directory, [.] by default.")
-                        .arg(
-                            Arg::with_name("env_dir")
-                                .help("Env directory path, must be directory child of your project")
-                                .index(1)
-                        )
-                        .arg(Arg::with_name("unset").long("unset").help("Unset directory path"))
-                        .group(ArgGroup::with_name("action").args(&["env_dir","unset"]).required(true))
-                        .arg(setup_arg.clone()),
+                .arg(Arg::with_name("unset").long("unset").help("Unset directory path"))
+                .group(ArgGroup::with_name("action").args(&["env_dir", "unset"]).required(true))
+                .arg(setup_arg.clone()),
+        )
+        .subcommand(
+            SubCommand::with_name("pdir")
+                .about("Add or change private env directory")
+                .arg(
+                    Arg::with_name("env_dir")
+                        .help("Private env directory path, must be outside of your project")
+                        .index(1),
                 )
-                .subcommand(
-                    SubCommand::with_name("pdir")
-                        .about("Add or change private env directory")
-                        .arg(
-                            Arg::with_name("env_dir")
-                                .help("Private env directory path, must be outside of your project")
-                                .index(1),
-                        )
-                        .arg(Arg::with_name("unset").long("unset").help("Unset private directory path"))
-                        .group(ArgGroup::with_name("action").args(&["env_dir","unset"]).required(true))
-                        .arg(setup_arg.clone()),
-                ),
+                .arg(Arg::with_name("unset").long("unset").help("Unset private directory path"))
+                .group(ArgGroup::with_name("action").args(&["env_dir", "unset"]).required(true))
+                .arg(setup_arg.clone())
         )
         .subcommand(SubCommand::with_name("show").about("Show your current set up"))
         .subcommand(
@@ -227,18 +222,16 @@ fn run() -> Result<()> {
         commands::r#use(&args)?;
     } else if let Some(_) = app.subcommand_matches("show") {
         commands::show()?;
-    } else if let Some(args) = app.subcommand_matches("env") {
-        if let Some(args) = args.subcommand_matches("new") {
-            commands::env_new(args)?;
-        } else if let Some(args) = args.subcommand_matches("edit") {
-            commands::env_edit(args)?;
-        } else if let Some(args) = args.subcommand_matches("sync") {
-            commands::env_sync(args)?;
-        } else if let Some(args) = args.subcommand_matches("dir") {
-            commands::env_dir(args)?;
-        } else if let Some(args) = args.subcommand_matches("pdir") {
-            commands::env_pdir(args)?;
-        }
+    } else if let Some(args) = app.subcommand_matches("dir") {
+        commands::env_dir(args)?;
+    } else if let Some(args) = app.subcommand_matches("pdir") {
+        commands::env_pdir(args)?;
+    } else if let Some(args) = app.subcommand_matches("new") {
+        commands::env_new(args)?;
+    } else if let Some(args) = app.subcommand_matches("edit") {
+        commands::env_edit(args)?;
+    } else if let Some(args) = app.subcommand_matches("sync") {
+        commands::env_sync(args)?;
     }
 
     Ok(())

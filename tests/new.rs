@@ -1,4 +1,3 @@
-
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 use std::path::PathBuf;
@@ -10,7 +9,7 @@ use test_utils::{
 mod test_utils;
 
 #[test]
-fn cmd_env_new_public() {
+fn cmd_new_public() {
     let mut e = init("cmd_env_new_public");
     e.add_file(
         PROJECT_CFG_FILE,
@@ -26,7 +25,6 @@ setups:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("new")
         .arg("example1")
         .args(vec!["-s", "setup_1"])
@@ -39,7 +37,7 @@ setups:
 }
 
 #[test]
-fn cmd_env_new_private() {
+fn cmd_new_private() {
     let mut e = init("cmd_env_new_private");
     e.add_file(
         PROJECT_CFG_FILE,
@@ -71,7 +69,6 @@ projects:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("new")
         .arg("dev")
         .args(vec!["-p", "-s", "setup_1"])
@@ -83,7 +80,7 @@ projects:
 }
 
 #[test]
-fn cmd_env_new_public_with_sync() {
+fn cmd_new_public_with_sync() {
     let mut e = init("cmd_env_new_public_with_sync");
     let initial_env_file = PathBuf::from(PROJECT_ENV_DIR).join(".initial");
     let initial_env_content = r#"VAR1=VAR1
@@ -103,7 +100,6 @@ setups:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("new")
         .arg("example")
         .arg("--copy")
@@ -120,7 +116,7 @@ setups:
 }
 
 #[test]
-fn cmd_env_new_duplicate_cross_public_private() {
+fn cmd_new_duplicate_cross_public_private() {
     let mut e = init("cmd_env_new_public_with_sync");
     e.add_file(PRIVATE_ENV_DEV_FILE, "");
     e.add_file(
@@ -153,7 +149,6 @@ projects:
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("new")
         .arg("dev")
         .args(vec!["-s", "setup_1"])

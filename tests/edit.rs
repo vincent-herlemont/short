@@ -2,16 +2,14 @@ use predicates::prelude::Predicate;
 use predicates::str::contains;
 
 use test_utils::init;
-use test_utils::{
-    PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE,
-};
+use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE};
 
 mod test_utils;
 
 const MOCK_EDITOR_FILE: &'static str = "mock_editor.sh";
 
 #[test]
-fn cmd_env_edit() {
+fn cmd_edit() {
     let mut e = init("cmd_env_edit");
 
     e.add_file(PROJECT_ENV_EXAMPLE_1_FILE, r#"VAR1=VALUE1"#);
@@ -37,7 +35,6 @@ echo -e "\nVAR2=VALUE2" >> $1
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("edit")
         .arg("example1")
         .args(vec!["-s", "setup_1"])
@@ -55,7 +52,7 @@ echo -e "\nVAR2=VALUE2" >> $1
 }
 
 #[test]
-fn cmd_env_edit_with_sync() {
+fn cmd_edit_with_sync() {
     let mut e = init("cmd_env_edit");
     e.add_file(PROJECT_ENV_EXAMPLE_1_FILE, r#"VAR1=VALUE1"#);
     e.add_file(PROJECT_ENV_EXAMPLE_2_FILE, r#"VAR1=VALUE1"#);
@@ -82,7 +79,6 @@ echo -e "\nVAR2=VALUE2" >> $1
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("env")
         .arg("edit")
         .arg("example1")
         .arg("--copy")
