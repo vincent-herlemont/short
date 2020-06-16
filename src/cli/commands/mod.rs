@@ -10,6 +10,7 @@ mod run;
 mod show;
 mod sync;
 mod r#use;
+mod var;
 
 pub use dir::env_dir;
 pub use edit::env_edit;
@@ -23,3 +24,4 @@ pub use rename::rename;
 pub use run::run;
 pub use show::show;
 pub use sync::env_sync;
+pub use var::var;

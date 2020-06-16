@@ -211,6 +211,7 @@ fn run() -> Result<()> {
             .arg(environment_arg.clone())
             .about("List set up and environments")
         )
+        .subcommand(SubCommand::with_name("var").arg(setup_arg.clone()))
         .get_matches();
 
     if let Some(_) = app.subcommand_matches("init") {
@@ -237,6 +238,8 @@ fn run() -> Result<()> {
         commands::env_edit(args)?;
     } else if let Some(args) = app.subcommand_matches("sync") {
         commands::env_sync(args)?;
+    } else if let Some(args) = app.subcommand_matches("var") {
+        commands::var(args)?;
     }
 
     Ok(())

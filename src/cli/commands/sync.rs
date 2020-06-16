@@ -6,10 +6,10 @@ use crate::cli::terminal::message::success;
 use crate::env_file::{Env, EnvDiffController};
 use anyhow::{Context, Result};
 use clap::ArgMatches;
-
 use log::*;
 use std::borrow::Cow;
 
+use std::cell::RefCell;
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -47,8 +47,7 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
     let envs = setup.envs();
     let envs: Vec<_> = envs.into_iter().filter_map(|r| r.ok()).collect();
 
-    let recent_env = Env::recent(&envs);
-    let recent_env = recent_env.context("fail to found the most recent env file")?;
+    let recent_env = Env::recent(&envs)?;
 
     sync_workflow(recent_env, envs, sync_settings)?;
 
@@ -57,17 +56,23 @@ pub fn env_sync(app: &ArgMatches) -> Result<()> {
     Ok(())
 }
 
-pub fn sync_workflow(recent_env: Env, envs: Vec<Env>, sync_settings: SyncSettings) -> Result<()> {
-    let recent_env = if let Some(file) = sync_settings.file.as_ref() {
+pub fn sync_workflow(
+    source_env: Env,
+    envs: Vec<Env>,
+    sync_settings: SyncSettings,
+) -> Result<Vec<Env>> {
+    let source_env = if let Some(file) = sync_settings.file.as_ref() {
         Env::from_file_reader(file)?
     } else {
-        recent_env
+        source_env
     };
+    let envs: Vec<_> = envs.into_iter().map(|env| RefCell::new(env)).collect();
 
     let sync_settings = Rc::new(sync_settings);
 
-    for mut env in envs {
-        if env.file() == recent_env.file() {
+    for env_cell in envs.iter() {
+        let mut env = env_cell.borrow_mut();
+        if env.file() == source_env.file() {
             continue;
         }
         let env_name = Rc::new(env.name()?);
@@ -169,11 +174,11 @@ pub fn sync_workflow(recent_env: Env, envs: Vec<Env>, sync_settings: SyncSetting
                 }
             },
         );
-
-        env.update_by_diff(&recent_env, &controller)
+        env.update_by_diff(&source_env, &controller)
             .context((CliError::EnvFileMustBeSync).to_string())?;
         env.save().unwrap();
     }
 
-    Ok(())
+    let envs: Vec<_> = envs.into_iter().map(|env| env.into_inner()).collect();
+    Ok(envs)
 }

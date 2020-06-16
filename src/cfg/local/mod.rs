@@ -36,7 +36,6 @@ impl SetupsCfg for LocalCfg {
 mod tests {
     use crate::cfg::setup::SetupsCfg;
     use crate::cfg::{LocalCfg, LocalSetupCfg};
-    
 
     #[test]
     fn local_update_public_env_dir() {
