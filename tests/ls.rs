@@ -1,8 +1,11 @@
 use cli_integration_test::IntegrationTestEnvironment;
 use predicates::prelude::Predicate;
 use predicates::str::contains;
-
-
+use std::path::PathBuf;
+use test_utils::init;
+use test_utils::{
+    HOME_CFG_FILE, PRIVATE_ENV_DEV_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE, PROJECT_ENV_DIR,
+};
 
 mod test_utils;
 
@@ -22,13 +25,20 @@ fn cmd_ls_settings() {
 
 #[test]
 fn cmd_ls() {
-    let mut e = IntegrationTestEnvironment::new("cmd_ls_settings");
+    let mut e = init("cmd_ls_settings");
 
     e.add_file("template.yaml", "");
-    e.add_file("setup_2/.example_1", "VAR1=VALUE1");
-    e.add_file("setup_2/.example_2", "VAR1=VALUE1");
     e.add_file(
-        "short.yml",
+        PathBuf::from(PROJECT_ENV_DIR).join(".example1"),
+        "VAR1=VALUE1",
+    );
+    e.add_file(
+        PathBuf::from(PROJECT_ENV_DIR).join(".example2"),
+        "VAR1=VALUE1",
+    );
+    e.add_file(PathBuf::from(PRIVATE_ENV_DEV_FILE), "VAR1=VALUE1");
+    e.add_file(
+        PROJECT_CFG_FILE,
         r"#---
 setups:
   - name: setup_1
@@ -37,8 +47,22 @@ setups:
   - name: setup_2
     file: test.sh
     array_vars: {}
-    public_env_dir: 'setup_2/'
-    #",
+    public_env_dir: env/
+#",
+    );
+    e.add_file(
+        HOME_CFG_FILE,
+        format!(
+            r"
+projects:
+  - file: {file}
+    setups:
+      - name: setup_1
+        private_env_dir: {private_env_dir}
+    ",
+            file = e.path().join(PROJECT_CFG_FILE).to_string_lossy(),
+            private_env_dir = e.path().join(PRIVATE_ENV_DIR).to_string_lossy()
+        ),
     );
     e.setup();
 
@@ -49,7 +73,16 @@ setups:
         .assert()
         .to_string();
 
-    assert!(contains("setup_1").count(1).eval(&r));
+    assert!(contains("setup_1 (test.sh)").count(1).eval(&r));
+    assert!(contains(format!(
+        "dev ({})",
+        e.path().join(PRIVATE_ENV_DEV_FILE).to_string_lossy()
+    ))
+    .count(1)
+    .eval(&r));
+    assert!(contains("setup_2 (test.sh)").count(1).eval(&r));
+    assert!(contains("example1 (env/.example1)").count(1).eval(&r));
+    assert!(contains("example2 (env/.example2)").count(1).eval(&r));
 
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command
@@ -66,9 +99,9 @@ setups:
         .env("RUST_LOG", "debug")
         .arg("ls")
         .args(&["-s", "setup_2"])
-        .args(&["-e", "example_2"])
+        .args(&["-e", "example2"])
         .assert()
         .to_string();
 
-    assert!(contains(">    example_2").count(1).eval(&r));
+    assert!(contains(">    example2").count(1).eval(&r));
 }

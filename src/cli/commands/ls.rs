@@ -3,9 +3,11 @@ use crate::cli::settings::get_settings;
 use crate::cli::terminal::emoji;
 use crate::cli::terminal::message::message;
 use crate::env_file::Env;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::ArgMatches;
 use log::*;
+use term_table::row::Row;
+use term_table::table_cell::TableCell;
 
 fn line(msg: &str, r#use: &bool) {
     let c = if *r#use {
@@ -23,20 +25,12 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
 
     let settings = get_settings(app, &cfg);
 
+    let project = cfg.current_project()?;
+    let project = project.borrow();
     let local_setups = cfg.current_setups()?;
 
     for local_setup in local_setups {
         let setup_name = local_setup.name()?;
-        let envs: Vec<Env> = local_setup
-            .envs()
-            .into_iter()
-            .filter_map(|r| {
-                if let Err(e) = &r {
-                    error!("{}", e);
-                }
-                r.ok()
-            })
-            .collect();
         let check = if let (Ok(setting_setup), Err(_)) = (settings.setup(), settings.env()) {
             if setting_setup == &setup_name {
                 true
@@ -47,8 +41,24 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
             false
         };
 
-        line(&setup_name, &check);
+        let local_setup_cfg = local_setup.local_setup().unwrap();
+        let local_setup_cfg = local_setup_cfg.borrow();
+        let run_file = local_setup_cfg.file();
+        line(
+            format!("{} ({})", &setup_name, run_file.to_string_lossy()).as_str(),
+            &check,
+        );
 
+        let envs: Vec<Env> = local_setup
+            .envs()
+            .into_iter()
+            .filter_map(|r| {
+                if let Err(e) = &r {
+                    error!("{}", e);
+                }
+                r.ok()
+            })
+            .collect();
         if !envs.is_empty() {
             for env in envs {
                 let env_name = match env.name() {
@@ -71,7 +81,15 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
                     false
                 };
 
-                line(format!("   {}", &env_name).as_str(), &check);
+                let env_file = env
+                    .file()
+                    .strip_prefix(project.dir()?)
+                    .unwrap_or(env.file());
+
+                line(
+                    format!("   {} ({})", &env_name, env_file.to_string_lossy()).as_str(),
+                    &check,
+                );
             }
         }
     }

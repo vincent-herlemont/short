@@ -1,9 +1,9 @@
 use crate::cfg::global::setup::GlobalProjectSetupCfg;
 use crate::cfg::SetupsCfg;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 type SetupName = String;
@@ -67,6 +67,13 @@ impl GlobalProjectCfg {
 
     pub fn file(&self) -> &PathBuf {
         &self.file
+    }
+
+    pub fn dir(&self) -> Result<&Path> {
+        self.file.parent().context(format!(
+            "fail to found parent directory of project `{}`",
+            self.file.to_string_lossy()
+        ))
     }
 
     pub fn set_current_setup_name(&mut self, setup_name: SetupName) {
