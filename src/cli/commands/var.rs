@@ -3,7 +3,7 @@ use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::settings::get_settings;
 use crate::env_file::Env;
 use crate::run_file::{generate_env_vars, run_as_stream, EnvValue, EnvVar};
-use anyhow::{Context, Result};
+use anyhow::{Result};
 use clap::ArgMatches;
 use term_table::row::Row;
 use term_table::table_cell::TableCell;
@@ -56,7 +56,7 @@ pub fn var(app: &ArgMatches) -> Result<()> {
     for env_var in env_vars {
         let env_value = env_var.env_value();
         match env_value {
-            EnvValue::Var(value) => {
+            EnvValue::Var(_value) => {
                 let mut line = vec![
                     TableCell::new(env_var.var().to_var()),
                     TableCell::new(env_var.var().to_env_var()),

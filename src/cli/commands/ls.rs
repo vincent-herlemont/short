@@ -3,11 +3,11 @@ use crate::cli::settings::get_settings;
 use crate::cli::terminal::emoji;
 use crate::cli::terminal::message::message;
 use crate::env_file::Env;
-use anyhow::{Context, Result};
+use anyhow::{Result};
 use clap::ArgMatches;
 use log::*;
-use term_table::row::Row;
-use term_table::table_cell::TableCell;
+
+
 
 fn line(msg: &str, r#use: &bool) {
     let c = if *r#use {
