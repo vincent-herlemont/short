@@ -2,7 +2,7 @@ use crate::cli::cfg::get_cfg;
 use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::settings::get_settings;
 use crate::env_file::Env;
-use crate::run_file::{generate_env_vars, run_as_stream};
+use crate::run_file::{generate_env_vars, run_as_stream, EnvValue, EnvVar};
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 use term_table::row::Row;
@@ -21,7 +21,8 @@ pub fn var(app: &ArgMatches) -> Result<()> {
     let envs: Vec<_> = setup.envs().into_iter().filter_map(|r| r.ok()).collect();
     let recent_env = Env::recent(&envs)?;
     let sync_settings = SyncSettings::new(app);
-    let envs = sync_workflow(recent_env, envs, sync_settings)?;
+    let mut envs = sync_workflow(recent_env, envs, sync_settings)?;
+    envs.sort();
 
     if envs.is_empty() {
         println!("there is no env");
@@ -30,28 +31,65 @@ pub fn var(app: &ArgMatches) -> Result<()> {
 
     let env_ref = envs.get(0).map(|env| env.clone()).unwrap();
 
-    let mut title: Vec<_> = envs.iter().map(|env| env.name().unwrap().clone()).collect();
-    title.splice(0..0, vec!["".to_string()].into_iter());
+    // Retrive vars / array_vars
+    let local_setup = setup.local_setup().unwrap();
+    let local_setup = local_setup.borrow();
+    let array_vars = local_setup.array_vars().unwrap_or_default();
+    let vars = local_setup.vars().unwrap_or_default();
+    drop(local_setup);
+    let env_vars = generate_env_vars(&env_ref, array_vars.borrow(), vars.borrow())?;
 
-    let mut table = vec![title];
-    for var_ref in env_ref.iter() {
-        let mut line = vec![];
-        line.push(var_ref.name().clone());
-        for env in &envs {
-            let var = env.get(var_ref.name()).unwrap();
-            line.push(var.value().clone());
-        }
-        table.push(line);
-    }
-
-    // Display matrix
     let mut render_table = term_table::Table::new();
+    render_table.separate_rows = false;
     render_table.style = term_table::TableStyle::thin();
 
-    for row in table {
-        let cells: Vec<_> = row.iter().map(|cell| TableCell::new(cell)).collect();
-        render_table.add_row(Row::new(cells));
+    let mut title: Vec<_> = envs
+        .iter()
+        .map(|env| TableCell::new(env.name().unwrap().clone()))
+        .collect();
+    title.splice(0..0, vec![TableCell::new_with_col_span("", 2)].into_iter());
+
+    render_table.add_row(Row::new(title));
+
+    let nb_envs = envs.len();
+    for env_var in env_vars {
+        let env_value = env_var.env_value();
+        match env_value {
+            EnvValue::Var(value) => {
+                let mut line = vec![
+                    TableCell::new(env_var.var().to_var()),
+                    TableCell::new(env_var.var().to_env_var()),
+                ];
+                for env in &envs {
+                    line.push(TableCell::new(
+                        env.get(env_var.var().to_string()).unwrap().value().clone(),
+                    ));
+                }
+                render_table.add_row(Row::new(line));
+            }
+            EnvValue::ArrayVar((array_var, array_var_values)) => {
+                let line = vec![
+                    TableCell::new(env_var.var().to_var()),
+                    TableCell::new_with_col_span(
+                        format!("{} ({})", env_var.var().to_env_var(), array_var.pattern()),
+                        nb_envs,
+                    ),
+                ];
+                render_table.add_row(Row::new(line));
+
+                for var in array_var_values {
+                    let mut line = vec![TableCell::new("".to_string())];
+                    line.push(TableCell::new(var.name().clone()));
+                    for env in &envs {
+                        let env_var = env.get(var.name()).unwrap();
+                        line.push(TableCell::new(env_var.value().clone()));
+                    }
+                    render_table.add_row(Row::new(line));
+                }
+            }
+        }
     }
+
     println!("{}", render_table.render());
 
     Ok(())

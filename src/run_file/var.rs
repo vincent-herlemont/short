@@ -1,10 +1,35 @@
 use crate::cfg::{ArrayVar, ArrayVars, Var, Vars};
+use crate::env_file;
 use crate::env_file::Env;
 use anyhow::Result;
 use regex::Regex;
 use std::ops::Deref;
 
-type EnvValue = String;
+#[derive(Debug)]
+pub enum EnvValue {
+    Var(env_file::Var),
+    ArrayVar((ArrayVar, Vec<env_file::Var>)),
+}
+
+impl ToString for EnvValue {
+    fn to_string(&self) -> String {
+        match self {
+            EnvValue::Var(value) => value.value().clone(),
+            EnvValue::ArrayVar((_, array_var_value)) => {
+                let mut env_value_buf = " ".to_string();
+                for var in array_var_value.iter() {
+                    env_value_buf = format!(
+                        "{}[{}]='{}' ",
+                        env_value_buf.clone(),
+                        var.name(),
+                        var.value()
+                    );
+                }
+                env_value_buf
+            }
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct EnvVar(Var, EnvValue);
@@ -25,31 +50,37 @@ impl From<(Var, EnvValue)> for EnvVar {
 }
 
 pub fn generate_array_env_var(env: &Env, array_var: &ArrayVar) -> Result<EnvVar> {
-    let mut env_value_buf = " ".to_string();
     let re = Regex::new(array_var.pattern().as_str())?;
+    let mut array_var_value: Vec<env_file::Var> = vec![];
     for var in env.iter() {
         if re.is_match(var.name()) {
-            env_value_buf = format!(
-                "{}[{}]='{}' ",
-                env_value_buf.clone(),
-                var.name(),
-                var.value()
-            );
+            array_var_value.push(var.clone());
         }
     }
-    Ok((array_var.var().clone(), env_value_buf).into())
+    Ok((
+        array_var.var().clone(),
+        EnvValue::ArrayVar((array_var.clone(), array_var_value)),
+    )
+        .into())
 }
 
 pub fn generate_env_var(env: &Env, var: &Var) -> EnvVar {
     env.iter()
         .find_map(|env_var| {
             if env_var.name() == &var.to_env_var() {
-                Some((var.clone(), env_var.value().clone()).into())
+                Some((var.clone(), EnvValue::Var(env_var.clone())).into())
             } else {
                 None
             }
         })
-        .map_or((var.clone(), "".to_string()).into(), |e| e)
+        .map_or(
+            (
+                var.clone(),
+                EnvValue::Var(env_file::Var::new(var.to_string(), "")),
+            )
+                .into(),
+            |e| e,
+        )
 }
 
 pub fn generate_env_vars<AV, V>(env: &Env, array_vars: AV, vars: V) -> Result<Vec<EnvVar>>
@@ -87,7 +118,10 @@ mod tests {
 
         let env_var = generate_array_env_var(&env_file, &array_var).unwrap();
         assert_eq!(env_var.var().to_string(), "all");
-        assert_eq!(env_var.env_value(), " [VAR1]='VALUE1' [VAR2]='VALUE2' ");
+        assert_eq!(
+            env_var.env_value().to_string(),
+            " [VAR1]='VALUE1' [VAR2]='VALUE2' "
+        );
     }
 
     #[test]
@@ -100,6 +134,6 @@ mod tests {
 
         let env_var = generate_env_var(&env_file, &var);
         assert_eq!(env_var.var().to_string(), "VAR1");
-        assert_eq!(env_var.env_value(), "VALUE1");
+        assert_eq!(env_var.env_value().to_string(), "VALUE1");
     }
 }

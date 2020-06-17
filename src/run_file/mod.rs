@@ -2,7 +2,7 @@ mod file;
 mod var;
 
 pub use file::{set_exec_permision, File};
-pub use var::{generate_array_env_var, generate_env_var, generate_env_vars, EnvVar};
+pub use var::{generate_array_env_var, generate_env_var, generate_env_vars, EnvValue, EnvVar};
 
 use anyhow::{Context, Result};
 use std::fmt::Write as FmtWrite;
@@ -48,7 +48,7 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
     command.env_clear();
 
     for env_var in vars.iter() {
-        command.env(env_var.var().to_env_var(), env_var.env_value());
+        command.env(env_var.var().to_env_var(), env_var.env_value().to_string());
     }
 
     let mut child = command

@@ -8,6 +8,7 @@ use crate::env_file::entry::Entry;
 use crate::env_file::iter::EnvIterator;
 use crate::utils::write_all::write_all_dir;
 
+use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader};
@@ -26,7 +27,7 @@ mod var;
 pub type Result<T> = std::result::Result<T, EnvError>;
 pub type ResultParse<T> = std::result::Result<T, EnvReaderError>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq)]
 pub struct Env {
     file: PathBuf,
     entries: Vec<Entry>,
@@ -38,6 +39,24 @@ impl Display for Env {
             write!(f, "{}", entry)?;
         }
         Ok(())
+    }
+}
+
+impl PartialEq for Env {
+    fn eq(&self, other: &Self) -> bool {
+        self.file.eq(&other.file)
+    }
+}
+
+impl PartialOrd for Env {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.file.partial_cmp(&other.file)
+    }
+}
+
+impl Ord for Env {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.file.cmp(&other.file)
     }
 }
 
