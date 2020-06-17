@@ -21,7 +21,9 @@ pub fn env(app: &ArgMatches) -> Result<()> {
     let envs: Vec<_> = setup.envs().into_iter().filter_map(|r| r.ok()).collect();
     let recent_env = Env::recent(&envs)?;
     let sync_settings = SyncSettings::new(app);
-    let envs = sync_workflow(recent_env, envs, sync_settings)?;
+    let mut envs = sync_workflow(recent_env, envs, sync_settings)?;
+    envs.sort();
+    let envs = envs;
 
     if envs.is_empty() {
         println!("there is no env");
@@ -46,6 +48,7 @@ pub fn env(app: &ArgMatches) -> Result<()> {
 
     // Display matrix
     let mut render_table = term_table::Table::new();
+    render_table.separate_rows = false;
     render_table.style = term_table::TableStyle::thin();
 
     for row in table {

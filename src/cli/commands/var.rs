@@ -23,6 +23,7 @@ pub fn var(app: &ArgMatches) -> Result<()> {
     let sync_settings = SyncSettings::new(app);
     let mut envs = sync_workflow(recent_env, envs, sync_settings)?;
     envs.sort();
+    let envs = envs;
 
     if envs.is_empty() {
         println!("there is no env");

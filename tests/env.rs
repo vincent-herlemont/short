@@ -1,3 +1,5 @@
+use predicates::prelude::Predicate;
+use predicates::str::contains;
 use test_utils::init;
 use test_utils::{
     HOME_CFG_FILE, PRIVATE_ENV_DEV_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE, PROJECT_ENV_DIR,
@@ -40,5 +42,13 @@ VAR_B=VALUE2
         .assert()
         .to_string();
 
-    println!("{}", &r);
+    assert!(contains(
+        r#"┌───────┬──────────┬──────────┐
+│       │ example1 │ example2 │
+│ VAR_A │ VALUE1   │ VALUE2   │
+│ VAR_B │ VALUE1   │ VALUE2   │
+└───────┴──────────┴──────────┘
+"#,
+    )
+    .eval(&r));
 }
