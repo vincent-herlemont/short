@@ -190,7 +190,21 @@ fn run() -> Result<()> {
                 .group(ArgGroup::with_name("action").args(&["env_dir", "unset"]).required(true))
                 .arg(setup_arg.clone())
         )
-        .subcommand(SubCommand::with_name("show").about("Show your current set up"))
+        .subcommand(
+            SubCommand::with_name("show")
+                .arg(
+                Arg::with_name("display_setup")
+                        .long("setup").short("s").takes_value(false)
+                        .help("Display setup name")
+                ).arg(Arg::with_name("display_env")
+                        .long("env").short("e").takes_value(false)
+                        .help("Display setup env")
+                ).group(ArgGroup::with_name("display")
+                    .args(&["display_setup","display_env"])
+                    .required(false)
+                    .multiple(false)
+            ).about("Show your current set up")
+        )
         .subcommand(
             SubCommand::with_name("use")
                 .about("Switch of current setup or/and environment")
@@ -227,8 +241,8 @@ fn run() -> Result<()> {
         commands::rename(&args)?;
     } else if let Some(args) = app.subcommand_matches("use") {
         commands::r#use(&args)?;
-    } else if let Some(_) = app.subcommand_matches("show") {
-        commands::show()?;
+    } else if let Some(args) = app.subcommand_matches("show") {
+        commands::show(args)?;
     } else if let Some(args) = app.subcommand_matches("dir") {
         commands::env_dir(args)?;
     } else if let Some(args) = app.subcommand_matches("pdir") {

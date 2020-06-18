@@ -28,6 +28,26 @@ setups: []
         .to_string();
 
     assert!(contains("no setup is configured. You can use").eval(&r));
+
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("show")
+        .arg("-s")
+        .assert()
+        .to_string();
+
+    assert!(contains("``````").eval(&r));
+
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("show")
+        .arg("-e")
+        .assert()
+        .to_string();
+
+    assert!(contains("``````").eval(&r));
 }
 
 #[test]
@@ -64,6 +84,26 @@ projects:
         .to_string();
 
     assert!(contains("no env is configured for \"setup_1\"").eval(&r));
+
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("show")
+        .arg("-s")
+        .assert()
+        .to_string();
+
+    assert!(contains("```setup_1```").eval(&r));
+
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("show")
+        .arg("-e")
+        .assert()
+        .to_string();
+
+    assert!(contains("``````").eval(&r));
 }
 
 #[test]
@@ -101,4 +141,24 @@ projects:
         .to_string();
 
     assert!(contains("your current setup is \"setup_1\":\"example\"").eval(&r));
+
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("show")
+        .arg("-s")
+        .assert()
+        .to_string();
+
+    assert!(contains("```setup_1```").eval(&r));
+
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("show")
+        .arg("-e")
+        .assert()
+        .to_string();
+
+    assert!(contains("```example```").eval(&r));
 }
