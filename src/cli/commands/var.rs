@@ -3,7 +3,7 @@ use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::settings::get_settings;
 use crate::env_file::Env;
 use crate::run_file::{generate_env_vars, run_as_stream, EnvValue, EnvVar};
-use anyhow::{Result};
+use anyhow::Result;
 use clap::ArgMatches;
 use term_table::row::Row;
 use term_table::table_cell::TableCell;
@@ -52,7 +52,7 @@ pub fn var(app: &ArgMatches) -> Result<()> {
 
     render_table.add_row(Row::new(title));
 
-    let nb_envs = envs.len();
+    let nb_envs = envs.len() + 1;
     for env_var in env_vars {
         let env_value = env_var.env_value();
         match env_value {
@@ -73,7 +73,7 @@ pub fn var(app: &ArgMatches) -> Result<()> {
                     TableCell::new(env_var.var().to_var()),
                     TableCell::new_with_col_span(
                         format!("{} ({})", env_var.var().to_env_var(), array_var.pattern()),
-                        nb_envs,
+                        3,
                     ),
                 ];
                 render_table.add_row(Row::new(line));

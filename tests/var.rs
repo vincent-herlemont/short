@@ -50,7 +50,7 @@ CONFIG=AZE
     assert!(contains(
         r#"┌─────────────────┬──────────┬──────────┐
 │                 │ example1 │ example2 │
-│ all    │ ALL (VAR.*)       │          │
+│ all    │ ALL (VAR.*)                  │
 │        │ VAR_A  │ VALUE1   │ VALUE2   │
 │        │ VAR_B  │ VALUE1   │ VALUE2   │
 │ var_a  │ VAR_A  │ VALUE1   │ VALUE2   │
