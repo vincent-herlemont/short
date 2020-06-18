@@ -73,7 +73,7 @@ pub fn var(app: &ArgMatches) -> Result<()> {
                     TableCell::new(env_var.var().to_var()),
                     TableCell::new_with_col_span(
                         format!("{} ({})", env_var.var().to_env_var(), array_var.pattern()),
-                        3,
+                        nb_envs,
                     ),
                 ];
                 render_table.add_row(Row::new(line));
