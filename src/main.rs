@@ -80,7 +80,6 @@ fn run() -> Result<()> {
                 .arg(
                     Arg::with_name("setup_name")
                         .index(1)
-                        .required(true)
                         .help("Setup name"),
                 )
                 .arg(
@@ -100,9 +99,11 @@ fn run() -> Result<()> {
                         .short("s")
                         .help("Interpreter program")
                 )
-                .arg(Arg::with_name("template").long("template").short("t").takes_value(true).help("specified your template name"))
+                .arg(Arg::with_name("list").long("list").short("l").help("Display template list"))
+                .arg(Arg::with_name("template").long("template").short("t").takes_value(true).help("Specified your template name"))
                 .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory"))
-                .group(ArgGroup::with_name("generate_type").args(&["env_name", "template"]).required(true))
+                .group(ArgGroup::with_name("action_type").args(&["setup_name","list"]).required(true))
+                .group(ArgGroup::with_name("generate_type").args(&["env_name", "template", "list"]).required(true))
                 .group(ArgGroup::with_name("exclude_for_generate_template")
                     .args(&["file", "shebang", "private"])
                     .multiple(true)

@@ -15,7 +15,7 @@ impl Registry {
         Self {}
     }
 
-    fn index() -> HashMap<Name, Url> {
+    pub fn index() -> HashMap<Name, Url> {
         let mut data = HashMap::new();
         data.insert(
             "aws-sam".to_string(),

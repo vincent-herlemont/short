@@ -12,6 +12,8 @@ use anyhow::{Context, Result};
 use clap::ArgMatches;
 use std::env::current_dir;
 use std::path::PathBuf;
+use term_table::row::Row;
+use term_table::table_cell::TableCell;
 
 use tempdir::TempDir;
 
@@ -28,6 +30,11 @@ impl GenerateSettings {
 }
 
 pub fn generate(app: &ArgMatches) -> Result<()> {
+    if app.is_present("list") {
+        display_template_list()?;
+        return Ok(());
+    }
+
     let generate_settings = GenerateSettings::new(app);
 
     if app.is_present("template") {
@@ -35,6 +42,25 @@ pub fn generate(app: &ArgMatches) -> Result<()> {
     } else {
         generate_empty_workflow(app, &generate_settings)
     }
+}
+
+fn display_template_list() -> Result<()> {
+    let registry = Registry::index();
+    let mut render_table = term_table::Table::new();
+    render_table.separate_rows = false;
+    render_table.style = term_table::TableStyle::blank();
+
+    for (name, url) in registry {
+        if name.eq("test") {
+            // Remove test repository
+            continue;
+        }
+        render_table.add_row(Row::new(vec![TableCell::new(name), TableCell::new(url)]));
+    }
+
+    println!("{}", render_table.to_string());
+
+    Ok(())
 }
 
 fn generate_template_workflow(
