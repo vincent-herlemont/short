@@ -1,4 +1,4 @@
-use crate::cfg::Cfg;
+
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::Settings;
 use crate::cli::terminal::message::{bad_info, good_info};

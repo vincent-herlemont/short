@@ -91,6 +91,7 @@ fn run() -> Result<()> {
                     Arg::with_name("file")
                         .long("file")
                         .short("f")
+                        .takes_value(true)
                         .help("Path script"),
                 )
                 .arg(
@@ -99,12 +100,37 @@ fn run() -> Result<()> {
                         .short("s")
                         .help("Interpreter program")
                 )
-                .arg(Arg::with_name("list").long("list").short("l").help("Display template list"))
-                .arg(Arg::with_name("template").long("template").short("t").takes_value(true).help("Specified your template name"))
-                .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory"))
-                .group(ArgGroup::with_name("action_type").args(&["setup_name","list"]).required(true))
-                .group(ArgGroup::with_name("generate_type").args(&["env_name", "template", "list"]).required(true))
-                .group(ArgGroup::with_name("exclude_for_generate_template")
+                .arg(
+                    Arg::with_name("public_env_directory")
+                        .long("env-directory")
+                        .short("e")
+                        .takes_value(true).help("Public env directory")
+                ).arg(
+                    Arg::with_name("list")
+                        .long("list")
+                        .short("l")
+                        .help("Display template list")
+                ).arg(
+                    Arg::with_name("template")
+                        .long("template")
+                        .short("t")
+                        .takes_value(true)
+                        .help("Specified your template name")
+                ).arg(
+                    Arg::with_name("private")
+                        .long("private")
+                        .short("p")
+                        .help("Save to private directory")
+                ).group(
+                    ArgGroup::with_name("action_type")
+                        .args(&["setup_name","list"])
+                        .required(true)
+                ).group(
+                    ArgGroup::with_name("generate_type")
+                        .args(&["env_name", "template", "list"])
+                        .required(true)
+                ).group(
+                    ArgGroup::with_name("exclude_for_generate_template")
                     .args(&["file", "shebang", "private"])
                     .multiple(true)
                     .required(false)

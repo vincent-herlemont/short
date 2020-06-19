@@ -116,6 +116,7 @@ fn generate_template_workflow(
 fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSettings) -> Result<()> {
     let mut cfg = get_cfg()?;
     let setup_name: String = generate_settings.setup_name.clone();
+    let public_env_directory = app.value_of("public_env_directory");
     let env_name = app.value_of("env_name").unwrap().to_string();
     let setup_file = app.value_of("file").unwrap_or("run.sh").to_string();
     let setup_shebang = app.value_of("shebang").unwrap_or("#!/bin/bash").to_string();
@@ -123,13 +124,16 @@ fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSetting
 
     let setup_file = PathBuf::from(setup_file);
 
-    let local_setup_cfg = LocalSetupCfg::new(setup_name.clone(), setup_file.clone());
+    let mut local_setup_cfg = LocalSetupCfg::new(setup_name.clone(), setup_file.clone());
 
     // New script file
     let mut file = File::new(setup_file.clone(), setup_shebang.to_string());
     {
         let array_vars = local_setup_cfg.array_vars().unwrap_or_default();
         let vars = local_setup_cfg.vars().unwrap_or_default();
+        if let Some(public_env_directory) = public_env_directory {
+            local_setup_cfg.set_public_env_dir(public_env_directory.into());
+        }
         file.generate(array_vars.borrow(), vars.borrow())?;
     }
     file.save()?;

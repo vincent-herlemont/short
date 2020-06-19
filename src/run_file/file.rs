@@ -4,7 +4,7 @@ use anyhow::Result;
 use fs_extra::file::write_all;
 
 use std::fmt::Write as FmtWrite;
-use std::fs::{set_permissions, Permissions};
+use std::fs::{create_dir_all, set_permissions, Permissions};
 use std::ops::Deref;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
@@ -77,6 +77,12 @@ impl File {
     }
 
     pub fn save(&self) -> Result<()> {
+        if self.path.exists() {
+            bail!("file `{:?}` already exists", self.path);
+        }
+        if let Some(parent) = self.path.parent() {
+            create_dir_all(parent)?;
+        }
         write_all(&self.path, self.content.as_str())?;
         set_exec_permision(&self.path)?;
         Ok(())
@@ -97,7 +103,6 @@ mod tests {
     use crate::run_file::file::File;
 
     use cli_integration_test::IntegrationTestEnvironment;
-    
 
     #[test]
     fn file_append() {
