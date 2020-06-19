@@ -50,3 +50,39 @@ setups:
     assert!(contains("env: dev").count(1).eval(&r));
     assert!(contains("test_setup_1").count(2).eval(&r));
 }
+
+#[test]
+fn generate_template_with_target_directory() {
+    let mut e = init("generate_template");
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
+setups: []
+        "#,
+    );
+    e.setup();
+    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("generate")
+        .arg("test_setup_1")
+        .args(&["-t", "test"])
+        .args(&["-d", "target_directory"])
+        .assert()
+        .to_string();
+    assert!(contains("generate setup `test_setup_1`:`dev`").eval(&r));
+
+    let r = e.read_file(PROJECT_CFG_FILE);
+    assert_eq!(
+        r#"---
+setups:
+  - name: test_setup_1
+    public_env_dir: target_directory/./env/
+    file: target_directory/run.sh
+    array_vars:
+      all: ".*"
+    vars:
+      - SETUP_NAME"#,
+        &r
+    );
+}

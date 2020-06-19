@@ -11,10 +11,11 @@ use crate::template::Registry;
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 use std::env::current_dir;
-use std::path::PathBuf;
+use std::path::{PathBuf};
 use term_table::row::Row;
 use term_table::table_cell::TableCell;
 
+use std::fs::create_dir_all;
 use tempdir::TempDir;
 
 pub struct GenerateSettings {
@@ -72,6 +73,8 @@ fn generate_template_workflow(
     let setup_name: String = generate_settings.setup_name.clone();
 
     let template_name: String = app.value_of("template").unwrap().into();
+    let target_template_directory: Option<PathBuf> =
+        app.value_of("target_template_directory").map(|t| t.into());
     let registry = Registry::new();
     let mut template = registry.get(template_name.as_str())?;
     let temp_dir = TempDir::new(format!("generate_template_{}", template_name).as_str())?;
@@ -84,11 +87,24 @@ fn generate_template_workflow(
     let local_setups = local_setups.borrow();
     let local_setup = local_setups.get(0).context("setup template not found")?;
     let mut local_setup = local_setup.borrow().clone();
+    if let Some(target_template_directory) = target_template_directory.as_ref() {
+        let public_env_dir = target_template_directory.join(local_setup.public_env_dir());
+        local_setup.set_public_env_dir(public_env_dir);
+
+        let file = target_template_directory.join(local_setup.file());
+        local_setup.set_file(file);
+    }
     local_setup.rename(&setup_name);
     cfg.add_local_setup_cfg(local_setup);
     cfg.sync_local_to_global()?; // After add new setup we need to sync for apply others actions.
 
-    let target_dir = current_dir()?;
+    let target_dir = if let Some(target_template_directory) = target_template_directory {
+        create_dir_all(&target_template_directory)?;
+        target_template_directory
+    } else {
+        current_dir()?
+    };
+
     template.copy(target_dir).context("fail to copy files")?;
 
     // Retrieve the env if there is an env

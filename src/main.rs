@@ -105,7 +105,14 @@ fn run() -> Result<()> {
                         .long("env-directory")
                         .short("e")
                         .takes_value(true).help("Public env directory")
-                ).arg(
+                )
+                .arg(
+                    Arg::with_name("target_template_directory")
+                        .long("template-directory")
+                        .short("d")
+                        .takes_value(true).help("Target template env directory")
+                )
+                .arg(
                     Arg::with_name("list")
                         .long("list")
                         .short("l")
