@@ -143,8 +143,8 @@ mod main_test {
     #[test]
     fn create_cfg() {
         let e = init_env();
-        let local_cfg = e.path().join(PROJECT).join("short.yml");
-        let global_cfg = e.path().join(HOME).join(".short/cfg.yml");
+        let local_cfg = e.path().join(PROJECT).join("short.yaml");
+        let global_cfg = e.path().join(HOME).join(".short/cfg.yaml");
 
         let cfg = Cfg::create_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
         assert!(!exists().eval(&local_cfg));
@@ -157,8 +157,8 @@ mod main_test {
     #[test]
     fn create_sync_global_cfg() {
         let mut e = init_env();
-        let local_cfg = PathBuf::from(PROJECT).join("short.yml");
-        let global_cfg = PathBuf::from(HOME).join(".short/cfg.yml");
+        let local_cfg = PathBuf::from(PROJECT).join("short.yaml");
+        let global_cfg = PathBuf::from(HOME).join(".short/cfg.yaml");
 
         let abs_local_cfg = e.path().join(&local_cfg);
         let abs_global_cfg = e.path().join(&global_cfg);
@@ -198,8 +198,8 @@ setups:
     #[test]
     fn load_and_mutate_cfg() {
         let mut e = init_env();
-        let local_cfg = PathBuf::from(PROJECT).join("short.yml");
-        let global_cfg = PathBuf::from(HOME).join(".short/cfg.yml");
+        let local_cfg = PathBuf::from(PROJECT).join("short.yaml");
+        let global_cfg = PathBuf::from(HOME).join(".short/cfg.yaml");
 
         let abs_local_cfg = e.path().join(&local_cfg);
         let _abs_global_cfg = e.path().join(&global_cfg);
@@ -263,8 +263,8 @@ projects:
     fn load_envs_public_and_private() {
         const ENVDIR: &'static str = "private_env";
         let mut e = init_env();
-        let local_cfg = PathBuf::from(PROJECT).join("short.yml");
-        let global_cfg = PathBuf::from(HOME).join(".short/cfg.yml");
+        let local_cfg = PathBuf::from(PROJECT).join("short.yaml");
+        let global_cfg = PathBuf::from(HOME).join(".short/cfg.yaml");
         let env_example = PathBuf::from(PROJECT).join(".example");
         let env_dev = PathBuf::from(ENVDIR).join(".dev");
         let env_prod = PathBuf::from(ENVDIR).join(".prod");
@@ -362,8 +362,8 @@ mod thread_test {
     #[test]
     fn setup_multi_thread() {
         let mut e = init_env();
-        let local_cfg = PathBuf::from(PROJECT).join("short.yml");
-        let global_cfg = PathBuf::from(HOME).join(".short/cfg.yml");
+        let local_cfg = PathBuf::from(PROJECT).join("short.yaml");
+        let global_cfg = PathBuf::from(HOME).join(".short/cfg.yaml");
 
         let _abs_local_cfg = e.path().join(&local_cfg);
         let _abs_global_cfg = e.path().join(&global_cfg);

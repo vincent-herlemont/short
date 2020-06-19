@@ -15,7 +15,7 @@ mod setup;
 
 type LocalCfgFile = PathBuf;
 
-pub const GLOBAL_FILE_NAME: &'static str = "cfg.yml";
+pub const GLOBAL_FILE_NAME: &'static str = "cfg.yaml";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalCfg {
@@ -102,7 +102,7 @@ mod tests {
 
     #[test]
     fn project() {
-        let path: PathBuf = "/project/short.yml".into();
+        let path: PathBuf = "/project/short.yaml".into();
         let project_cfg = GlobalProjectCfg::new(&path).unwrap();
         let mut global_cfg = GlobalCfg::new();
 
@@ -113,7 +113,7 @@ mod tests {
             .unwrap_err(); // Ensure to remove duplicate project
         assert!(global_cfg.projects.iter().count().eq(&1));
 
-        let change_path: PathBuf = "/project_1/short.yml".into();
+        let change_path: PathBuf = "/project_1/short.yaml".into();
         {
             // Get project and update change the file
             let project_cfg = global_cfg.get_project_by_file(&path).unwrap();

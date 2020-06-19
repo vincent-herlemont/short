@@ -9,7 +9,7 @@ You need to go to your project's directory and type :
 ```
 $> short init
 ```
-This create an empty `short.yml` configuration file.
+This create an empty `short.yaml` configuration file.
 
 ### Create new set up.
 
@@ -110,7 +110,7 @@ $> short rename <last setup name> <new setup name>
 
 Short command line manage by himself configuration files, but you can edit these entirely by yourself.
 
-### Project configuration file (short.yml)
+### Project configuration file (short.yaml)
 
 This configuration is ranked at the root of your project. It defined all setup configuration of your project.
 

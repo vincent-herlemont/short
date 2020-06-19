@@ -65,7 +65,7 @@ where
 }
 
 fn local_cfg_file(dir: &PathBuf) -> PathBuf {
-    let local_cfg_file = var("SHORT_LOCAL_CFG_FILE").map_or("short.yml".to_string(), |v| v);
+    let local_cfg_file = var("SHORT_LOCAL_CFG_FILE").map_or("short.yaml".to_string(), |v| v);
     dir.join(local_cfg_file)
 }
 
@@ -167,9 +167,9 @@ mod test {
 
     fn init_env() -> IntegrationTestEnvironment {
         let mut e = IntegrationTestEnvironment::new("cmd_help");
-        e.add_file("setup_1/template.yml", "");
+        e.add_file("setup_1/template.yaml", "");
         e.add_file(
-            "short.yml",
+            "short.yaml",
             r"#---
 setups:
   - name: setup_1'
@@ -184,19 +184,19 @@ setups:
     #[test]
     fn load() {
         let e = init_env();
-        let file_cfg: Result<FileCfg<LocalCfg>> = FileCfg::load(&e.path().join("short.yml"));
+        let file_cfg: Result<FileCfg<LocalCfg>> = FileCfg::load(&e.path().join("short.yaml"));
         let file_cfg = file_cfg.unwrap();
         let path = file_cfg.file.unwrap().clone();
-        assert!(contains("short.yml").eval(path.to_string_lossy().as_ref()));
+        assert!(contains("short.yaml").eval(path.to_string_lossy().as_ref()));
     }
 
     #[test]
     fn load_local() {
         let e = init_env();
-        let file_local_cfg = load_local_cfg(&e.path().join("setup_1/short.yml"));
+        let file_local_cfg = load_local_cfg(&e.path().join("setup_1/short.yaml"));
         let file_local_cfg = file_local_cfg.unwrap();
         let path = file_local_cfg.file.unwrap().clone();
-        assert!(contains("short.yml").eval(path.to_string_lossy().as_ref()));
+        assert!(contains("short.yaml").eval(path.to_string_lossy().as_ref()));
     }
 
     #[test]

@@ -21,7 +21,7 @@ OPTIONS:
     -e, --env <environment>    Environment name
 
 SUBCOMMANDS:
-    init      Create an empty "short.yml" configuration file
+    init      Create an empty "short.yaml" configuration file
     env       Manage environment
     deploy    Deploy your set up
     show      Show your current set up

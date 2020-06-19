@@ -38,7 +38,7 @@ impl Template {
                         let str = striped_path.to_string_lossy();
                         if !str.starts_with(".git")
                             && !str.is_empty()
-                            && str.into_owned() != "short.yml"
+                            && str.into_owned() != "short.yaml"
                         {
                             return Some(path.to_path_buf());
                         }

@@ -72,7 +72,7 @@ fn run() -> Result<()> {
         .setting(AppSettings::VersionlessSubcommands)
         .subcommand(
             SubCommand::with_name("init")
-                .about("Init project, create an empty \"short.yml\" configuration file"),
+                .about("Init project, create an empty \"short.yaml\" configuration file"),
         )
         .subcommand(
             SubCommand::with_name("generate")
