@@ -11,12 +11,12 @@ use crate::template::Registry;
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 use std::env::current_dir;
-use std::path::{PathBuf};
+use std::path::PathBuf;
+use tempdir::TempDir;
 use term_table::row::Row;
 use term_table::table_cell::TableCell;
 
 use std::fs::create_dir_all;
-use tempdir::TempDir;
 
 pub struct GenerateSettings {
     pub setup_name: String,
@@ -46,17 +46,21 @@ pub fn generate(app: &ArgMatches) -> Result<()> {
 }
 
 fn display_template_list() -> Result<()> {
-    let registry = Registry::index();
+    let registry_tmp = TempDir::new("registry")?;
+    let registry = Registry::checkout(registry_tmp.path())?;
     let mut render_table = term_table::Table::new();
     render_table.separate_rows = false;
     render_table.style = term_table::TableStyle::blank();
 
-    for (name, url) in registry {
-        if name.eq("test") {
+    for template in registry.index() {
+        if template.name().eq("test") {
             // Remove test repository
             continue;
         }
-        render_table.add_row(Row::new(vec![TableCell::new(name), TableCell::new(url)]));
+        render_table.add_row(Row::new(vec![
+            TableCell::new(template.name()),
+            TableCell::new(template.url()),
+        ]));
     }
 
     println!("{}", render_table.to_string());
@@ -75,7 +79,8 @@ fn generate_template_workflow(
     let template_name: String = app.value_of("template").unwrap().into();
     let target_template_directory: Option<PathBuf> =
         app.value_of("target_template_directory").map(|t| t.into());
-    let registry = Registry::new();
+    let registry_tmp = TempDir::new("registry")?;
+    let registry = Registry::checkout(registry_tmp.path())?;
     let mut template = registry.get(template_name.as_str())?;
     let temp_dir = TempDir::new(format!("generate_template_{}", template_name).as_str())?;
     template.checkout(temp_dir.path().clone().to_path_buf())?;

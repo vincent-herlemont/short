@@ -2,13 +2,43 @@ use anyhow::{Context, Result};
 use fs_extra::copy_items;
 use fs_extra::dir;
 use git2::Repository;
-use std::fs::read_dir;
-use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
 
+use std::fs::{read_dir};
+use std::hash::{Hash, Hasher};
+use std::path::{PathBuf};
+
+#[derive(Serialize, Deserialize, Debug, Eq)]
 pub struct Template {
+    #[serde(skip)]
     name: String,
     url: String,
+    #[serde(skip)]
     dir: Option<PathBuf>,
+}
+
+impl Hash for Template {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
+
+impl PartialEq for Template {
+    fn eq(&self, other: &Self) -> bool {
+        self.name.eq(&other.name)
+    }
+}
+
+impl Template {
+    pub fn name(&self) -> &String {
+        &self.name
+    }
+    pub fn url(&self) -> &String {
+        &self.url
+    }
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+    }
 }
 
 impl Template {
@@ -22,7 +52,7 @@ impl Template {
 
     pub fn checkout(&mut self, target_dir: PathBuf) -> Result<()> {
         Repository::clone(self.url.as_str(), target_dir.as_path())
-            .context("fail to clone repository")?;
+            .context("fail to clone templates repository")?;
         self.dir = Some(target_dir);
         Ok(())
     }
