@@ -19,9 +19,9 @@ pub fn find_in_parents(dir: PathBuf, file_name: String) -> Result<PathBuf> {
 mod test {
     use crate::utils::find::find_in_parents;
     use cli_integration_test::IntegrationTestEnvironment;
-    use fs_extra::file::read_to_string;
     use predicates::prelude::Predicate;
     use predicates::str::contains;
+    use std::fs::read_to_string;
     use std::path::Path;
 
     #[test]

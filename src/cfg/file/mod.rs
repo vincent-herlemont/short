@@ -3,12 +3,12 @@ use crate::cfg::{GlobalCfg, LocalCfg};
 use crate::utils::find::find_in_parents;
 use crate::utils::write_all::write_all_dir;
 use anyhow::{Context, Result};
-use fs_extra::file::read_to_string;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::env::var;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+use std::fs::read_to_string;
 use std::path::PathBuf;
 
 #[derive(Debug)]
