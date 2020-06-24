@@ -17,12 +17,14 @@ pub fn find_in_parents(dir: PathBuf, file_name: String) -> Result<PathBuf> {
 
 #[cfg(test)]
 mod test {
-    use crate::utils::find::find_in_parents;
+    use std::fs::read_to_string;
+    use std::path::Path;
+
     use cli_integration_test::IntegrationTestEnvironment;
     use predicates::prelude::Predicate;
     use predicates::str::contains;
-    use std::fs::read_to_string;
-    use std::path::Path;
+
+    use crate::utils::find::find_in_parents;
 
     #[test]
     fn find_local_cfg_file_on_root() {

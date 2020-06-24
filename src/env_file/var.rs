@@ -1,5 +1,6 @@
-use crate::env_file::{EnvReaderError, ResultParse};
 use std::fmt::{Display, Formatter};
+
+use crate::env_file::{EnvReaderError, ResultParse};
 
 #[derive(Debug, Clone, Eq)]
 pub struct Var {

@@ -1,8 +1,10 @@
-use crate::cfg::Cfg;
-use anyhow::{Context, Result};
-use dirs::home_dir;
 use std::env::current_dir;
 use std::path::PathBuf;
+
+use anyhow::{Context, Result};
+use dirs::home_dir;
+
+use crate::cfg::Cfg;
 
 type LocalDir = PathBuf;
 type GlobalDir = PathBuf;

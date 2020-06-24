@@ -1,12 +1,11 @@
-use predicates::prelude::Predicate;
-use predicates::str::contains;
 use std::thread;
 use std::time::Duration;
+
+use predicates::prelude::Predicate;
+use predicates::str::contains;
+
 use test_utils::init;
-use test_utils::{
-    HOME_CFG_FILE, PRIVATE_ENV_DEV_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE, PROJECT_ENV_DIR,
-    PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE,
-};
+use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE};
 
 mod test_utils;
 
@@ -224,7 +223,7 @@ setups:
     e.add_file(PROJECT_ENV_EXAMPLE_2_FILE, &inital_source);
     e.setup();
     thread::sleep(Duration::from_secs(2));
-    e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE);
+    e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
     let mut command = e.command(env!("CARGO_PKG_NAME"));
     let r = command

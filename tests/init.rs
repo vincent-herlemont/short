@@ -1,9 +1,5 @@
-
-
+use test_utils::HOME_CFG_FILE;
 use test_utils::init;
-use test_utils::{
-    HOME_CFG_FILE,
-};
 
 mod test_utils;
 

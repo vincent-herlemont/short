@@ -1,16 +1,17 @@
-use crate::cfg::error::CfgError;
-use crate::cfg::global::GlobalProjectSetupCfg;
-use crate::cfg::LocalSetupCfg;
-use crate::env_file;
-use crate::env_file::{path_from_env_name, Env};
-use anyhow::{Context, Result};
-
-use serde::export::fmt::Debug;
-use serde::export::Formatter;
 use std::cell::RefCell;
 use std::fmt;
 use std::path::PathBuf;
 use std::rc::{Rc, Weak};
+
+use anyhow::{Context, Result};
+use serde::export::fmt::Debug;
+use serde::export::Formatter;
+
+use crate::cfg::error::CfgError;
+use crate::cfg::global::GlobalProjectSetupCfg;
+use crate::cfg::LocalSetupCfg;
+use crate::env_file;
+use crate::env_file::{Env, path_from_env_name};
 
 pub trait SetupsCfg {
     type Setup: SetupCfg;

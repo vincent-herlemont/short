@@ -1,13 +1,12 @@
+use anyhow::Result;
+use clap::ArgMatches;
+use log::*;
+
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::get_settings;
 use crate::cli::terminal::emoji;
 use crate::cli::terminal::message::message;
 use crate::env_file::Env;
-use anyhow::{Result};
-use clap::ArgMatches;
-use log::*;
-
-
 
 fn line(msg: &str, r#use: &bool) {
     let c = if *r#use {

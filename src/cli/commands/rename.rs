@@ -1,9 +1,11 @@
-use super::r#use::use_workflow;
+use anyhow::Result;
+use clap::ArgMatches;
+
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::get_settings;
 use crate::cli::terminal::message::success;
-use anyhow::Result;
-use clap::ArgMatches;
+
+use super::r#use::use_workflow;
 
 pub fn rename(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;

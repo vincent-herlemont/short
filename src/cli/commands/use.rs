@@ -1,9 +1,10 @@
+use anyhow::{Context, Result};
+use clap::ArgMatches;
+
 use crate::cfg::Cfg;
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::{get_settings, Settings};
 use crate::cli::terminal::message::success;
-use anyhow::{Context, Result};
-use clap::ArgMatches;
 
 pub fn r#use(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;

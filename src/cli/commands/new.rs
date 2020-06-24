@@ -1,16 +1,15 @@
-use crate::cli::cfg::get_cfg;
-use crate::cli::terminal::message::success;
+use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::ArgMatches;
 
 use crate::cfg::Cfg;
+use crate::cli::cfg::get_cfg;
 use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::error::CliError;
 use crate::cli::settings::get_settings;
-use crate::env_file::{path_from_env_name, Env};
-
-use std::path::PathBuf;
+use crate::cli::terminal::message::success;
+use crate::env_file::{Env, path_from_env_name};
 
 pub fn env_new(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;

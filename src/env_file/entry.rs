@@ -1,5 +1,6 @@
-use crate::env_file::{Comment, Var};
 use std::fmt::{Display, Formatter};
+
+use crate::env_file::{Comment, Var};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Entry {

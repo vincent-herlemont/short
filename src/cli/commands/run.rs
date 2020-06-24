@@ -1,9 +1,9 @@
-use crate::cli::cfg::get_cfg;
-use crate::cli::settings::get_settings;
-
-use crate::run_file::{generate_env_vars, run_as_stream};
 use anyhow::{Context, Result};
 use clap::ArgMatches;
+
+use crate::cli::cfg::get_cfg;
+use crate::cli::settings::get_settings;
+use crate::run_file::{generate_env_vars, run_as_stream};
 
 pub fn run(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;

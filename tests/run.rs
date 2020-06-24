@@ -1,10 +1,8 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
+
 use test_utils::init;
-use test_utils::{
-    HOME_CFG_FILE, PRIVATE_ENV_DEV_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE, PROJECT_ENV_DIR,
-    PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE, PROJECT_RUN_FILE,
-};
+use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_RUN_FILE};
 
 mod test_utils;
 

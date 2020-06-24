@@ -1,13 +1,15 @@
-use crate::cfg::local::setup_vars::Vars;
-use crate::cfg::local::ArrayVars;
-use crate::cfg::setup::SetupCfg;
-use crate::cfg::CfgError;
-use anyhow::Result;
-use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
+
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
+
+use crate::cfg::CfgError;
+use crate::cfg::local::ArrayVars;
+use crate::cfg::local::setup_vars::Vars;
+use crate::cfg::setup::SetupCfg;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalSetupCfg {

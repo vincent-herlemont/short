@@ -1,10 +1,12 @@
-use crate::cfg::Cfg;
-use crate::cli::terminal::emoji;
+use std::fmt::Display;
+
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 use log::*;
 use serde::export::Formatter;
-use std::fmt::Display;
+
+use crate::cfg::Cfg;
+use crate::cli::terminal::emoji;
 
 #[derive(Debug)]
 pub struct Settings {

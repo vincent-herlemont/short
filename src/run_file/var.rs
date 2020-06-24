@@ -1,9 +1,11 @@
+use std::ops::Deref;
+
+use anyhow::Result;
+use regex::Regex;
+
 use crate::cfg::{ArrayVar, ArrayVars, Var, Vars};
 use crate::env_file;
 use crate::env_file::Env;
-use anyhow::Result;
-use regex::Regex;
-use std::ops::Deref;
 
 #[derive(Debug)]
 pub enum EnvValue {

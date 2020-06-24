@@ -1,9 +1,11 @@
-use crate::cfg::local::Var;
+use std::fmt;
+
 use serde::de::{MapAccess, Visitor};
 use serde::export::Formatter;
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt;
+
+use crate::cfg::local::Var;
 
 type Pattern = String;
 

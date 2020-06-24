@@ -1,16 +1,17 @@
+use std::borrow::Cow;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use anyhow::{Context, Result};
+use clap::ArgMatches;
+use log::*;
+
 use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
 use crate::cli::settings::get_settings;
 use crate::cli::terminal::confirm::{confirm, EnumConfirm};
 use crate::cli::terminal::message::success;
 use crate::env_file::{Env, EnvDiffController};
-use anyhow::{Context, Result};
-use clap::ArgMatches;
-use log::*;
-use std::borrow::Cow;
-
-use std::cell::RefCell;
-use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct SyncSettings {

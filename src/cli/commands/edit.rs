@@ -1,13 +1,15 @@
-use super::sync::{sync_workflow, SyncSettings};
+use std::env;
+use std::process::Command;
+
+use anyhow::{Context, Result};
+use clap::ArgMatches;
+
 use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
 use crate::cli::settings::get_settings;
 use crate::cli::terminal::message::success;
-use anyhow::{Context, Result};
-use clap::ArgMatches;
-use std::env;
 
-use std::process::Command;
+use super::sync::{sync_workflow, SyncSettings};
 
 pub fn env_edit(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;

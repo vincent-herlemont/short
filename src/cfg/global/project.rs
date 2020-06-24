@@ -1,10 +1,12 @@
-use crate::cfg::global::setup::GlobalProjectSetupCfg;
-use crate::cfg::SetupsCfg;
-use anyhow::{Context, Result};
-use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
+
+use anyhow::{Context, Result};
+use serde::{Deserialize, Serialize};
+
+use crate::cfg::global::setup::GlobalProjectSetupCfg;
+use crate::cfg::SetupsCfg;
 
 type SetupName = String;
 type EnvName = String;
@@ -118,10 +120,11 @@ impl PartialEq<GlobalProjectCfg> for PathBuf {
 
 #[cfg(test)]
 mod test {
+    use std::path::PathBuf;
+
     use crate::cfg::global::project::GlobalProjectCfg;
     use crate::cfg::global::setup::GlobalProjectSetupCfg;
     use crate::cfg::SetupsCfg;
-    use std::path::PathBuf;
 
     #[test]
     fn global_update_private_env_dir() {

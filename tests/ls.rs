@@ -1,11 +1,13 @@
+use std::path::PathBuf;
+
 use cli_integration_test::IntegrationTestEnvironment;
 use predicates::prelude::Predicate;
 use predicates::str::contains;
-use std::path::PathBuf;
-use test_utils::init;
+
 use test_utils::{
     HOME_CFG_FILE, PRIVATE_ENV_DEV_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE, PROJECT_ENV_DIR,
 };
+use test_utils::init;
 
 mod test_utils;
 

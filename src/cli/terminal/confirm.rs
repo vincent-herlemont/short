@@ -1,11 +1,11 @@
-#[macro_use]
-use anyhow::{Context, Result};
-use crate::cli::error::CliError;
-use serde::export::fmt::Debug;
 use std::fmt::Write;
-
 use std::io;
 use std::string::ToString;
+
+use anyhow::{Context, Result};
+use serde::export::fmt::Debug;
+
+use crate::cli::error::CliError;
 
 pub fn confirm<R, W, E>(mut reader: R, mut writer: W, question: &str, e: Vec<E>) -> Result<E>
 where
@@ -53,7 +53,10 @@ macro_rules! enum_confirm {
     ($i :ident, $($it: ident), +) => {
         #[derive(Debug, Eq , PartialEq)]
         pub enum $i {
-            $( $it, )+
+            $(
+                #[allow(non_camel_case_types)]
+                $it,
+            )+
         }
         impl std::string::ToString for $i {
             fn to_string(&self) -> std::string::String {
@@ -74,8 +77,8 @@ macro_rules! enum_confirm {
 
 #[cfg(test)]
 mod tests {
-    use crate::cli::terminal::confirm::ToStringEnumConfirm;
     use crate::cli::terminal::confirm::{confirm, EnumConfirm};
+    use crate::cli::terminal::confirm::ToStringEnumConfirm;
 
     enum_confirm!(EnumConfirmTest, y, Y, n);
 

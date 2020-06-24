@@ -1,12 +1,14 @@
+use std::env::current_dir;
+use std::path::PathBuf;
+
+use anyhow::Result;
+use clap::ArgMatches;
+
 use crate::cfg::Cfg;
 use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
 use crate::cli::settings::{get_settings, Settings};
 use crate::cli::terminal::message::success;
-use anyhow::Result;
-use clap::ArgMatches;
-use std::env::current_dir;
-use std::path::PathBuf;
 
 pub fn env_pdir(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
@@ -56,7 +58,7 @@ fn unset(cfg: Cfg, settings: Settings) -> Result<()> {
     global_setup.unset_private_env_dir()?;
     drop(global_setup);
 
-    cfg.save();
+    cfg.save()?;
 
     success(format!("private env directory unset").as_str());
 

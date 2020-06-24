@@ -1,7 +1,8 @@
+use std::path::Path;
+
 use fs_extra::dir::create_all;
 use fs_extra::error::Result;
 use fs_extra::file::write_all;
-use std::path::Path;
 
 pub fn write_all_dir<P, S>(path: P, content: S) -> Result<()>
 where

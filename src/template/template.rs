@@ -1,12 +1,12 @@
+use std::fs::read_dir;
+use std::hash::{Hash, Hasher};
+use std::path::PathBuf;
+
 use anyhow::{Context, Result};
 use fs_extra::copy_items;
 use fs_extra::dir;
 use git2::Repository;
 use serde::{Deserialize, Serialize};
-
-use std::fs::{read_dir};
-use std::hash::{Hash, Hasher};
-use std::path::{PathBuf};
 
 #[derive(Serialize, Deserialize, Debug, Eq)]
 pub struct Template {
@@ -86,8 +86,9 @@ impl Template {
 
 #[cfg(test)]
 mod tests {
-    use crate::template::template::Template;
     use cli_integration_test::IntegrationTestEnvironment;
+
+    use crate::template::template::Template;
 
     const TEMPLATE_TMP_DIR: &'static str = "tmp";
     const TEMPLATE_TARGET_DIR: &'static str = "target";

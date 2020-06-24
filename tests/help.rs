@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use cli_integration_test::IntegrationTestEnvironment;
 
 fn cmd_help() {

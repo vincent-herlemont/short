@@ -1,5 +1,13 @@
-use super::new::env_new_workflow;
-use super::r#use::use_workflow;
+use std::env::current_dir;
+use std::fs::create_dir_all;
+use std::path::PathBuf;
+
+use anyhow::{Context, Result};
+use clap::ArgMatches;
+use tempdir::TempDir;
+use term_table::row::Row;
+use term_table::table_cell::TableCell;
+
 use crate::cfg::{load_local_cfg, LocalSetupCfg, SetupCfg, SetupsCfg};
 use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
@@ -8,15 +16,9 @@ use crate::cli::settings::Settings;
 use crate::cli::terminal::message::success;
 use crate::run_file::File;
 use crate::template::Registry;
-use anyhow::{Context, Result};
-use clap::ArgMatches;
-use std::env::current_dir;
-use std::path::PathBuf;
-use tempdir::TempDir;
-use term_table::row::Row;
-use term_table::table_cell::TableCell;
 
-use std::fs::create_dir_all;
+use super::new::env_new_workflow;
+use super::r#use::use_workflow;
 
 pub struct GenerateSettings {
     pub setup_name: String,

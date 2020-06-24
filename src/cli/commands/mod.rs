@@ -1,3 +1,18 @@
+pub use dir::env_dir;
+pub use edit::env_edit;
+pub use env::env;
+pub use generate::generate;
+pub use init::init;
+pub use ls::ls;
+pub use new::env_new;
+pub use pdir::env_pdir;
+pub use r#use::r#use;
+pub use rename::rename;
+pub use run::run;
+pub use show::show;
+pub use sync::env_sync;
+pub use var::var;
+
 mod dir;
 mod edit;
 mod env;
@@ -13,17 +28,3 @@ mod sync;
 mod r#use;
 mod var;
 
-pub use dir::env_dir;
-pub use edit::env_edit;
-pub use env::env;
-pub use generate::generate;
-pub use init::init;
-pub use ls::ls;
-pub use new::env_new;
-pub use pdir::env_pdir;
-pub use r#use::r#use;
-pub use rename::rename;
-pub use run::run;
-pub use show::show;
-pub use sync::env_sync;
-pub use var::var;

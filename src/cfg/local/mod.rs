@@ -1,15 +1,17 @@
-mod setup;
-mod setup_array_vars;
-mod setup_vars;
-
-use crate::cfg::setup::SetupsCfg;
-use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use serde::{Deserialize, Serialize};
 
 pub use setup::LocalSetupCfg;
 pub use setup_array_vars::{ArrayVar, ArrayVars};
 pub use setup_vars::{Var, Vars};
+
+use crate::cfg::setup::SetupsCfg;
+
+mod setup;
+mod setup_array_vars;
+mod setup_vars;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalCfg {
@@ -34,8 +36,8 @@ impl SetupsCfg for LocalCfg {
 
 #[cfg(test)]
 mod tests {
-    use crate::cfg::setup::SetupsCfg;
     use crate::cfg::{LocalCfg, LocalSetupCfg};
+    use crate::cfg::setup::SetupsCfg;
 
     #[test]
     fn local_update_public_env_dir() {

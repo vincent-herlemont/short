@@ -1,9 +1,9 @@
+use anyhow::Result;
+use clap::ArgMatches;
 
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::Settings;
 use crate::cli::terminal::message::{bad_info, good_info};
-use anyhow::Result;
-use clap::ArgMatches;
 
 fn cfg() -> Result<Settings> {
     let mut cfg = get_cfg()?;

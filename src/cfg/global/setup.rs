@@ -1,10 +1,12 @@
-use crate::cfg::{CfgError, LocalSetupCfg, SetupCfg};
+use std::path::PathBuf;
+use std::result::Result as stdResult;
+
 use anyhow::Result;
+use serde::{Deserialize, Deserializer, Serialize};
 use serde::de::{Unexpected, Visitor};
 use serde::export::Formatter;
-use serde::{Deserialize, Deserializer, Serialize};
-use std::path::{PathBuf};
-use std::result::Result as stdResult;
+
+use crate::cfg::{CfgError, LocalSetupCfg, SetupCfg};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct PrivateEnvDir(#[serde(deserialize_with = "deserialize_private_env_dir")] PathBuf);
@@ -109,11 +111,13 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::cfg::global::GlobalProjectSetupCfg;
+    use std::path::PathBuf;
+
     use predicates::prelude::Predicate;
     use predicates::str::contains;
     use serde_yaml;
-    use std::path::PathBuf;
+
+    use crate::cfg::global::GlobalProjectSetupCfg;
 
     #[test]
     fn deserialize_private_env_dir() {

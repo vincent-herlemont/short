@@ -1,15 +1,14 @@
-#[macro_use]
 extern crate anyhow;
 #[macro_use]
 extern crate log;
 
-#[macro_use]
-use short::cli::commands;
-use short::cli::terminal::emoji;
+use std::env;
 
 use anyhow::Result;
 use clap::{App, AppSettings, Arg, ArgGroup, SubCommand};
-use std::env;
+
+use short::cli::commands;
+use short::cli::terminal::emoji;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const BIN_NAME: &'static str = "short";

@@ -1,19 +1,19 @@
-mod file;
-mod var;
-
-pub use file::{set_exec_permision, File};
-pub use var::{generate_array_env_var, generate_env_var, generate_env_vars, EnvValue, EnvVar};
-
-use anyhow::{Context, Result};
 use std::fmt::Write as FmtWrite;
 use std::io;
-use std::io::{BufRead, BufReader, BufWriter, Read, Write};
-
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::PathBuf;
 use std::process;
 use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
+
+use anyhow::{Context, Result};
+
+pub use file::{File, set_exec_permision};
+pub use var::{EnvValue, EnvVar, generate_array_env_var, generate_env_var, generate_env_vars};
+
+mod file;
+mod var;
 
 #[derive(Debug)]
 pub struct Output {
@@ -123,11 +123,11 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::run_file::run_as_stream;
+    use std::path::PathBuf;
 
     use cli_integration_test::IntegrationTestEnvironment;
-    use std::path::PathBuf;
+
+    use crate::run_file::run_as_stream;
 
     #[test]
     fn run_integration_test_stream() {

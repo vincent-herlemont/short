@@ -1,14 +1,16 @@
-use crate::cfg::file::FileCfg;
-use crate::cfg::CfgError;
-use crate::cfg::{LocalCfg, SetupsCfg};
-use anyhow::Result;
-use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
+
 pub use project::GlobalProjectCfg;
 pub use setup::GlobalProjectSetupCfg;
+
+use crate::cfg::{LocalCfg, SetupsCfg};
+use crate::cfg::CfgError;
+use crate::cfg::file::FileCfg;
 
 mod project;
 mod setup;

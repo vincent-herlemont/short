@@ -1,12 +1,13 @@
-use crate::cli::cfg::get_cfg;
-use crate::cli::commands::sync::{sync_workflow, SyncSettings};
-use crate::cli::settings::get_settings;
-use crate::env_file::Env;
-use crate::run_file::{generate_env_vars, run_as_stream, EnvValue, EnvVar};
 use anyhow::Result;
 use clap::ArgMatches;
 use term_table::row::Row;
 use term_table::table_cell::TableCell;
+
+use crate::cli::cfg::get_cfg;
+use crate::cli::commands::sync::{sync_workflow, SyncSettings};
+use crate::cli::settings::get_settings;
+use crate::env_file::Env;
+use crate::run_file::{EnvValue, generate_env_vars};
 
 pub fn var(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;

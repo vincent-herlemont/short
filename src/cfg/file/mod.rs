@@ -1,15 +1,17 @@
-use crate::cfg::global::GLOBAL_FILE_NAME;
-use crate::cfg::{GlobalCfg, LocalCfg};
-use crate::utils::find::find_in_parents;
-use crate::utils::write_all::write_all_dir;
-use anyhow::{Context, Result};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
 use std::env::var;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::fs::read_to_string;
 use std::path::PathBuf;
+
+use anyhow::{Context, Result};
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+
+use crate::cfg::{GlobalCfg, LocalCfg};
+use crate::cfg::global::GLOBAL_FILE_NAME;
+use crate::utils::find::find_in_parents;
+use crate::utils::write_all::write_all_dir;
 
 #[derive(Debug)]
 pub struct FileCfg<C>
@@ -149,7 +151,7 @@ where
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         if let Ok(content) = serde_yaml::to_string(&self.cfg).map_err(|_err| fmt::Error {}) {
-            write!(f, "{}", content);
+            write!(f, "{}", content)?;
         }
         Ok(())
     }
@@ -157,13 +159,15 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::cfg::file::{load_local_cfg, FileCfg};
-    use crate::cfg::LocalCfg;
+    use std::path::PathBuf;
+
     use anyhow::Result;
     use cli_integration_test::IntegrationTestEnvironment;
     use predicates::prelude::Predicate;
     use predicates::str::contains;
-    use std::path::PathBuf;
+
+    use crate::cfg::file::{FileCfg, load_local_cfg};
+    use crate::cfg::LocalCfg;
 
     fn init_env() -> IntegrationTestEnvironment {
         let mut e = IntegrationTestEnvironment::new("cmd_help");

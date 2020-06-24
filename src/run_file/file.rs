@@ -1,13 +1,13 @@
-use crate::cfg::{ArrayVar, ArrayVars, Var, Vars};
+use std::fmt::Write as FmtWrite;
+use std::fs::{create_dir_all, Permissions, set_permissions};
+use std::ops::Deref;
+use std::os::unix::fs::PermissionsExt;
+use std::path::PathBuf;
 
 use anyhow::Result;
 use fs_extra::file::write_all;
 
-use std::fmt::Write as FmtWrite;
-use std::fs::{create_dir_all, set_permissions, Permissions};
-use std::ops::Deref;
-use std::os::unix::fs::PermissionsExt;
-use std::path::PathBuf;
+use crate::cfg::{ArrayVars, Vars};
 
 pub struct File {
     path: PathBuf,
@@ -98,11 +98,10 @@ pub fn set_exec_permision(file: &PathBuf) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use cli_integration_test::IntegrationTestEnvironment;
 
     use crate::cfg::{ArrayVars, Vars};
     use crate::run_file::file::File;
-
-    use cli_integration_test::IntegrationTestEnvironment;
 
     #[test]
     fn file_append() {

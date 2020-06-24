@@ -1,17 +1,14 @@
 // TODO : In the future registry will be downloaded from this repository.
 // https://github.com/vincent-herlemont/short-template-index
 
-use crate::template::template::Template;
+use std::collections::HashSet;
+use std::fs::{read_dir, read_to_string};
+use std::path::Path;
+
 use anyhow::{Context, Result};
 use git2::Repository;
 
-use std::collections::{HashSet};
-use std::fs::{read_dir, read_to_string};
-
-use std::path::{Path};
-
-type Name = String;
-type Url = String;
+use crate::template::template::Template;
 
 const DEFAULT_REPOSITORY_URL: &'static str =
     "https://github.com/vincent-herlemont/short-template-index";
@@ -63,10 +60,11 @@ impl Registry {
 
 #[cfg(test)]
 mod tests {
-    use crate::template::Registry;
-    use crate::template::Template;
     use cli_integration_test::IntegrationTestEnvironment;
     use serde_json::from_str;
+
+    use crate::template::Registry;
+    use crate::template::Template;
 
     #[test]
     fn deserialize_json() {

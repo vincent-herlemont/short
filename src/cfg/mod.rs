@@ -1,21 +1,23 @@
-use crate::cfg::file::{load_or_new_global_cfg, new_local_cfg};
-use crate::cfg::global::GlobalProjectCfg;
-use anyhow::{Context, Result};
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+use anyhow::{Context, Result};
+
 pub use error::CfgError;
-pub use file::load_local_cfg;
 pub use file::FileCfg;
+pub use file::load_local_cfg;
 pub use global::GlobalCfg;
-pub use local::LocalCfg;
-pub use local::LocalSetupCfg;
 pub use local::{ArrayVar, ArrayVars};
 pub use local::{Var, Vars};
+pub use local::LocalCfg;
+pub use local::LocalSetupCfg;
 pub use setup::Setup;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
+
+use crate::cfg::file::{load_or_new_global_cfg, new_local_cfg};
+use crate::cfg::global::GlobalProjectCfg;
 
 mod error;
 mod file;
@@ -123,12 +125,15 @@ impl Cfg {
 
 #[cfg(test)]
 mod main_test {
-    use crate::cfg::Cfg;
+    use std::path::PathBuf;
+
     use cli_integration_test::IntegrationTestEnvironment;
     use predicates::path::{exists, is_file};
     use predicates::prelude::*;
     use predicates::str::contains;
-    use std::path::PathBuf;
+
+    use crate::cfg::Cfg;
+
     pub const HOME: &'static str = "home";
     pub const PROJECT: &'static str = "project";
 
@@ -183,7 +188,7 @@ setups:
 
         // Check if global file do not exist before save
         assert!(!is_file().eval(&abs_global_cfg));
-        cfg.save();
+        cfg.save().unwrap();
         // Check if global file do not exist after save
         assert!(is_file().eval(&abs_global_cfg));
 
@@ -238,7 +243,7 @@ projects:
             .set_private_env_dir("/private/env/dir2".into())
             .unwrap();
 
-        cfg.save();
+        cfg.save().unwrap();
 
         // Check the content of global file
         let global_cfg_str = e.read_file(&global_cfg);
@@ -247,8 +252,8 @@ projects:
             .eval(global_cfg_str.as_str()));
 
         // Rename setup_1 to setup_3
-        setup_1.rename(&"setup_3".into());
-        cfg.save();
+        setup_1.rename(&"setup_3".into()).unwrap();
+        cfg.save().unwrap();
 
         let global_cfg_str = e.read_file(&global_cfg);
         assert!(contains("setup_1").count(0).eval(global_cfg_str.as_str()));

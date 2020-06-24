@@ -1,3 +1,9 @@
+use std::cmp::Ordering;
+use std::fmt::{Display, Formatter};
+use std::fs::OpenOptions;
+use std::io::{BufRead, BufReader};
+use std::path::{Path, PathBuf};
+
 pub use comment::Comment;
 pub use diff::EnvDiffController;
 pub use error::{EnvError, EnvReaderError};
@@ -8,12 +14,6 @@ use crate::env_file::entry::Entry;
 use crate::env_file::iter::EnvIterator;
 use crate::utils::write_all::write_all_dir;
 
-use std::cmp::Ordering;
-use std::fmt::{Display, Formatter};
-use std::fs::OpenOptions;
-use std::io::{BufRead, BufReader};
-use std::path::{Path, PathBuf};
-
 mod comment;
 mod diff;
 mod entry;
@@ -21,7 +21,6 @@ mod error;
 mod iter;
 mod read_dir;
 mod recent;
-mod sync;
 mod var;
 
 pub type Result<T> = std::result::Result<T, EnvError>;
@@ -229,9 +228,10 @@ pub fn path_from_env_name<P: AsRef<Path>>(dir: P, env_name: &String) -> PathBuf 
 
 #[cfg(test)]
 mod tests {
-    use crate::env_file::Env;
     use std::io::Cursor;
     use std::path::PathBuf;
+
+    use crate::env_file::Env;
 
     #[test]
     fn name_from() {
