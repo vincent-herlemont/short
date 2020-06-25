@@ -9,8 +9,8 @@ use std::thread;
 
 use anyhow::{Context, Result};
 
-pub use file::{File, set_exec_permision};
-pub use var::{EnvValue, EnvVar, generate_array_env_var, generate_env_var, generate_env_vars};
+pub use file::{set_exec_permision, File};
+pub use var::{generate_array_env_var, generate_env_var, generate_env_vars, EnvValue, EnvVar};
 
 mod file;
 mod var;
@@ -45,7 +45,6 @@ impl From<process::Output> for Output {
 pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
     let file = file.canonicalize()?;
     let mut command = Command::new(&file);
-    command.env_clear();
 
     for env_var in vars.iter() {
         command.env(env_var.var().to_env_var(), env_var.env_value().to_string());

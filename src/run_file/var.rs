@@ -3,7 +3,7 @@ use std::ops::Deref;
 use anyhow::Result;
 use regex::Regex;
 
-use crate::cfg::{ArrayVar, ArrayVars, Var, Vars};
+use crate::cfg::{ArrayVar, ArrayVars, Setup, Var, Vars};
 use crate::env_file;
 use crate::env_file::Env;
 
@@ -36,12 +36,27 @@ impl ToString for EnvValue {
 #[derive(Debug)]
 pub struct EnvVar(Var, EnvValue);
 
+const ENV_ENVIRONMENT_VAR: &'static str = "short_env";
+const ENV_SETUP_VAR: &'static str = "short_setup";
+
 impl EnvVar {
     pub fn var(&self) -> &Var {
         &self.0
     }
     pub fn env_value(&self) -> &EnvValue {
         &self.1
+    }
+
+    pub fn from_env(env: &Env) -> Result<Self> {
+        let var = Var::new(ENV_ENVIRONMENT_VAR.to_string());
+        let env_var = env_file::Var::new(ENV_SETUP_VAR, env.name()?);
+        Ok(EnvVar(var, EnvValue::Var(env_var)))
+    }
+
+    pub fn from_setup(setup: &Setup) -> Result<Self> {
+        let var = Var::new(ENV_SETUP_VAR.to_string());
+        let env_var = env_file::Var::new(ENV_SETUP_VAR, setup.name()?);
+        Ok(EnvVar(var, EnvValue::Var(env_var)))
     }
 }
 

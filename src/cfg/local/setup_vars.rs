@@ -4,6 +4,10 @@ use serde::{Deserialize, Serialize};
 pub struct Var(String);
 
 impl Var {
+    pub fn new(var: String) -> Self {
+        Self(var)
+    }
+
     pub fn to_var(&self) -> String {
         self.to_string().to_lowercase()
     }

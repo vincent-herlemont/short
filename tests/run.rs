@@ -25,7 +25,10 @@ setups:
         PROJECT_RUN_FILE,
         r#"#!/bin/bash
 echo "TEST VAR1=$VAR1"
-declare -p ALL"#,
+declare -p ALL
+echo "ENVIRONMENT VAR $SHORT_ENV"
+echo "SETUP VAR $SHORT_SETUP"
+"#,
     );
     e.setup();
     e.set_exec_permission(PROJECT_RUN_FILE).unwrap();
@@ -41,4 +44,6 @@ declare -p ALL"#,
     assert!(contains("#> declare -x ALL=\" [VAR1]='VALUE1' \"")
         .count(1)
         .eval(&r));
+    assert!(contains("ENVIRONMENT VAR example1").count(1).eval(&r));
+    assert!(contains("SETUP VAR setup_1").count(1).eval(&r));
 }
