@@ -146,6 +146,7 @@ fn run() -> Result<()> {
         .subcommand(
             SubCommand::with_name("run")
                 .about("Run setup")
+                .arg(Arg::with_name("args").index(1).multiple(true).takes_value(true))
                 .arg(setup_arg.clone())
                 .arg(environment_arg.clone())
                 .arg(dryrun_arg.clone()),

@@ -42,7 +42,7 @@ impl From<process::Output> for Output {
     }
 }
 
-pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
+pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>, args: &Vec<String>) -> Result<Output> {
     let file = file.canonicalize()?;
     let mut command = Command::new(&file);
 
@@ -54,6 +54,7 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>) -> Result<Output> {
         .stdout(Stdio::piped())
         .stdin(Stdio::piped())
         .stderr(Stdio::piped())
+        .args(args)
         .spawn()
         .context(format!("command {} fail", &file.to_string_lossy()))?;
 
@@ -141,9 +142,32 @@ echo ERR >> /dev/stderr
         e.setup();
         e.set_exec_permission("run.sh").unwrap();
 
-        let output = run_as_stream(&e.path().join(PathBuf::from("run.sh")), &vec![]).unwrap();
+        let output =
+            run_as_stream(&e.path().join(PathBuf::from("run.sh")), &vec![], &vec![]).unwrap();
         assert_eq!(output.stdout, "TEST\n".to_string());
         assert_eq!(output.stderr, "ERR\n".to_string());
+        assert_eq!(output.status, 0);
+    }
+
+    #[test]
+    fn run_integration_test_stream_with_args() {
+        let mut e = IntegrationTestEnvironment::new("run_integration_test");
+        e.add_file(
+            "run.sh",
+            r#"#!/bin/bash
+echo ARG = $1
+"#,
+        );
+        e.setup();
+        e.set_exec_permission("run.sh").unwrap();
+
+        let output = run_as_stream(
+            &e.path().join(PathBuf::from("run.sh")),
+            &vec![],
+            &vec!["TEST_ARG".to_string()],
+        )
+        .unwrap();
+        assert_eq!(output.stdout, "ARG = TEST_ARG\n".to_string());
         assert_eq!(output.status, 0);
     }
 }

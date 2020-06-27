@@ -12,6 +12,8 @@ pub fn run(app: &ArgMatches) -> Result<()> {
 
     let settings = get_settings(app, &cfg);
 
+    let args = app.values_of_lossy("args").unwrap_or(vec![]);
+
     let setup_name = settings.setup()?;
     let env = settings.env()?;
     let setup = cfg.current_setup(setup_name)?;
@@ -36,7 +38,7 @@ pub fn run(app: &ArgMatches) -> Result<()> {
             .context(format!("fail to generate var from setup `{:?}`", setup))?,
     );
 
-    run_as_stream(&script_file, &env_vars)
+    run_as_stream(&script_file, &env_vars, &args)
         .context(format!("fail to run {:?} with env {:?}", script_file, env))?;
 
     Ok(())
