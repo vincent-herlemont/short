@@ -7,7 +7,7 @@ use crate::cli::cfg::get_cfg;
 use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::settings::get_settings;
 use crate::env_file::Env;
-use crate::run_file::{EnvValue, generate_env_vars};
+use crate::run_file::{generate_env_vars, EnvValue};
 
 pub fn var(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
@@ -33,7 +33,7 @@ pub fn var(app: &ArgMatches) -> Result<()> {
 
     let env_ref = envs.get(0).map(|env| env.clone()).unwrap();
 
-    // Retrive vars / array_vars
+    // Retrieve vars / array_vars
     let local_setup = setup.local_setup().unwrap();
     let local_setup = local_setup.borrow();
     let array_vars = local_setup.array_vars().unwrap_or_default();
@@ -45,10 +45,11 @@ pub fn var(app: &ArgMatches) -> Result<()> {
     render_table.separate_rows = false;
     render_table.style = term_table::TableStyle::thin();
 
-    let mut title: Vec<_> = envs
-        .iter()
-        .map(|env| TableCell::new(env.name().unwrap().clone()))
-        .collect();
+    let mut title: Vec<TableCell> = vec![];
+    for env in &envs {
+        title.push(TableCell::new(env.name()?.clone()));
+    }
+
     title.splice(0..0, vec![TableCell::new_with_col_span("", 2)].into_iter());
 
     render_table.add_row(Row::new(title));
@@ -63,9 +64,9 @@ pub fn var(app: &ArgMatches) -> Result<()> {
                     TableCell::new(env_var.var().to_env_var()),
                 ];
                 for env in &envs {
-                    line.push(TableCell::new(
-                        env.get(env_var.var().to_string()).unwrap().value().clone(),
-                    ));
+                    if let Ok(env_var) = env.get(env_var.var().to_string()) {
+                        line.push(TableCell::new(env_var.value()));
+                    }
                 }
                 render_table.add_row(Row::new(line));
             }
@@ -83,8 +84,9 @@ pub fn var(app: &ArgMatches) -> Result<()> {
                     let mut line = vec![TableCell::new("".to_string())];
                     line.push(TableCell::new(var.name().clone()));
                     for env in &envs {
-                        let env_var = env.get(var.name()).unwrap();
-                        line.push(TableCell::new(env_var.value().clone()));
+                        if let Ok(env_var) = env.get(var.name()) {
+                            line.push(TableCell::new(env_var.value().clone()));
+                        }
                     }
                     render_table.add_row(Row::new(line));
                 }

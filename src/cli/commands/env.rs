@@ -32,7 +32,10 @@ pub fn env(app: &ArgMatches) -> Result<()> {
 
     let env_ref = envs.get(0).map(|env| env.clone()).unwrap();
 
-    let mut title: Vec<_> = envs.iter().map(|env| env.name().unwrap().clone()).collect();
+    let mut title: Vec<String> = vec![];
+    for env in &envs {
+        title.push(env.name()?.clone());
+    }
     title.splice(0..0, vec!["".to_string()].into_iter());
 
     let mut table = vec![title];
@@ -40,8 +43,9 @@ pub fn env(app: &ArgMatches) -> Result<()> {
         let mut line = vec![];
         line.push(var_ref.name().clone());
         for env in &envs {
-            let var = env.get(var_ref.name()).unwrap();
-            line.push(var.value().clone());
+            if let Ok(var) = env.get(var_ref.name()) {
+                line.push(var.value().clone());
+            }
         }
         table.push(line);
     }
