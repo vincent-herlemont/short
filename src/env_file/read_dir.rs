@@ -1,8 +1,8 @@
+use anyhow::{Context, Result};
 use std::fs;
 use std::path::PathBuf;
 
 use crate::env_file::Env;
-use crate::env_file::Result;
 
 pub fn read_dir(dir: &PathBuf) -> Vec<Result<Env>> {
     let mut envs = vec![];
@@ -22,7 +22,9 @@ pub fn read_dir(dir: &PathBuf) -> Vec<Result<Env>> {
                     continue;
                 }
 
-                let env = Env::from_file_reader(entry.path());
+                let path = entry.path();
+                let env = Env::from_file_reader(&path)
+                    .context(format!("fail to read read `{:?}` ", &path));
                 envs.append(&mut vec![env]);
             }
         }

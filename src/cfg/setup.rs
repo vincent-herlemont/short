@@ -11,7 +11,7 @@ use crate::cfg::error::CfgError;
 use crate::cfg::global::GlobalProjectSetupCfg;
 use crate::cfg::LocalSetupCfg;
 use crate::env_file;
-use crate::env_file::{Env, path_from_env_name};
+use crate::env_file::{path_from_env_name, Env};
 
 pub trait SetupsCfg {
     type Setup: SetupCfg;
@@ -147,7 +147,7 @@ impl Setup {
             let env = env_file::read_dir(&abs_path);
             return env
                 .into_iter()
-                .map(|env| env.context("fail to parse env"))
+                .map(|env| env.context("fail to parse public env"))
                 .collect();
         }
         vec![]
@@ -167,7 +167,7 @@ impl Setup {
             let env = env_file::read_dir(&global_setup);
             return env
                 .into_iter()
-                .map(|env| env.context("fail to parse env"))
+                .map(|env| env.context("fail to parse private env"))
                 .collect();
         }
         vec![]

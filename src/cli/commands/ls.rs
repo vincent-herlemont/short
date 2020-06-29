@@ -52,9 +52,12 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
             .envs()
             .into_iter()
             .filter_map(|r| {
-                if let Err(e) = &r {
-                    error!("{}", e);
-                }
+                // TODO : add exclude `.<file_name>` that not an env like .gitignore
+                //        and display errors
+                // if let Err(e) = &r {
+                //     error!("{}", e);
+                //     e.chain().skip(1).for_each(|cause| error!("{}", cause));
+                // }
                 r.ok()
             })
             .collect();
