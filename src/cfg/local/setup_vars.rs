@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
-pub struct Var(String);
+pub struct VarName(String);
 
-impl Var {
+impl VarName {
     pub fn new(var: String) -> Self {
         Self(var)
     }
@@ -17,41 +17,41 @@ impl Var {
     }
 }
 
-impl ToString for Var {
+impl ToString for VarName {
     fn to_string(&self) -> String {
         self.0.clone()
     }
 }
 
-impl From<String> for Var {
+impl From<String> for VarName {
     fn from(string: String) -> Self {
-        Var(string)
+        VarName(string)
     }
 }
 
-impl From<&str> for Var {
+impl From<&str> for VarName {
     fn from(string: &str) -> Self {
-        Var(string.to_string())
+        VarName(string.to_string())
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Vars(Vec<Var>);
+pub struct Vars(Vec<VarName>);
 
 impl Vars {
     pub fn new() -> Self {
         Self(vec![])
     }
 
-    pub fn add(&mut self, name: Var) {
+    pub fn add(&mut self, name: VarName) {
         if self.0.iter().find(|var| *var == &name).is_none() {
             self.0.append(&mut vec![name])
         }
     }
 }
 
-impl AsRef<Vec<Var>> for Vars {
-    fn as_ref(&self) -> &Vec<Var> {
+impl AsRef<Vec<VarName>> for Vars {
+    fn as_ref(&self) -> &Vec<VarName> {
         &self.0
     }
 }

@@ -4,8 +4,8 @@ use std::rc::Rc;
 use serde::{Deserialize, Serialize};
 
 pub use setup::LocalSetupCfg;
-pub use setup_array_vars::{ArrayVar, ArrayVars};
-pub use setup_vars::{Var, Vars};
+pub use setup_array_vars::{ArrayVar, ArrayVars, VarFormat};
+pub use setup_vars::{VarName, Vars};
 
 use crate::cfg::setup::SetupsCfg;
 
@@ -36,8 +36,9 @@ impl SetupsCfg for LocalCfg {
 
 #[cfg(test)]
 mod tests {
-    use crate::cfg::{LocalCfg, LocalSetupCfg};
+    use crate::cfg::local::setup_array_vars::VarFormat;
     use crate::cfg::setup::SetupsCfg;
+    use crate::cfg::{ArrayVar, LocalCfg, LocalSetupCfg};
 
     #[test]
     fn local_update_public_env_dir() {
@@ -65,16 +66,24 @@ name: setup
 file: run.sh
 array_vars:
   all: ".*"
-  var2: SUFFIX_*
+  var2: "*_SUFFIX"
   var1: PREFIX_*
 vars:
   - SETUP_NAME"#;
 
         let array_vars = setup_cfg.array_vars().unwrap();
         let mut array_vars = array_vars.borrow_mut();
-        array_vars.add("all".into(), ".*".into());
-        array_vars.add("var2".into(), "SUFFIX_*".into());
-        array_vars.add("var1".into(), "PREFIX_*".into());
+        array_vars.add(ArrayVar::new("all".into(), ".*".into(), VarFormat::None));
+        array_vars.add(ArrayVar::new(
+            "var2".into(),
+            "*_SUFFIX".into(),
+            VarFormat::None,
+        ));
+        array_vars.add(ArrayVar::new(
+            "var1".into(),
+            "PREFIX_*".into(),
+            VarFormat::None,
+        ));
         drop(array_vars);
 
         let content = serde_yaml::to_string(&setup_cfg).unwrap();

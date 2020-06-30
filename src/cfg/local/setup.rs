@@ -6,10 +6,11 @@ use std::rc::Rc;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::cfg::CfgError;
-use crate::cfg::local::ArrayVars;
+use crate::cfg::local::setup_array_vars::VarFormat;
 use crate::cfg::local::setup_vars::Vars;
+use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
+use crate::cfg::{ArrayVar, CfgError};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalSetupCfg {
@@ -86,7 +87,7 @@ impl LocalSetupCfg {
 
     pub fn new_array_vars(&mut self) -> Rc<RefCell<ArrayVars>> {
         let mut array_vars = ArrayVars::new();
-        array_vars.add("all".into(), ".*".into());
+        array_vars.add(ArrayVar::new("all".into(), ".*".into(), VarFormat::None));
 
         let array_vars = Rc::new(RefCell::new(array_vars));
         self.array_vars = Some(Rc::clone(&array_vars));

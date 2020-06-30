@@ -5,13 +5,12 @@ use std::rc::Rc;
 use anyhow::{Context, Result};
 
 pub use error::CfgError;
-pub use file::FileCfg;
 pub use file::load_local_cfg;
+pub use file::FileCfg;
 pub use global::GlobalCfg;
-pub use local::{ArrayVar, ArrayVars};
-pub use local::{Var, Vars};
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
+pub use local::{ArrayVar, ArrayVars, VarFormat, VarName, Vars};
 pub use setup::Setup;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;
