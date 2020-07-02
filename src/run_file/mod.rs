@@ -50,6 +50,10 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>, args: &Vec<String>) -> 
         command.env(env_var.var().to_env_var(), env_var.env_value().to_string());
     }
 
+    if let Some(parent) = file.parent() {
+        command.current_dir(parent);
+    }
+
     let mut child = command
         .stdout(Stdio::piped())
         .stdin(Stdio::piped())
