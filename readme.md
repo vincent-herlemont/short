@@ -1,6 +1,4 @@
-# Short 
-
-:construction: *Disclaimer : Work in progress. It's an experimental project that I used for learn rust. Most of the code are dirty and need to be rewrite.*
+# Short \<Shell ProjectManager\> 
 
 Short it's command-line tool that allow to run sh script with multiple .env file.
 
