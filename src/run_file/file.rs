@@ -1,5 +1,5 @@
 use std::fmt::Write as FmtWrite;
-use std::fs::{create_dir_all, Permissions, set_permissions};
+use std::fs::{create_dir_all, set_permissions, Permissions};
 use std::ops::Deref;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
@@ -100,7 +100,7 @@ pub fn set_exec_permision(file: &PathBuf) -> Result<()> {
 mod tests {
     use cli_integration_test::IntegrationTestEnvironment;
 
-    use crate::cfg::{ArrayVars, Vars};
+    use crate::cfg::{ArrayVar, ArrayVars, VarFormat, Vars};
     use crate::run_file::file::File;
 
     #[test]
@@ -125,7 +125,7 @@ code_2
     #[test]
     fn file_new() {
         let mut array_vars = ArrayVars::new();
-        array_vars.add("all".into(), ".*".into());
+        array_vars.add(ArrayVar::new("all".into(), ".*".into(), VarFormat::None));
 
         let mut vars = Vars::new();
         vars.add("SETUP_NAME".into());
