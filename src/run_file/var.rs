@@ -3,9 +3,10 @@ use std::ops::Deref;
 use anyhow::Result;
 use regex::Regex;
 
-use crate::cfg::{ArrayVar, ArrayVars, Setup, VarName, Vars};
+use crate::cfg::{ArrayVar, ArrayVars, Setup, VarFormat, VarName, Vars};
 use crate::env_file;
 use crate::env_file::Env;
+use heck::*;
 
 #[derive(Debug)]
 pub enum EnvValue {
@@ -17,13 +18,21 @@ impl ToString for EnvValue {
     fn to_string(&self) -> String {
         match self {
             EnvValue::Var(value) => value.value().clone(),
-            EnvValue::ArrayVar((_, array_var_value)) => {
+            EnvValue::ArrayVar((array_var, array_var_value)) => {
                 let mut env_value_buf = " ".to_string();
                 for var in array_var_value.iter() {
                     env_value_buf = format!(
                         "{}[{}]='{}' ",
                         env_value_buf.clone(),
-                        var.name(),
+                        match array_var.format() {
+                            VarFormat::CamelCase => var.name().to_camel_case(),
+                            VarFormat::KebabCase => var.name().to_kebab_case(),
+                            VarFormat::SnakeCase => var.name().to_snake_case(),
+                            VarFormat::ShoutySnakeCase => var.name().to_shouty_snake_case(),
+                            VarFormat::MixedCase => var.name().to_mixed_case(),
+                            VarFormat::TitleCase => var.name().to_title_case(),
+                            VarFormat::None => var.name().to_owned(),
+                        },
                         var.value()
                     );
                 }
@@ -138,6 +147,21 @@ mod tests {
         assert_eq!(
             env_var.env_value().to_string(),
             " [VAR1]='VALUE1' [VAR2]='VALUE2' "
+        );
+    }
+    #[test]
+    fn generate_array_var_with_format_test() {
+        let array_var: ArrayVar =
+            ArrayVar::new("all".into(), ".*".into(), VarFormat::CamelCase).into();
+        let mut env_file = Env::new("".into());
+        env_file.add("VAR1", "VALUE1");
+        env_file.add("VAR2", "VALUE2");
+
+        let env_var = generate_array_env_var(&env_file, &array_var).unwrap();
+        assert_eq!(env_var.var().to_string(), "all");
+        assert_eq!(
+            env_var.env_value().to_string(),
+            " [Var1]='VALUE1' [Var2]='VALUE2' "
         );
     }
 

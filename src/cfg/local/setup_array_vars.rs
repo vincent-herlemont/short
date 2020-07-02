@@ -1,6 +1,6 @@
 use std::fmt;
 
-use anyhow::{Result};
+use anyhow::Result;
 
 use serde::de;
 use serde::de::{MapAccess, Unexpected, Visitor};
@@ -287,6 +287,9 @@ impl ArrayVar {
     pub fn pattern(&self) -> &VarPattern {
         &self.pattern
     }
+    pub fn format(&self) -> &VarFormat {
+        &self.format
+    }
 }
 
 #[cfg(test)]
@@ -295,7 +298,6 @@ mod tests {
     use crate::cfg::local::setup_array_vars::VarFormat;
     use crate::cfg::{ArrayVar, ArrayVars};
     use serde_yaml;
-    
 
     #[test]
     fn deserialize_array_vars() {
