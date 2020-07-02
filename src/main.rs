@@ -63,7 +63,7 @@ fn run() -> Result<()> {
             .multiple(false),
     ];
 
-    let app = App::new(format!("{}short", emoji::SHORT))
+    let app = App::new(format!("{}sht", emoji::SHORT))
         .version(VERSION)
         .author("Vincent Herlemont <vincentherl@leszeros.com>")
         .setting(AppSettings::ArgRequiredElseHelp)

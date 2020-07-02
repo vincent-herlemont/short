@@ -1,4 +1,5 @@
-# Short \<Shell ProjectManager\> 
+# sht / short / 🩳
+> A short cli project manager.
 
 Short it's command-line tool that allow to run sh script with multiple .env file.
 
