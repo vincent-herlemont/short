@@ -1,7 +1,6 @@
-use std::path::PathBuf;
-
 use anyhow::Result;
 use clap::ArgMatches;
+use std::path::PathBuf;
 
 use crate::cfg::Cfg;
 use crate::cli::cfg::get_cfg;
@@ -9,14 +8,16 @@ use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::error::CliError;
 use crate::cli::settings::get_settings;
 use crate::cli::terminal::message::success;
-use crate::env_file::{Env, path_from_env_name};
+use crate::env_file::{path_from_env_name, Env};
+
+use super::r#use::use_workflow;
 
 pub fn env_new(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
     cfg.sync_local_to_global()?;
     let cfg = cfg;
 
-    let settings = get_settings(app, &cfg);
+    let mut settings = get_settings(app, &cfg);
     let sync_settings = SyncSettings::new(&app);
 
     let setup_name = settings.setup()?;
@@ -33,6 +34,10 @@ pub fn env_new(app: &ArgMatches) -> Result<()> {
     if let Ok(recent_env) = recent_env {
         sync_workflow(recent_env, envs, sync_settings)?;
     }
+
+    settings.set_env(env.name()?);
+    use_workflow(&cfg, &settings)?;
+    cfg.save()?;
 
     success(format!("env `{}` created : `{:?}`", env_name, env.file()).as_str());
     Ok(())

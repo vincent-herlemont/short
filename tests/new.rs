@@ -3,10 +3,10 @@ use std::path::PathBuf;
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 
+use test_utils::init;
 use test_utils::{
     HOME_CFG_FILE, PRIVATE_ENV_DEV_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE, PROJECT_ENV_DIR,
 };
-use test_utils::init;
 
 mod test_utils;
 
@@ -79,6 +79,9 @@ projects:
 
     assert!(contains("env `dev` created").eval(&r));
     assert!(e.file_exists(PRIVATE_ENV_DEV_FILE));
+
+    let r = e.read_file(HOME_CFG_FILE);
+    assert!(contains("env: dev").count(1).eval(&r));
 }
 
 #[test]
