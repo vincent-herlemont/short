@@ -1,5 +1,5 @@
-# sht / short / 🩳
-> A short cli project manager.
+# sht / short / 🩳 ![linux](https://github.com/vincent-herlemont/short/workflows/linux/badge.svg) ![osx](https://github.com/vincent-herlemont/short/workflows/osx/badge.svg)
+> A concise cli project manager.
 
 Short it's command-line tool that allow to run sh script with multiple .env file.
 

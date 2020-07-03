@@ -18,7 +18,7 @@ setups: []
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -27,7 +27,7 @@ setups: []
 
     assert!(contains("no setup is configured. You can use").eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -37,7 +37,7 @@ setups: []
 
     assert!(contains("``````").eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -69,12 +69,12 @@ projects:
         setup: setup_1
     setups: []
         "#,
-            file = e.path().join(PROJECT_CFG_FILE).to_string_lossy()
+            file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy()
         ),
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -83,7 +83,7 @@ projects:
 
     assert!(contains("no env is configured for \"setup_1\"").eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -93,7 +93,7 @@ projects:
 
     assert!(contains("```setup_1```").eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -126,12 +126,12 @@ projects:
         env: example
     setups: []
         "#,
-            file = e.path().join(PROJECT_CFG_FILE).to_string_lossy()
+            file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy()
         ),
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -140,7 +140,7 @@ projects:
 
     assert!(contains("your current setup is \"setup_1\":\"example\"").eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")
@@ -150,7 +150,7 @@ projects:
 
     assert!(contains("```setup_1```").eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("show")

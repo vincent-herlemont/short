@@ -81,7 +81,7 @@ mod tests {
     #[test]
     fn checkout() {
         let e = IntegrationTestEnvironment::new("registry_checkout");
-        let registry = Registry::checkout(e.path()).unwrap();
+        let registry = Registry::checkout(e.path().unwrap().as_ref()).unwrap();
 
         let _template = registry.get("test").unwrap();
     }

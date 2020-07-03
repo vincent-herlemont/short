@@ -3,7 +3,7 @@ use cli_integration_test::IntegrationTestEnvironment;
 
 fn cmd_help() {
     let e = IntegrationTestEnvironment::new("cmd_help");
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command.assert();
     r.stderr(
         r#" short 0.0.2
@@ -35,7 +35,7 @@ SUBCOMMANDS:
 
 fn cmd_help_env() {
     let e = IntegrationTestEnvironment::new("cmd_help");
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command.arg("env").assert();
     r.stderr(
         r#"short-env 

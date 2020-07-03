@@ -19,7 +19,7 @@ setups:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("pdir")
@@ -33,7 +33,7 @@ setups:
 
     // SET
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("pdir")
@@ -50,7 +50,7 @@ setups:
 
     // UNSET
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("pdir")
@@ -65,7 +65,7 @@ setups:
     let r = e.read_file(HOME_CFG_FILE);
     assert!(!contains("private_env_dir:").count(1).eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("pdir")

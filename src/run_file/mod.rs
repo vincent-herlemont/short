@@ -146,8 +146,12 @@ echo ERR >> /dev/stderr
         e.setup();
         e.set_exec_permission("run.sh").unwrap();
 
-        let output =
-            run_as_stream(&e.path().join(PathBuf::from("run.sh")), &vec![], &vec![]).unwrap();
+        let output = run_as_stream(
+            &e.path().unwrap().join(PathBuf::from("run.sh")),
+            &vec![],
+            &vec![],
+        )
+        .unwrap();
         assert_eq!(output.stdout, "TEST\n".to_string());
         assert_eq!(output.stderr, "ERR\n".to_string());
         assert_eq!(output.status, 0);
@@ -166,7 +170,7 @@ echo ARG = $1
         e.set_exec_permission("run.sh").unwrap();
 
         let output = run_as_stream(
-            &e.path().join(PathBuf::from("run.sh")),
+            &e.path().unwrap().join(PathBuf::from("run.sh")),
             &vec![],
             &vec!["TEST_ARG".to_string()],
         )

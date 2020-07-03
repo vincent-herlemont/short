@@ -132,7 +132,7 @@ code_2
 
         let e = IntegrationTestEnvironment::new("file_new");
         e.setup();
-        let path_file = e.path().join("run.sh");
+        let path_file = e.path().unwrap().join("run.sh");
 
         let mut file = File::new(path_file.clone(), String::from("#!/bin/bash"));
         file.generate(&array_vars, &vars).unwrap();

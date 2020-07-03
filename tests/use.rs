@@ -25,7 +25,7 @@ setups:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("use")
@@ -38,7 +38,7 @@ setups:
     let content = e.read_file(HOME_CFG_FILE);
     assert!(contains("setup: setup_1").count(1).eval(&content));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("use")
@@ -79,13 +79,13 @@ projects:
       - name: setup_1
         private_env_dir: {private_env_dir}
                 "#,
-            file = e.path().join(PROJECT_CFG_FILE).to_string_lossy(),
-            private_env_dir = e.path().join(PRIVATE_ENV_DIR).to_string_lossy()
+            file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy(),
+            private_env_dir = e.path().unwrap().join(PRIVATE_ENV_DIR).to_string_lossy()
         ),
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("use")
@@ -100,7 +100,7 @@ projects:
     assert!(contains("setup: setup_1").count(1).eval(&content));
     assert!(contains("env: example1").count(1).eval(&content));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("use")

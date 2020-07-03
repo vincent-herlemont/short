@@ -32,8 +32,8 @@ mod test {
         e.add_file("file1", "test");
         e.setup();
 
-        find_in_parents(e.path().to_path_buf(), "file2".to_string()).unwrap_err();
-        let path = find_in_parents(e.path().to_path_buf(), "file1".to_string()).unwrap();
+        find_in_parents(e.path().unwrap().to_path_buf(), "file2".to_string()).unwrap_err();
+        let path = find_in_parents(e.path().unwrap().to_path_buf(), "file1".to_string()).unwrap();
         let str = read_to_string(path).unwrap();
         contains("test").eval(&str);
     }
@@ -46,7 +46,7 @@ mod test {
         e.add_file("file1", "test");
         e.setup();
 
-        let child_dirs = e.path().join(child_dirs);
+        let child_dirs = e.path().unwrap().join(child_dirs);
         let path = find_in_parents(child_dirs.clone(), "file1".to_string()).unwrap();
         let str = read_to_string(path).unwrap();
         contains("test").eval(&str);

@@ -1,8 +1,8 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 
-use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE};
 use test_utils::init;
+use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE};
 
 mod test_utils;
 
@@ -30,9 +30,9 @@ echo -e "\nVAR2=VALUE2" >> $1
     e.setup();
     e.set_exec_permission(MOCK_EDITOR_FILE).unwrap();
 
-    let mock_editor_file_abs = e.path().join(MOCK_EDITOR_FILE);
+    let mock_editor_file_abs = e.path().unwrap().join(MOCK_EDITOR_FILE);
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("edit")
@@ -74,9 +74,9 @@ echo -e "\nVAR2=VALUE2" >> $1
     e.setup();
     e.set_exec_permission(MOCK_EDITOR_FILE).unwrap();
 
-    let mock_editor_file_abs = e.path().join(MOCK_EDITOR_FILE);
+    let mock_editor_file_abs = e.path().unwrap().join(MOCK_EDITOR_FILE);
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("edit")

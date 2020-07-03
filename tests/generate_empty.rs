@@ -21,7 +21,7 @@ setups: []
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -59,7 +59,7 @@ setups: []
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -107,7 +107,7 @@ setups: []
     e.setup();
     e.set_exec_permission(PROJECT_OTHER_RUN_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -132,7 +132,7 @@ setups: []
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -169,7 +169,7 @@ setups: []
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")

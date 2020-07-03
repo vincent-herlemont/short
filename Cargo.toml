@@ -36,7 +36,7 @@ strum_macros = "0.18.0"
 
 [dev-dependencies]
 predicates = "1.0.4"
-cli_integration_test = "0.2.2"
+cli_integration_test = "0.2.3"
 
 [lib]
 name = "short"

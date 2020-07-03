@@ -21,7 +21,7 @@ setups:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("rename")
@@ -66,12 +66,12 @@ projects:
     setups:
       - name: setup_1
             "#,
-            file = e.path().join(PROJECT_CFG_FILE).to_string_lossy()
+            file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy()
         ),
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("rename")

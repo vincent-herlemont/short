@@ -8,8 +8,8 @@ use anyhow::{Context, Result};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use crate::cfg::{GlobalCfg, LocalCfg};
 use crate::cfg::global::GLOBAL_FILE_NAME;
+use crate::cfg::{GlobalCfg, LocalCfg};
 use crate::utils::find::find_in_parents;
 use crate::utils::write_all::write_all_dir;
 
@@ -166,7 +166,7 @@ mod test {
     use predicates::prelude::Predicate;
     use predicates::str::contains;
 
-    use crate::cfg::file::{FileCfg, load_local_cfg};
+    use crate::cfg::file::{load_local_cfg, FileCfg};
     use crate::cfg::LocalCfg;
 
     fn init_env() -> IntegrationTestEnvironment {
@@ -188,7 +188,8 @@ setups:
     #[test]
     fn load() {
         let e = init_env();
-        let file_cfg: Result<FileCfg<LocalCfg>> = FileCfg::load(&e.path().join("short.yaml"));
+        let file_cfg: Result<FileCfg<LocalCfg>> =
+            FileCfg::load(&e.path().unwrap().join("short.yaml"));
         let file_cfg = file_cfg.unwrap();
         let path = file_cfg.file.unwrap().clone();
         assert!(contains("short.yaml").eval(path.to_string_lossy().as_ref()));
@@ -197,7 +198,7 @@ setups:
     #[test]
     fn load_local() {
         let e = init_env();
-        let file_local_cfg = load_local_cfg(&e.path().join("setup_1/short.yaml"));
+        let file_local_cfg = load_local_cfg(&e.path().unwrap().join("setup_1/short.yaml"));
         let file_local_cfg = file_local_cfg.unwrap();
         let path = file_local_cfg.file.unwrap().clone();
         assert!(contains("short.yaml").eval(path.to_string_lossy().as_ref()));
@@ -212,6 +213,6 @@ setups:
 
         let local_cfg = LocalCfg::new();
         let _file_cfg_local =
-            FileCfg::new(&e.path().join(PathBuf::from("example")), local_cfg).unwrap();
+            FileCfg::new(&e.path().unwrap().join(PathBuf::from("example")), local_cfg).unwrap();
     }
 }

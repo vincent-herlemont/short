@@ -105,15 +105,49 @@ mod tests {
             "https://github.com/vincent-herlemont/test-short-template.git".to_string(),
         );
 
-        template.checkout(e.path().join(TEMPLATE_TMP_DIR)).unwrap();
-        template.copy(e.path().join(TEMPLATE_TARGET_DIR)).unwrap();
+        template
+            .checkout(e.path().unwrap().join(TEMPLATE_TMP_DIR))
+            .unwrap();
+        template
+            .copy(e.path().unwrap().join(TEMPLATE_TARGET_DIR))
+            .unwrap();
 
-        assert!(e.path().join(TEMPLATE_TARGET_DIR).join("run.sh").exists());
-        assert!(e.path().join(TEMPLATE_TARGET_DIR).join("env/.dev").exists());
-        assert!(!e.path().join(TEMPLATE_TARGET_DIR).join(".git").exists());
+        assert!(e
+            .path()
+            .unwrap()
+            .join(TEMPLATE_TARGET_DIR)
+            .join("run.sh")
+            .exists());
+        assert!(e
+            .path()
+            .unwrap()
+            .join(TEMPLATE_TARGET_DIR)
+            .join("env/.dev")
+            .exists());
+        assert!(!e
+            .path()
+            .unwrap()
+            .join(TEMPLATE_TARGET_DIR)
+            .join(".git")
+            .exists());
 
-        assert!(e.path().join(TEMPLATE_TMP_DIR).join("run.sh").exists());
-        assert!(e.path().join(TEMPLATE_TMP_DIR).join("env/.dev").exists());
-        assert!(e.path().join(TEMPLATE_TMP_DIR).join(".git").exists());
+        assert!(e
+            .path()
+            .unwrap()
+            .join(TEMPLATE_TMP_DIR)
+            .join("run.sh")
+            .exists());
+        assert!(e
+            .path()
+            .unwrap()
+            .join(TEMPLATE_TMP_DIR)
+            .join("env/.dev")
+            .exists());
+        assert!(e
+            .path()
+            .unwrap()
+            .join(TEMPLATE_TMP_DIR)
+            .join(".git")
+            .exists());
     }
 }

@@ -32,7 +32,7 @@ VAR_B=VALUE2
     e.setup();
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_1_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("env")

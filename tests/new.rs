@@ -24,7 +24,7 @@ setups:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("new")
@@ -62,13 +62,13 @@ projects:
       - name: setup_1
         private_env_dir: {private_env_dir}
                 "#,
-            file = e.path().join(PROJECT_CFG_FILE).to_string_lossy(),
-            private_env_dir = e.path().join(PRIVATE_ENV_DIR).to_string_lossy()
+            file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy(),
+            private_env_dir = e.path().unwrap().join(PRIVATE_ENV_DIR).to_string_lossy()
         ),
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("new")
@@ -102,7 +102,7 @@ setups:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("new")
@@ -145,13 +145,13 @@ projects:
       - name: setup_1
         private_env_dir: {private_env_dir}
                 "#,
-            file = e.path().join(PROJECT_CFG_FILE).to_string_lossy(),
-            private_env_dir = e.path().join(PRIVATE_ENV_DIR).to_string_lossy()
+            file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy(),
+            private_env_dir = e.path().unwrap().join(PRIVATE_ENV_DIR).to_string_lossy()
         ),
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("new")

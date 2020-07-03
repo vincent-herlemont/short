@@ -33,7 +33,7 @@ echo "SETUP VAR $SHORT_SETUP"
     e.setup();
     e.set_exec_permission(PROJECT_RUN_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let command = command
         .env("RUST_LOG", "debug")
         .arg("run")
@@ -77,7 +77,7 @@ echo "SETUP VAR $SHORT_SETUP"
     e.setup();
     e.set_exec_permission(PROJECT_RUN_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let command = command
         .env("RUST_LOG", "debug")
         .arg("run")

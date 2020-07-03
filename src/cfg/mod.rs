@@ -147,10 +147,14 @@ mod main_test {
     #[test]
     fn create_cfg() {
         let e = init_env();
-        let local_cfg = e.path().join(PROJECT).join("short.yaml");
-        let global_cfg = e.path().join(HOME).join(".short/cfg.yaml");
+        let local_cfg = e.path().unwrap().join(PROJECT).join("short.yaml");
+        let global_cfg = e.path().unwrap().join(HOME).join(".short/cfg.yaml");
 
-        let cfg = Cfg::create_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let cfg = Cfg::create_local(
+            e.path().unwrap().join(HOME),
+            e.path().unwrap().join(PROJECT),
+        )
+        .unwrap();
         assert!(!exists().eval(&local_cfg));
         assert!(!exists().eval(&global_cfg));
         cfg.save().unwrap();
@@ -164,8 +168,8 @@ mod main_test {
         let local_cfg = PathBuf::from(PROJECT).join("short.yaml");
         let global_cfg = PathBuf::from(HOME).join(".short/cfg.yaml");
 
-        let abs_local_cfg = e.path().join(&local_cfg);
-        let abs_global_cfg = e.path().join(&global_cfg);
+        let abs_local_cfg = e.path().unwrap().join(&local_cfg);
+        let abs_global_cfg = e.path().unwrap().join(&global_cfg);
 
         e.add_file(
             &local_cfg,
@@ -177,7 +181,11 @@ setups:
         );
         e.setup();
 
-        let mut cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let mut cfg = Cfg::load_local(
+            e.path().unwrap().join(HOME),
+            e.path().unwrap().join(PROJECT),
+        )
+        .unwrap();
         cfg.sync_local_to_global().unwrap();
         let setups = cfg.current_setups();
 
@@ -205,8 +213,8 @@ setups:
         let local_cfg = PathBuf::from(PROJECT).join("short.yaml");
         let global_cfg = PathBuf::from(HOME).join(".short/cfg.yaml");
 
-        let abs_local_cfg = e.path().join(&local_cfg);
-        let _abs_global_cfg = e.path().join(&global_cfg);
+        let abs_local_cfg = e.path().unwrap().join(&local_cfg);
+        let _abs_global_cfg = e.path().unwrap().join(&global_cfg);
 
         e.add_file(
             &local_cfg,
@@ -233,7 +241,11 @@ projects:
         );
 
         e.setup();
-        let cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let cfg = Cfg::load_local(
+            e.path().unwrap().join(HOME),
+            e.path().unwrap().join(PROJECT),
+        )
+        .unwrap();
         let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap();
         setup_1
             .global_setup()
@@ -273,11 +285,11 @@ projects:
         let env_dev = PathBuf::from(ENVDIR).join(".dev");
         let env_prod = PathBuf::from(ENVDIR).join(".prod");
 
-        let abs_local_cfg = e.path().join(&local_cfg);
-        let _abs_global_cfg = e.path().join(&global_cfg);
-        let abs_env_example = e.path().join(env_example);
-        let abs_env_dev = e.path().join(env_dev);
-        let abs_env_prod = e.path().join(env_prod);
+        let abs_local_cfg = e.path().unwrap().join(&local_cfg);
+        let _abs_global_cfg = e.path().unwrap().join(&global_cfg);
+        let abs_env_example = e.path().unwrap().join(env_example);
+        let abs_env_dev = e.path().unwrap().join(env_dev);
+        let abs_env_prod = e.path().unwrap().join(env_prod);
 
         e.add_file(
             &local_cfg,
@@ -308,7 +320,7 @@ projects:
         private_env_dir: {}
                 "#,
                 abs_local_cfg.to_string_lossy(),
-                e.path().join(ENVDIR).to_string_lossy(),
+                e.path().unwrap().join(ENVDIR).to_string_lossy(),
             ),
         );
         e.add_file(
@@ -325,7 +337,11 @@ ENV=dev
         );
         e.setup();
 
-        let cfg = Cfg::load_local(e.path().join(HOME), e.path().join(PROJECT)).unwrap();
+        let cfg = Cfg::load_local(
+            e.path().unwrap().join(HOME),
+            e.path().unwrap().join(PROJECT),
+        )
+        .unwrap();
         let setup_1 = cfg.current_setup(&"setup_1".into()).unwrap();
         let env_public = setup_1.envs_public();
         assert!(env_public.iter().count().eq(&1));

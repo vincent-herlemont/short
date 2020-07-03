@@ -35,7 +35,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")
@@ -88,7 +88,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")
@@ -143,7 +143,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")
@@ -186,7 +186,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")
@@ -225,7 +225,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")

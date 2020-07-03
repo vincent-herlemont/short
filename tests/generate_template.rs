@@ -17,7 +17,7 @@ setups: []
         "#,
     );
     e.setup();
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -28,9 +28,9 @@ setups: []
 
     assert!(contains("generate setup `test_setup_1`:`dev`").eval(&r));
 
-    let env_dev = e.path().join(PROJECT_DIR).join("env/.dev");
+    let env_dev = e.path().unwrap().join(PROJECT_DIR).join("env/.dev");
     assert!(env_dev.exists());
-    let run_sh = e.path().join(PROJECT_DIR).join("run.sh");
+    let run_sh = e.path().unwrap().join(PROJECT_DIR).join("run.sh");
     assert!(run_sh.exists());
 
     let r = e.read_file(PROJECT_CFG_FILE);
@@ -63,7 +63,7 @@ setups: []
         "#,
     );
     e.setup();
-    let mut command = e.command(env!("CARGO_PKG_NAME"));
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
