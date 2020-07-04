@@ -18,7 +18,7 @@ use crate::cfg::local::VarName;
 type VarPattern = String;
 
 #[derive(EnumString, EnumProperty, Debug, Clone, Eq, PartialEq)]
-pub enum VarFormat {
+pub enum VarCase {
     #[strum(
         serialize = "None",
         serialize = "none",
@@ -65,7 +65,7 @@ pub enum VarFormat {
     TitleCase,
 }
 
-impl Serialize for VarFormat {
+impl Serialize for VarCase {
     fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
     where
         S: Serializer,
@@ -75,7 +75,7 @@ impl Serialize for VarFormat {
     }
 }
 
-impl<'de> Deserialize<'de> for VarFormat {
+impl<'de> Deserialize<'de> for VarCase {
     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
     where
         D: Deserializer<'de>,
@@ -83,7 +83,7 @@ impl<'de> Deserialize<'de> for VarFormat {
         struct InnerVisitor;
 
         impl<'de> Visitor<'de> for InnerVisitor {
-            type Value = VarFormat;
+            type Value = VarCase;
 
             fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
                 formatter.write_str("incorrect list of var_format")
@@ -93,7 +93,7 @@ impl<'de> Deserialize<'de> for VarFormat {
             where
                 E: de::Error,
             {
-                if let Ok(var_format) = VarFormat::from_str(v) {
+                if let Ok(var_format) = VarCase::from_str(v) {
                     Ok(var_format)
                 } else {
                     Err(de::Error::invalid_type(Unexpected::Str(v), &self))
@@ -105,15 +105,15 @@ impl<'de> Deserialize<'de> for VarFormat {
     }
 }
 
-impl Default for VarFormat {
+impl Default for VarCase {
     fn default() -> Self {
-        VarFormat::None
+        VarCase::None
     }
 }
 
-impl VarFormat {
+impl VarCase {
     pub fn is_none(&self) -> bool {
-        matches!(*self, VarFormat::None)
+        matches!(*self, VarCase::None)
     }
 }
 
@@ -194,30 +194,27 @@ impl<'de> Deserialize<'de> for ArrayVars {
 pub struct ArrayVar {
     name: VarName,
     pattern: VarPattern,
-    format: VarFormat,
+    case: VarCase,
 }
 
 impl From<DeserializeArrayVarTruncate> for ArrayVar {
     fn from(davt: DeserializeArrayVarTruncate) -> Self {
-        ArrayVar::new("".into(), davt.pattern, davt.format)
+        ArrayVar::new("".into(), davt.pattern, davt.case)
     }
 }
 
 #[derive(Serialize, Deserialize)]
 struct DeserializeArrayVarTruncate {
     pattern: VarPattern,
-    #[serde(
-        skip_serializing_if = "VarFormat::is_none",
-        default = "VarFormat::default"
-    )]
-    format: VarFormat,
+    #[serde(skip_serializing_if = "VarCase::is_none", default = "VarCase::default")]
+    case: VarCase,
 }
 
 impl From<ArrayVar> for DeserializeArrayVarTruncate {
     fn from(av: ArrayVar) -> Self {
         Self {
             pattern: av.pattern,
-            format: av.format,
+            case: av.case,
         }
     }
 }
@@ -227,8 +224,8 @@ impl Serialize for ArrayVar {
     where
         S: Serializer,
     {
-        match &self.format {
-            VarFormat::None => serializer.serialize_str(&self.pattern),
+        match &self.case {
+            VarCase::None => serializer.serialize_str(&self.pattern),
             _ => {
                 let davt = DeserializeArrayVarTruncate::from(self.clone());
                 serializer.serialize_newtype_struct("", &davt)
@@ -255,7 +252,7 @@ impl<'de> Deserialize<'de> for ArrayVar {
             where
                 E: de::Error,
             {
-                Ok(ArrayVar::new("".into(), v.into(), VarFormat::None))
+                Ok(ArrayVar::new("".into(), v.into(), VarCase::None))
             }
 
             fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
@@ -272,11 +269,11 @@ impl<'de> Deserialize<'de> for ArrayVar {
 }
 
 impl ArrayVar {
-    pub fn new(name: VarName, pattern: VarPattern, format: VarFormat) -> Self {
+    pub fn new(name: VarName, pattern: VarPattern, format: VarCase) -> Self {
         Self {
             name,
             pattern,
-            format,
+            case: format,
         }
     }
 
@@ -287,15 +284,15 @@ impl ArrayVar {
     pub fn pattern(&self) -> &VarPattern {
         &self.pattern
     }
-    pub fn format(&self) -> &VarFormat {
-        &self.format
+    pub fn case(&self) -> &VarCase {
+        &self.case
     }
 }
 
 #[cfg(test)]
 mod tests {
 
-    use crate::cfg::local::setup_array_vars::VarFormat;
+    use crate::cfg::local::setup_array_vars::VarCase;
     use crate::cfg::{ArrayVar, ArrayVars};
     use serde_yaml;
 
@@ -308,7 +305,7 @@ test_3:
     pattern: value_3
 test_4:
     pattern: value_4
-    format: kebab-case
+    case: kebab-case
         "#;
 
         let array_vars = serde_yaml::from_str::<ArrayVars>(content).unwrap();
@@ -317,22 +314,22 @@ test_4:
         expected_array_vars.add(ArrayVar::new(
             "test_1".into(),
             "value_1".into(),
-            VarFormat::None,
+            VarCase::None,
         ));
         expected_array_vars.add(ArrayVar::new(
             "test_2".into(),
             "value_2".into(),
-            VarFormat::None,
+            VarCase::None,
         ));
         expected_array_vars.add(ArrayVar::new(
             "test_3".into(),
             "value_3".into(),
-            VarFormat::None,
+            VarCase::None,
         ));
         expected_array_vars.add(ArrayVar::new(
             "test_4".into(),
             "value_4".into(),
-            VarFormat::KebabCase,
+            VarCase::KebabCase,
         ));
         assert_eq!(array_vars, expected_array_vars);
 
@@ -345,7 +342,7 @@ test_2: value_2
 test_3: value_3
 test_4:
   pattern: value_4
-  format: kebab-case"
+  case: kebab-case"
         );
     }
 }

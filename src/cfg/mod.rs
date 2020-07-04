@@ -10,7 +10,7 @@ pub use file::FileCfg;
 pub use global::GlobalCfg;
 pub use local::LocalCfg;
 pub use local::LocalSetupCfg;
-pub use local::{ArrayVar, ArrayVars, VarFormat, VarName, Vars};
+pub use local::{ArrayVar, ArrayVars, VarCase, VarName, Vars};
 pub use setup::Setup;
 pub use setup::SetupCfg;
 pub use setup::SetupsCfg;

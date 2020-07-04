@@ -3,7 +3,7 @@ use std::ops::Deref;
 use anyhow::Result;
 use regex::Regex;
 
-use crate::cfg::{ArrayVar, ArrayVars, Setup, VarFormat, VarName, Vars};
+use crate::cfg::{ArrayVar, ArrayVars, Setup, VarCase, VarName, Vars};
 use crate::env_file;
 use crate::env_file::Env;
 use heck::*;
@@ -24,14 +24,14 @@ impl ToString for EnvValue {
                     env_value_buf = format!(
                         "{}[{}]='{}' ",
                         env_value_buf.clone(),
-                        match array_var.format() {
-                            VarFormat::CamelCase => var.name().to_camel_case(),
-                            VarFormat::KebabCase => var.name().to_kebab_case(),
-                            VarFormat::SnakeCase => var.name().to_snake_case(),
-                            VarFormat::ShoutySnakeCase => var.name().to_shouty_snake_case(),
-                            VarFormat::MixedCase => var.name().to_mixed_case(),
-                            VarFormat::TitleCase => var.name().to_title_case(),
-                            VarFormat::None => var.name().to_owned(),
+                        match array_var.case() {
+                            VarCase::CamelCase => var.name().to_camel_case(),
+                            VarCase::KebabCase => var.name().to_kebab_case(),
+                            VarCase::SnakeCase => var.name().to_snake_case(),
+                            VarCase::ShoutySnakeCase => var.name().to_shouty_snake_case(),
+                            VarCase::MixedCase => var.name().to_mixed_case(),
+                            VarCase::TitleCase => var.name().to_title_case(),
+                            VarCase::None => var.name().to_owned(),
                         },
                         var.value()
                     );
@@ -131,13 +131,13 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::cfg::{ArrayVar, VarFormat, VarName};
+    use crate::cfg::{ArrayVar, VarCase, VarName};
     use crate::env_file::Env;
     use crate::run_file::var::{generate_array_env_var, generate_env_var};
 
     #[test]
     fn generate_array_var_test() {
-        let array_var: ArrayVar = ArrayVar::new("all".into(), ".*".into(), VarFormat::None).into();
+        let array_var: ArrayVar = ArrayVar::new("all".into(), ".*".into(), VarCase::None).into();
         let mut env_file = Env::new("".into());
         env_file.add("VAR1", "VALUE1");
         env_file.add("VAR2", "VALUE2");
@@ -152,7 +152,7 @@ mod tests {
     #[test]
     fn generate_array_var_with_format_test() {
         let array_var: ArrayVar =
-            ArrayVar::new("all".into(), ".*".into(), VarFormat::CamelCase).into();
+            ArrayVar::new("all".into(), ".*".into(), VarCase::CamelCase).into();
         let mut env_file = Env::new("".into());
         env_file.add("VAR1", "VALUE1");
         env_file.add("VAR2", "VALUE2");
