@@ -44,10 +44,10 @@ fn cmd_ls() {
         PROJECT_CFG_FILE,
         r"#---
 setups:
-  - name: setup_1
+  setup_1:
     file: test.sh
     array_vars: {}
-  - name: setup_2
+  setup_2:
     file: test.sh
     array_vars: {}
     public_env_dir: env/

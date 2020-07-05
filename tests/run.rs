@@ -15,7 +15,7 @@ fn cmd_run() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
     array_vars:
       ALL: .*
@@ -57,7 +57,7 @@ fn cmd_run_with_args() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
     array_vars:
       ALL: .*

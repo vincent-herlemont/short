@@ -13,7 +13,7 @@ fn generate_template() {
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
         "#,
     );
     e.setup();
@@ -37,7 +37,7 @@ setups: []
     assert_eq!(
         r#"---
 setups:
-  - name: test_setup_1
+  test_setup_1:
     public_env_dir: "./env/"
     file: run.sh
     array_vars:
@@ -59,7 +59,7 @@ fn generate_template_with_target_directory() {
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
         "#,
     );
     e.setup();
@@ -72,13 +72,14 @@ setups: []
         .args(&["-d", "target_directory"])
         .assert()
         .to_string();
+
     assert!(contains("generate setup `test_setup_1`:`dev`").eval(&r));
 
     let r = e.read_file(PROJECT_CFG_FILE);
     assert_eq!(
         r#"---
 setups:
-  - name: test_setup_1
+  test_setup_1:
     public_env_dir: target_directory/./env/
     file: target_directory/run.sh
     array_vars:

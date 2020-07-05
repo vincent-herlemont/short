@@ -17,7 +17,7 @@ fn cmd_edit() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
         "#,
     );
@@ -60,7 +60,7 @@ fn cmd_edit_with_sync() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
         "#,
     );

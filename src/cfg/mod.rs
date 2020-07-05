@@ -175,7 +175,7 @@ mod main_test {
             &local_cfg,
             r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: ./run.sh
         "#,
         );
@@ -220,9 +220,9 @@ setups:
             &local_cfg,
             r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: ./run.sh
-  - name: setup_2
+  setup_2:
     file: ./run.sh
         "#,
         );
@@ -295,7 +295,7 @@ projects:
             &local_cfg,
             r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: ./run.sh
     array_vars: {}
         "#,

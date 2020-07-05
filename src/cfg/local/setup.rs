@@ -6,15 +6,17 @@ use std::rc::Rc;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-
 use crate::cfg::local::setup_vars::Vars;
 use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
 use crate::cfg::{ArrayVar, CfgError};
 
+pub type SetupName = String;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LocalSetupCfg {
-    name: String,
+    #[serde(skip)]
+    name: SetupName,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     public_env_dir: Option<PathBuf>,
@@ -128,7 +130,40 @@ impl SetupCfg for LocalSetupCfg {
         &self.name
     }
 
-    fn rename(&mut self, name: &String) {
+    fn set_name(&mut self, name: &String) {
         self.name = name.clone();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::cfg::{ArrayVar, LocalSetupCfg};
+
+    #[test]
+    fn local_cfg_yaml() {
+        let setup_cfg = LocalSetupCfg::new("setup".into(), "run.sh".into());
+
+        let expect = r#"---
+file: run.sh
+array_vars:
+  all: ".*"
+  var2: "*_SUFFIX"
+  var1: PREFIX_*
+vars:
+  - SETUP_NAME"#;
+
+        let array_vars = setup_cfg.array_vars().unwrap();
+        let mut array_vars = array_vars.borrow_mut();
+        array_vars.add(ArrayVar::new("all".into(), ".*".into()));
+        array_vars.add(ArrayVar::new("var2".into(), "*_SUFFIX".into()));
+        array_vars.add(ArrayVar::new("var1".into(), "PREFIX_*".into()));
+        drop(array_vars);
+
+        let content = serde_yaml::to_string(&setup_cfg).unwrap();
+        assert_eq!(expect, content.as_str());
+
+        let setup_cfg: LocalSetupCfg = serde_yaml::from_str(content.as_str()).unwrap();
+        let content = serde_yaml::to_string(&setup_cfg).unwrap();
+        assert_eq!(expect, content.as_str());
     }
 }

@@ -18,7 +18,7 @@ fn cmd_use() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
     array_vars: {}
         "#,
@@ -63,7 +63,7 @@ fn cmd_use_with_private() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
     array_vars: {}
         "#,

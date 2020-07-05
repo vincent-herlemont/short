@@ -14,7 +14,7 @@ fn cmd_rename() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
     array_vars: {}
         "#,
@@ -50,7 +50,7 @@ fn cmd_rename_with_use() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
     array_vars: {}
         "#,

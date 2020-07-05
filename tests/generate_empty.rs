@@ -16,7 +16,7 @@ fn cmd_generate() {
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
 "#,
     );
     e.setup();
@@ -54,7 +54,7 @@ fn cmd_generate_with_existing_env() {
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
     "#,
     );
     e.setup();
@@ -101,7 +101,7 @@ echo "TEST"
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
     "#,
     );
     e.setup();
@@ -127,7 +127,7 @@ fn cmd_generate_with_file_sub_directory_not_found() {
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
     "#,
     );
     e.setup();
@@ -164,7 +164,7 @@ fn cmd_generate_with_file_env_directory() {
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
     "#,
     );
     e.setup();

@@ -13,7 +13,7 @@ fn cmd_show_no_setup_no_env() {
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
         "#,
     );
     e.setup();
@@ -55,7 +55,7 @@ fn cmd_show_no_setup() {
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
         "#,
     );
 
@@ -111,7 +111,7 @@ fn cmd_show() {
     e.add_file(
         PROJECT_CFG_FILE,
         r#"
-setups: []
+setups: {}
         "#,
     );
 

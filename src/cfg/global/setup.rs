@@ -2,9 +2,9 @@ use std::path::PathBuf;
 use std::result::Result as stdResult;
 
 use anyhow::Result;
-use serde::{Deserialize, Deserializer, Serialize};
 use serde::de::{Unexpected, Visitor};
 use serde::export::Formatter;
+use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::cfg::{CfgError, LocalSetupCfg, SetupCfg};
 
@@ -72,7 +72,7 @@ impl SetupCfg for GlobalProjectSetupCfg {
         &self.name
     }
 
-    fn rename(&mut self, name: &String) {
+    fn set_name(&mut self, name: &String) {
         self.name = name.clone();
     }
 }

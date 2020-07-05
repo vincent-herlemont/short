@@ -17,7 +17,7 @@ fn cmd_new_public() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
     public_env_dir: env
         "#,
@@ -45,7 +45,7 @@ fn cmd_new_private() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
         "#,
     );
@@ -95,7 +95,7 @@ fn cmd_new_public_with_sync() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
     public_env_dir: env
         "#,
@@ -128,7 +128,7 @@ fn cmd_new_duplicate_cross_public_private() {
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
         "#,
     );

@@ -27,7 +27,7 @@ VAR2=VALUE2
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
         "#,
     );
@@ -80,7 +80,7 @@ VAR2=VALUE2
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
         "#,
     );
@@ -134,7 +134,7 @@ VAR2=VALUE2
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
         "#,
     );
@@ -177,7 +177,7 @@ VAR3=VALUE3
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
         "#,
     );
@@ -216,7 +216,7 @@ VAR3=VALUE3
         PROJECT_CFG_FILE,
         r#"
 setups:
-  - name: setup_1
+  setup_1:
     file: run.sh
         "#,
     );

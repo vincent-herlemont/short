@@ -176,7 +176,7 @@ mod test {
             "short.yaml",
             r"#---
 setups:
-  - name: setup_1'
+  setup_1:
     public_env_dir: 'setup_1/'
     file: ./run.sh
 #",
