@@ -13,9 +13,12 @@ use strum::EnumProperty;
 use strum_macros::EnumProperty;
 use strum_macros::EnumString;
 
+use crate::cfg::error::CfgError::{DelimiterNotFound, FormatNotFound};
 use crate::cfg::local::VarName;
 
 type VarPattern = String;
+type VarFormat = String;
+type VarDelimiter = String;
 
 #[derive(EnumString, EnumProperty, Debug, Clone, Eq, PartialEq)]
 pub enum VarCase {
@@ -195,11 +198,22 @@ pub struct ArrayVar {
     name: VarName,
     pattern: VarPattern,
     case: VarCase,
+    format: Option<VarFormat>,
+    delimiter: Option<VarDelimiter>,
 }
 
 impl From<DeserializeArrayVarTruncate> for ArrayVar {
     fn from(davt: DeserializeArrayVarTruncate) -> Self {
-        ArrayVar::new("".into(), davt.pattern, davt.case)
+        let davt = &davt;
+        let mut array_var = ArrayVar::new("".into(), davt.pattern.to_owned());
+        array_var.set_case(davt.case.to_owned());
+        if let Some(format) = davt.format.as_ref() {
+            array_var.set_format(format.to_owned())
+        }
+        if let Some(delimiter) = davt.delimiter.as_ref() {
+            array_var.set_delimiter(delimiter.to_owned())
+        }
+        array_var
     }
 }
 
@@ -208,6 +222,10 @@ struct DeserializeArrayVarTruncate {
     pattern: VarPattern,
     #[serde(skip_serializing_if = "VarCase::is_none", default = "VarCase::default")]
     case: VarCase,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    format: Option<VarFormat>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    delimiter: Option<VarDelimiter>,
 }
 
 impl From<ArrayVar> for DeserializeArrayVarTruncate {
@@ -215,6 +233,8 @@ impl From<ArrayVar> for DeserializeArrayVarTruncate {
         Self {
             pattern: av.pattern,
             case: av.case,
+            format: av.format,
+            delimiter: av.delimiter,
         }
     }
 }
@@ -224,12 +244,14 @@ impl Serialize for ArrayVar {
     where
         S: Serializer,
     {
-        match &self.case {
-            VarCase::None => serializer.serialize_str(&self.pattern),
-            _ => {
-                let davt = DeserializeArrayVarTruncate::from(self.clone());
-                serializer.serialize_newtype_struct("", &davt)
-            }
+        if matches!(&self.case, VarCase::None)
+            && matches!(&self.format, None)
+            && matches!(&self.delimiter, None)
+        {
+            serializer.serialize_str(&self.pattern)
+        } else {
+            let davt = DeserializeArrayVarTruncate::from(self.clone());
+            serializer.serialize_newtype_struct("", &davt)
         }
     }
 }
@@ -252,7 +274,7 @@ impl<'de> Deserialize<'de> for ArrayVar {
             where
                 E: de::Error,
             {
-                Ok(ArrayVar::new("".into(), v.into(), VarCase::None))
+                Ok(ArrayVar::new("".into(), v.into()))
             }
 
             fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
@@ -269,11 +291,13 @@ impl<'de> Deserialize<'de> for ArrayVar {
 }
 
 impl ArrayVar {
-    pub fn new(name: VarName, pattern: VarPattern, format: VarCase) -> Self {
+    pub fn new(name: VarName, pattern: VarPattern) -> Self {
         Self {
             name,
             pattern,
-            case: format,
+            case: VarCase::None,
+            format: None,
+            delimiter: None,
         }
     }
 
@@ -284,8 +308,33 @@ impl ArrayVar {
     pub fn pattern(&self) -> &VarPattern {
         &self.pattern
     }
+
+    pub fn set_case(&mut self, case: VarCase) {
+        self.case = case;
+    }
+
     pub fn case(&self) -> &VarCase {
         &self.case
+    }
+
+    pub fn set_format(&mut self, format: VarFormat) {
+        self.format = Some(format);
+    }
+
+    pub fn format(&self) -> Result<&VarFormat> {
+        self.format
+            .as_ref()
+            .ok_or(FormatNotFound(self.name.clone()).into())
+    }
+
+    pub fn set_delimiter(&mut self, delimiter: VarDelimiter) {
+        self.delimiter = Some(delimiter);
+    }
+
+    pub fn delimiter(&self) -> Result<&VarDelimiter> {
+        self.delimiter
+            .as_ref()
+            .ok_or(DelimiterNotFound(self.name.clone()).into())
     }
 }
 
@@ -306,43 +355,40 @@ test_3:
 test_4:
     pattern: value_4
     case: kebab-case
-        "#;
+test_5:
+    pattern: value_5
+    format: "key={},value={}"
+    delimiter: ",""#;
 
         let array_vars = serde_yaml::from_str::<ArrayVars>(content).unwrap();
 
         let mut expected_array_vars = ArrayVars::new();
-        expected_array_vars.add(ArrayVar::new(
-            "test_1".into(),
-            "value_1".into(),
-            VarCase::None,
-        ));
-        expected_array_vars.add(ArrayVar::new(
-            "test_2".into(),
-            "value_2".into(),
-            VarCase::None,
-        ));
-        expected_array_vars.add(ArrayVar::new(
-            "test_3".into(),
-            "value_3".into(),
-            VarCase::None,
-        ));
-        expected_array_vars.add(ArrayVar::new(
-            "test_4".into(),
-            "value_4".into(),
-            VarCase::KebabCase,
-        ));
+        expected_array_vars.add(ArrayVar::new("test_1".into(), "value_1".into()));
+        expected_array_vars.add(ArrayVar::new("test_2".into(), "value_2".into()));
+        expected_array_vars.add(ArrayVar::new("test_3".into(), "value_3".into()));
+        let mut array_var = ArrayVar::new("test_4".into(), "value_4".into());
+        array_var.set_case(VarCase::KebabCase);
+        expected_array_vars.add(array_var);
+        let mut array_var = ArrayVar::new("test_5".into(), "value_5".into());
+        array_var.set_format("key={},value={}".into());
+        array_var.set_delimiter(",".into());
+        expected_array_vars.add(array_var);
         assert_eq!(array_vars, expected_array_vars);
 
         let output_content = serde_yaml::to_string(&array_vars).unwrap();
         assert_eq!(
             output_content,
-            r"---
+            r#"---
 test_1: value_1
 test_2: value_2
 test_3: value_3
 test_4:
   pattern: value_4
-  case: kebab-case"
+  case: kebab-case
+test_5:
+  pattern: value_5
+  format: "key={},value={}"
+  delimiter: ",""#
         );
     }
 }

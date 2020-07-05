@@ -8,6 +8,9 @@ use crate::env_file;
 use crate::env_file::Env;
 use heck::*;
 
+const DEFAULT_DELIMITER: &'static str = " ";
+const DEFAULT_FORMAT: &'static str = "[{key}]='{value}'";
+
 #[derive(Debug)]
 pub enum EnvValue {
     Var(env_file::Var),
@@ -19,22 +22,33 @@ impl ToString for EnvValue {
         match self {
             EnvValue::Var(value) => value.value().clone(),
             EnvValue::ArrayVar((array_var, array_var_value)) => {
-                let mut env_value_buf = " ".to_string();
-                for var in array_var_value.iter() {
-                    env_value_buf = format!(
-                        "{}[{}]='{}' ",
-                        env_value_buf.clone(),
-                        match array_var.case() {
-                            VarCase::CamelCase => var.name().to_camel_case(),
-                            VarCase::KebabCase => var.name().to_kebab_case(),
-                            VarCase::SnakeCase => var.name().to_snake_case(),
-                            VarCase::ShoutySnakeCase => var.name().to_shouty_snake_case(),
-                            VarCase::MixedCase => var.name().to_mixed_case(),
-                            VarCase::TitleCase => var.name().to_title_case(),
-                            VarCase::None => var.name().to_owned(),
-                        },
-                        var.value()
-                    );
+                let mut env_value_buf = String::new();
+                for (i, var) in array_var_value.iter().enumerate() {
+                    let delimiter = array_var
+                        .delimiter()
+                        .map(|d| d.clone())
+                        .unwrap_or(DEFAULT_DELIMITER.into());
+                    if i < array_var_value.len() && i > 0 {
+                        env_value_buf = format!("{}{}", env_value_buf.clone(), delimiter)
+                    }
+
+                    let var_name = match array_var.case() {
+                        VarCase::CamelCase => var.name().to_camel_case(),
+                        VarCase::KebabCase => var.name().to_kebab_case(),
+                        VarCase::SnakeCase => var.name().to_snake_case(),
+                        VarCase::ShoutySnakeCase => var.name().to_shouty_snake_case(),
+                        VarCase::MixedCase => var.name().to_mixed_case(),
+                        VarCase::TitleCase => var.name().to_title_case(),
+                        VarCase::None => var.name().to_owned(),
+                    };
+                    let mut format = array_var
+                        .format()
+                        .map(|f| f.clone())
+                        .unwrap_or(DEFAULT_FORMAT.into());
+
+                    format = format.replace("{key}", var_name.as_str());
+                    format = format.replace("{value}", var.value());
+                    env_value_buf = format!("{}{}", env_value_buf.clone(), format);
                 }
                 env_value_buf
             }
@@ -137,7 +151,7 @@ mod tests {
 
     #[test]
     fn generate_array_var_test() {
-        let array_var: ArrayVar = ArrayVar::new("all".into(), ".*".into(), VarCase::None).into();
+        let array_var: ArrayVar = ArrayVar::new("all".into(), ".*".into()).into();
         let mut env_file = Env::new("".into());
         env_file.add("VAR1", "VALUE1");
         env_file.add("VAR2", "VALUE2");
@@ -146,13 +160,13 @@ mod tests {
         assert_eq!(env_var.var().to_string(), "all");
         assert_eq!(
             env_var.env_value().to_string(),
-            " [VAR1]='VALUE1' [VAR2]='VALUE2' "
+            "[VAR1]='VALUE1' [VAR2]='VALUE2'"
         );
     }
     #[test]
-    fn generate_array_var_with_format_test() {
-        let array_var: ArrayVar =
-            ArrayVar::new("all".into(), ".*".into(), VarCase::CamelCase).into();
+    fn generate_array_var_with_case_test() {
+        let mut array_var: ArrayVar = ArrayVar::new("all".into(), ".*".into()).into();
+        array_var.set_case(VarCase::CamelCase);
         let mut env_file = Env::new("".into());
         env_file.add("VAR1", "VALUE1");
         env_file.add("VAR2", "VALUE2");
@@ -161,7 +175,7 @@ mod tests {
         assert_eq!(env_var.var().to_string(), "all");
         assert_eq!(
             env_var.env_value().to_string(),
-            " [Var1]='VALUE1' [Var2]='VALUE2' "
+            "[Var1]='VALUE1' [Var2]='VALUE2'"
         );
     }
 
@@ -176,5 +190,22 @@ mod tests {
         let env_var = generate_env_var(&env_file, &var);
         assert_eq!(env_var.var().to_string(), "VAR1");
         assert_eq!(env_var.env_value().to_string(), "VALUE1");
+    }
+
+    #[test]
+    fn generate_array_var_with_format_test() {
+        let mut array_var: ArrayVar = ArrayVar::new("all".into(), ".*".into()).into();
+        array_var.set_format("key={key},value={value}".into());
+        array_var.set_delimiter(" , ".into());
+        let mut env_file = Env::new("".into());
+        env_file.add("VAR1", "VALUE1");
+        env_file.add("VAR2", "VALUE2");
+
+        let env_var = generate_array_env_var(&env_file, &array_var).unwrap();
+        assert_eq!(env_var.var().to_string(), "all");
+        assert_eq!(
+            env_var.env_value().to_string(),
+            "key=VAR1,value=VALUE1 , key=VAR2,value=VALUE2"
+        );
     }
 }

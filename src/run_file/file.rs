@@ -100,7 +100,7 @@ pub fn set_exec_permision(file: &PathBuf) -> Result<()> {
 mod tests {
     use cli_integration_test::IntegrationTestEnvironment;
 
-    use crate::cfg::{ArrayVar, ArrayVars, VarCase, Vars};
+    use crate::cfg::{ArrayVar, ArrayVars, Vars};
     use crate::run_file::file::File;
 
     #[test]
@@ -125,7 +125,7 @@ code_2
     #[test]
     fn file_new() {
         let mut array_vars = ArrayVars::new();
-        array_vars.add(ArrayVar::new("all".into(), ".*".into(), VarCase::None));
+        array_vars.add(ArrayVar::new("all".into(), ".*".into()));
 
         let mut vars = Vars::new();
         vars.add("SETUP_NAME".into());

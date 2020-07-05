@@ -36,7 +36,7 @@ impl SetupsCfg for LocalCfg {
 
 #[cfg(test)]
 mod tests {
-    use crate::cfg::local::setup_array_vars::VarCase;
+
     use crate::cfg::setup::SetupsCfg;
     use crate::cfg::{ArrayVar, LocalCfg, LocalSetupCfg};
 
@@ -73,17 +73,9 @@ vars:
 
         let array_vars = setup_cfg.array_vars().unwrap();
         let mut array_vars = array_vars.borrow_mut();
-        array_vars.add(ArrayVar::new("all".into(), ".*".into(), VarCase::None));
-        array_vars.add(ArrayVar::new(
-            "var2".into(),
-            "*_SUFFIX".into(),
-            VarCase::None,
-        ));
-        array_vars.add(ArrayVar::new(
-            "var1".into(),
-            "PREFIX_*".into(),
-            VarCase::None,
-        ));
+        array_vars.add(ArrayVar::new("all".into(), ".*".into()));
+        array_vars.add(ArrayVar::new("var2".into(), "*_SUFFIX".into()));
+        array_vars.add(ArrayVar::new("var1".into(), "PREFIX_*".into()));
         drop(array_vars);
 
         let content = serde_yaml::to_string(&setup_cfg).unwrap();

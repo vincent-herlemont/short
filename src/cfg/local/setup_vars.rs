@@ -1,4 +1,7 @@
+use serde::export::Formatter;
 use serde::{Deserialize, Serialize};
+use std::fmt;
+use std::fmt::Display;
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct VarName(String);
@@ -17,9 +20,9 @@ impl VarName {
     }
 }
 
-impl ToString for VarName {
-    fn to_string(&self) -> String {
-        self.0.clone()
+impl Display for VarName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 

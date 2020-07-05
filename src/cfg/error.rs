@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use crate::cfg::VarName;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -24,6 +25,10 @@ pub enum CfgError {
     EnvExistTwice(String, PathBuf, PathBuf),
     #[error("env {0} not found")]
     EnvNotFound(String),
+    #[error("format not found for array_vars `{0}`")]
+    FormatNotFound(VarName),
+    #[error("delimiter not found for array_vars `{0}`")]
+    DelimiterNotFound(VarName),
     #[error("unknown cfg error")]
     Unknown,
 }
