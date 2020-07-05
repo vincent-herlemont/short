@@ -45,7 +45,7 @@ pub trait SetupsCfg {
 pub trait SetupCfg {
     fn name(&self) -> &String;
 
-    fn set_name(&mut self, name: &String);
+    fn set_name(&mut self, name: String);
 }
 
 #[derive(Clone)]
@@ -188,7 +188,7 @@ impl Setup {
     pub fn rename(&self, name: &String) -> Result<()> {
         let mut bool = false;
         if let Some(local_setup) = self.local_setup() {
-            local_setup.borrow_mut().set_name(name);
+            local_setup.borrow_mut().set_name(name.to_owned());
             bool = true;
         }
         if let Some(global_setup) = self.global_setup() {

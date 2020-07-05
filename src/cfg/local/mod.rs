@@ -100,7 +100,7 @@ impl<'de> Deserialize<'de> for LocalSetupsCfg {
                 while let Some((setup_name, mut local_setup_cfg)) =
                     map.next_entry::<SetupName, LocalSetupCfg>()?
                 {
-                    local_setup_cfg.set_name(&setup_name);
+                    local_setup_cfg.set_name(setup_name.to_owned());
                     local_setups_cfg.add(local_setup_cfg);
                 }
                 Ok(local_setups_cfg)

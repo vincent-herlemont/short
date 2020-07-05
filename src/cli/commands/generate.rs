@@ -101,7 +101,7 @@ fn generate_template_workflow(
         let file = target_template_directory.join(local_setup.file());
         local_setup.set_file(file);
     }
-    local_setup.set_name(&setup_name);
+    local_setup.set_name(setup_name.clone());
     cfg.add_local_setup_cfg(local_setup);
     cfg.sync_local_to_global()?; // After add new setup we need to sync for apply others actions.
 

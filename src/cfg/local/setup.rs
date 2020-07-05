@@ -130,8 +130,8 @@ impl SetupCfg for LocalSetupCfg {
         &self.name
     }
 
-    fn set_name(&mut self, name: &String) {
-        self.name = name.clone();
+    fn set_name(&mut self, name: SetupName) {
+        self.name = name;
     }
 }
 

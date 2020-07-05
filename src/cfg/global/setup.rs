@@ -82,8 +82,8 @@ impl SetupCfg for GlobalProjectSetupCfg {
         &self.name
     }
 
-    fn set_name(&mut self, name: &String) {
-        self.name = name.clone();
+    fn set_name(&mut self, name: String) {
+        self.name = name;
     }
 }
 
