@@ -45,7 +45,6 @@ impl Cfg {
     pub fn new(global_dir: PathBuf, local_cfg: FileCfg<LocalCfg>) -> Result<Self> {
         let global_cfg =
             load_or_new_global_cfg(&global_dir).context("fail to load global cfg file")?;
-
         Ok(Self {
             local_cfg,
             global_cfg,
@@ -233,7 +232,7 @@ setups:
 projects:
   - file: '{}'
     setups:
-      - name: setup_1
+      setup_1:
         private_env_dir: /private/env/dir
                 "#,
                 abs_local_cfg.to_string_lossy()
@@ -316,7 +315,7 @@ VAR3= "example"
 projects:
   - file: '{}'
     setups:
-      - name: setup_1
+      setup_1:
         private_env_dir: {}
                 "#,
                 abs_local_cfg.to_string_lossy(),

@@ -97,6 +97,7 @@ pub fn load_or_new_global_cfg(dir: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
     let global_dir = dir.join(global_cfg_dir);
     let global_cfg_file = global_dir.join(GLOBAL_FILE_NAME.to_string());
 
+    // TODO : Think about return error relative to syntax or log it.
     let global = get_global_cfg(&global_cfg_file).map_or(
         FileCfg::new(&global_cfg_file, GlobalCfg::new()).context(format!(
             "fail to create new global cfg file {:?}",

@@ -59,7 +59,7 @@ projects:
     current:
         setup: setup_1
     setups:
-      - name: setup_1
+      setup_1:
         private_env_dir: {private_env_dir}
                 "#,
             file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy(),
@@ -142,7 +142,7 @@ projects:
     current:
         setup: setup_1
     setups:
-      - name: setup_1
+      setup_1:
         private_env_dir: {private_env_dir}
                 "#,
             file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy(),

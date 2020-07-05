@@ -67,7 +67,7 @@ projects:
   - file: {file}
     current:
         setup: setup_1
-    setups: []
+    setups: {{}}
         "#,
             file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy()
         ),
@@ -124,8 +124,7 @@ projects:
     current:
         setup: setup_1
         env: example
-    setups: []
-        "#,
+    setups: {{}}"#,
             file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy()
         ),
     );

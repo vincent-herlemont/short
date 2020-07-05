@@ -1,20 +1,21 @@
+use crate::cfg::global::setup::{GlobalProjectSetupCfg, SetupName};
+use crate::cfg::SetupsCfg;
+use anyhow::{Context, Result};
+use serde::de::{MapAccess, Visitor};
+use serde::export::Formatter;
+use serde::ser::SerializeMap;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cell::RefCell;
+use std::fmt;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
-use anyhow::{Context, Result};
-use serde::{Deserialize, Serialize};
-
-use crate::cfg::global::setup::GlobalProjectSetupCfg;
-use crate::cfg::SetupsCfg;
-
-type SetupName = String;
 type EnvName = String;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct CurrentSetup {
     #[serde(rename = "setup", skip_serializing_if = "Option::is_none")]
-    pub setup_name: Option<SetupName>,
+    pub setup_name: Option<String>,
     #[serde(rename = "env", skip_serializing_if = "Option::is_none")]
     pub env_name: Option<EnvName>,
 }
@@ -39,7 +40,79 @@ pub struct GlobalProjectCfg {
     file: PathBuf,
     #[serde(skip_serializing_if = "Option::is_none")]
     current: Option<CurrentSetup>,
-    setups: Rc<RefCell<Vec<Rc<RefCell<GlobalProjectSetupCfg>>>>>,
+    setups: GlobalProjectSetupsCfg,
+}
+
+#[derive(Debug)]
+pub struct GlobalProjectSetupsCfg(Rc<RefCell<Vec<Rc<RefCell<GlobalProjectSetupCfg>>>>>);
+
+impl GlobalProjectSetupsCfg {
+    pub fn new() -> Self {
+        Self(Rc::new(RefCell::new(vec![])))
+    }
+
+    pub fn add(&mut self, global_setup_cfg: GlobalProjectSetupCfg) {
+        let mut global_setups_cfg = self.0.borrow_mut();
+        if global_setups_cfg
+            .iter()
+            .find(|lsc| {
+                let lsc = lsc.borrow();
+                lsc.name() == global_setup_cfg.name()
+            })
+            .is_none()
+        {
+            global_setups_cfg.push(Rc::new(RefCell::new(global_setup_cfg)))
+        }
+    }
+}
+
+impl Serialize for GlobalProjectSetupsCfg {
+    fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
+    where
+        S: Serializer,
+    {
+        let vec = &self.0.borrow();
+        let mut seq = serializer.serialize_map(Some(vec.len()))?;
+        for global_setup_cfg in vec.iter() {
+            let global_setup_cfg = global_setup_cfg.borrow();
+            let name = global_setup_cfg.name();
+            seq.serialize_entry(name, &*global_setup_cfg)?;
+        }
+        seq.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for GlobalProjectSetupsCfg {
+    fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct InnerVisitor;
+
+        impl<'de> Visitor<'de> for InnerVisitor {
+            type Value = GlobalProjectSetupsCfg;
+
+            fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
+                formatter.write_str("incorrect list of global setup cfg")
+            }
+
+            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+            where
+                A: MapAccess<'de>,
+            {
+                let mut global_setups_cfg = GlobalProjectSetupsCfg::new();
+                while let Some((setup_name, mut global_setup_cfg)) =
+                    map.next_entry::<SetupName, GlobalProjectSetupCfg>()?
+                {
+                    global_setup_cfg.set_name(setup_name);
+                    global_setups_cfg.add(global_setup_cfg);
+                }
+                Ok(global_setups_cfg)
+            }
+        }
+
+        deserializer.deserialize_map(InnerVisitor)
+    }
 }
 
 impl GlobalProjectCfg {
@@ -47,7 +120,7 @@ impl GlobalProjectCfg {
         let mut gp = GlobalProjectCfg {
             file: PathBuf::new(),
             current: None,
-            setups: Rc::new(RefCell::new(vec![])),
+            setups: GlobalProjectSetupsCfg::new(),
         };
         gp.set_file(file)?;
         Ok(gp)
@@ -103,7 +176,7 @@ impl SetupsCfg for GlobalProjectCfg {
     type Setup = GlobalProjectSetupCfg;
 
     fn get_setups(&self) -> Rc<RefCell<Vec<Rc<RefCell<Self::Setup>>>>> {
-        Rc::clone(&self.setups)
+        Rc::clone(&self.setups.0)
     }
 }
 
@@ -125,6 +198,19 @@ mod test {
     use crate::cfg::global::project::GlobalProjectCfg;
     use crate::cfg::global::setup::GlobalProjectSetupCfg;
     use crate::cfg::SetupsCfg;
+
+    #[test]
+    fn deserialization_serialization_cfg() {
+        let content = r"---
+file: path/to/file
+current:
+  setup: setup_1
+setups:
+  test_1: {}";
+        let cfg = serde_yaml::from_str::<GlobalProjectCfg>(content).unwrap();
+        let r = serde_yaml::to_string(&cfg).unwrap();
+        assert_eq!(content, r);
+    }
 
     #[test]
     fn global_update_private_env_dir() {

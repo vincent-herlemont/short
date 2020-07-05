@@ -1,12 +1,13 @@
-use std::path::PathBuf;
-use std::result::Result as stdResult;
-
 use anyhow::Result;
 use serde::de::{Unexpected, Visitor};
 use serde::export::Formatter;
 use serde::{Deserialize, Deserializer, Serialize};
+use std::path::PathBuf;
+use std::result::Result as stdResult;
 
 use crate::cfg::{CfgError, LocalSetupCfg, SetupCfg};
+
+pub type SetupName = String;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct PrivateEnvDir(#[serde(deserialize_with = "deserialize_private_env_dir")] PathBuf);
@@ -19,14 +20,15 @@ impl AsRef<PathBuf> for PrivateEnvDir {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalProjectSetupCfg {
-    name: String,
+    #[serde(skip)]
+    name: SetupName,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     private_env_dir: Option<PrivateEnvDir>,
 }
 
 impl GlobalProjectSetupCfg {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: SetupName) -> Self {
         Self {
             name,
             private_env_dir: None,
@@ -55,6 +57,14 @@ impl GlobalProjectSetupCfg {
             self.private_env_dir = None;
             Ok(())
         }
+    }
+
+    pub fn name(&self) -> &SetupName {
+        &self.name
+    }
+
+    pub fn set_name(&mut self, name: SetupName) {
+        self.name = name;
     }
 }
 

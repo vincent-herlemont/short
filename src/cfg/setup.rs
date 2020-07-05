@@ -192,7 +192,7 @@ impl Setup {
             bool = true;
         }
         if let Some(global_setup) = self.global_setup() {
-            global_setup.borrow_mut().set_name(name);
+            global_setup.borrow_mut().set_name(name.clone());
             bool = true;
         }
         if !bool {
