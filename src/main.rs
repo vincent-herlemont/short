@@ -242,17 +242,23 @@ fn run() -> Result<()> {
         .subcommand(
             SubCommand::with_name("use")
                 .about("Switch of current setup or/and environment")
+                .setting(AppSettings::ArgRequiredElseHelp)
                 .arg(
                     Arg::with_name("setup")
                         .help("The setup name to switch in")
                         .index(1)
-                        .required(true),
                 )
                 .arg(
                     Arg::with_name("environment")
                         .help("The environment name to switch in")
                         .index(2)
-                ),
+                ).arg(
+                Arg::with_name("unset")
+                    .help("Unset current setup and environment")
+                    .long("unset")
+                    .short("u")
+                    .takes_value(false)
+            ),
         )
         .subcommand(SubCommand::with_name("ls")
             .arg(setup_arg.clone())

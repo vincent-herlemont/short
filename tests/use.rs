@@ -52,6 +52,20 @@ setups:
     let content = e.read_file(HOME_CFG_FILE);
     assert!(contains("setup: setup_1").count(1).eval(&content));
     assert!(contains("env: example1").count(1).eval(&content));
+
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("use")
+        .arg("-u")
+        .assert()
+        .to_string();
+
+    assert!(contains("unset current setup").eval(&r));
+
+    let content = e.read_file(HOME_CFG_FILE);
+    assert!(contains("setup: setup_1").count(0).eval(&content));
+    assert!(contains("env: example1").count(0).eval(&content));
 }
 
 #[test]

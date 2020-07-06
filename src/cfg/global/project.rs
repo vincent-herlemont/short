@@ -170,6 +170,10 @@ impl GlobalProjectCfg {
             .as_ref()
             .map_or(None, |current| current.env_name.as_ref())
     }
+
+    pub fn unset_current_setup(&mut self) {
+        self.current = None;
+    }
 }
 
 impl SetupsCfg for GlobalProjectCfg {
