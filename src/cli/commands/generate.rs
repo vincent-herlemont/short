@@ -1,6 +1,6 @@
 use std::env::current_dir;
 use std::fs::create_dir_all;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
 use anyhow::{Context, Result};
 use clap::ArgMatches;
@@ -78,7 +78,10 @@ fn generate_template_workflow(
 
     let setup_name: String = generate_settings.setup_name.clone();
 
-    let template_name: String = app.value_of("template").unwrap().into();
+    let template_name: String = app
+        .value_of("template")
+        .unwrap_or(setup_name.as_str())
+        .into();
     let target_template_directory: PathBuf = app
         .value_of("target_template_directory")
         .unwrap_or(setup_name.as_str())

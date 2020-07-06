@@ -126,3 +126,39 @@ setups:
         &r
     );
 }
+
+#[test]
+fn generate_template_with_auto_template() {
+    let mut e = init("generate_template");
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
+setups: {}
+        "#,
+    );
+    e.setup();
+    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("generate")
+        .arg("test")
+        .args(&["-t"])
+        .assert()
+        .to_string();
+
+    assert!(contains("generate setup `test`:`dev`").eval(&r));
+
+    let r = e.read_file(PROJECT_CFG_FILE);
+    assert_eq!(
+        r#"---
+setups:
+  test:
+    public_env_dir: "./env/"
+    file: run.sh
+    array_vars:
+      all: ".*"
+    vars:
+      - SETUP_NAME"#,
+        &r
+    );
+}

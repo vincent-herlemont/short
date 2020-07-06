@@ -123,6 +123,7 @@ fn run() -> Result<()> {
                         .long("template")
                         .short("t")
                         .takes_value(true)
+                        .min_values(0)
                         .help("Specified your template name")
                 ).arg(
                     Arg::with_name("private")
