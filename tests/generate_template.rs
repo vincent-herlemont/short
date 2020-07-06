@@ -110,8 +110,6 @@ setups: {}
         .assert()
         .to_string();
 
-    dbg!(&r);
-
     assert!(contains("generate setup `test_setup_1`:`dev`").eval(&r));
 
     let r = e.read_file(PROJECT_CFG_FILE);

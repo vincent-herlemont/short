@@ -1,6 +1,6 @@
 use std::env::current_dir;
 use std::fs::create_dir_all;
-use std::path::PathBuf;
+use std::path::{PathBuf};
 
 use anyhow::{Context, Result};
 use clap::ArgMatches;
@@ -143,11 +143,9 @@ fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSetting
     let setup_name: String = generate_settings.setup_name.clone();
     let public_env_directory = app.value_of("public_env_directory");
     let env_name = app.value_of("env_name").unwrap().to_string();
-    let setup_file = app.value_of("file").unwrap_or("run.sh").to_string();
+    let setup_file: PathBuf = app.value_of("file").unwrap_or("run.sh").into();
     let setup_shebang = app.value_of("shebang").unwrap_or("#!/bin/bash").to_string();
     let private = app.is_present("private");
-
-    let setup_file = PathBuf::from(setup_file);
 
     let mut local_setup_cfg = LocalSetupCfg::new(setup_name.clone(), setup_file.clone());
 
