@@ -79,8 +79,10 @@ fn generate_template_workflow(
     let setup_name: String = generate_settings.setup_name.clone();
 
     let template_name: String = app.value_of("template").unwrap().into();
-    let target_template_directory: Option<PathBuf> =
-        app.value_of("target_template_directory").map(|t| t.into());
+    let target_template_directory: PathBuf = app
+        .value_of("target_template_directory")
+        .unwrap_or(setup_name.as_str())
+        .into();
     let registry_tmp = TempDir::new("registry")?;
     let registry = Registry::checkout(registry_tmp.path())?;
     let mut template = registry.get(template_name.as_str())?;
@@ -94,7 +96,7 @@ fn generate_template_workflow(
     let local_setups = local_setups.borrow();
     let local_setup = local_setups.get(0).context("setup template not found")?;
     let mut local_setup = local_setup.borrow().clone();
-    if let Some(target_template_directory) = target_template_directory.as_ref() {
+    if app.is_present("target_template_directory") {
         let public_env_dir = target_template_directory.join(local_setup.public_env_dir());
         local_setup.set_public_env_dir(public_env_dir);
 
@@ -105,7 +107,7 @@ fn generate_template_workflow(
     cfg.add_local_setup_cfg(local_setup);
     cfg.sync_local_to_global()?; // After add new setup we need to sync for apply others actions.
 
-    let target_dir = if let Some(target_template_directory) = target_template_directory {
+    let target_dir = if app.is_present("target_template_directory") {
         create_dir_all(&target_template_directory)?;
         target_template_directory
     } else {

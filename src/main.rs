@@ -109,7 +109,9 @@ fn run() -> Result<()> {
                     Arg::with_name("target_template_directory")
                         .long("template-directory")
                         .short("d")
-                        .takes_value(true).help("Target template env directory")
+                        .takes_value(true)
+                        .min_values(0)
+                        .help("Target template env directory")
                 )
                 .arg(
                     Arg::with_name("list")
