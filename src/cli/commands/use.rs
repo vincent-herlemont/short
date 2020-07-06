@@ -3,7 +3,7 @@ use clap::ArgMatches;
 
 use crate::cfg::Cfg;
 use crate::cli::cfg::get_cfg;
-use crate::cli::settings::{get_settings, Settings};
+use crate::cli::settings::{Settings};
 use crate::cli::terminal::message::success;
 
 pub fn r#use(app: &ArgMatches) -> Result<()> {
@@ -11,7 +11,23 @@ pub fn r#use(app: &ArgMatches) -> Result<()> {
     cfg.sync_local_to_global()?;
     let cfg = cfg;
 
-    let settings = get_settings(app, &cfg);
+    let mut settings: Settings = (&cfg).into();
+    if app.is_present("environment") {
+        if let Some(setup) = app.value_of_lossy("setup_or_environment") {
+            settings.set_setup(setup.to_string());
+        }
+        if let Some(env) = app.value_of_lossy("environment") {
+            settings.set_env(env.to_string());
+        }
+    } else {
+        if let Some(setup_or_env) = app.value_of_lossy("setup_or_environment") {
+            if settings.env().is_ok() {
+                settings.set_env(setup_or_env.to_string());
+            } else {
+                settings.set_setup(setup_or_env.to_string());
+            }
+        }
+    }
 
     if app.is_present("unset") {
         unuse_workflow(&cfg)?;

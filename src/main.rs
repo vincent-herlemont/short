@@ -244,13 +244,13 @@ fn run() -> Result<()> {
                 .about("Switch of current setup or/and environment")
                 .setting(AppSettings::ArgRequiredElseHelp)
                 .arg(
-                    Arg::with_name("setup")
-                        .help("The setup name to switch in")
+                    Arg::with_name("setup_or_environment")
+                        .help("The setup name or environment name if it's already specified")
                         .index(1)
                 )
                 .arg(
                     Arg::with_name("environment")
-                        .help("The environment name to switch in")
+                        .help("The environment name")
                         .index(2)
                 ).arg(
                 Arg::with_name("unset")
