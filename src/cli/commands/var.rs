@@ -9,7 +9,7 @@ use crate::cli::settings::get_settings;
 use crate::env_file::Env;
 use crate::run_file::{generate_env_vars, EnvValue};
 
-pub fn var(app: &ArgMatches) -> Result<()> {
+pub fn vars(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
     cfg.sync_local_to_global()?;
     let cfg = cfg;

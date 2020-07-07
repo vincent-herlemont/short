@@ -8,7 +8,7 @@ use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::settings::get_settings;
 use crate::env_file::Env;
 
-pub fn env(app: &ArgMatches) -> Result<()> {
+pub fn envs(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
     cfg.sync_local_to_global()?;
     let cfg = cfg;

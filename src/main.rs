@@ -310,11 +310,11 @@ fn run() -> Result<()> {
                 .arg(setup_arg.clone())
                 .arg(environment_arg.clone()),
         )
-        .subcommand(SubCommand::with_name("var")
+        .subcommand(SubCommand::with_name("vars")
             .about("Display mapping environment variables.")
             .arg(setup_arg.clone())
         )
-        .subcommand(SubCommand::with_name("env")
+        .subcommand(SubCommand::with_name("envs")
             .about("Display env file.")
             .arg(setup_arg.clone())
         ).get_matches();
@@ -343,10 +343,10 @@ fn run() -> Result<()> {
         commands::env_edit(args)?;
     } else if let Some(args) = app.subcommand_matches("sync") {
         commands::env_sync(args)?;
-    } else if let Some(args) = app.subcommand_matches("var") {
-        commands::var(args)?;
-    } else if let Some(args) = app.subcommand_matches("env") {
-        commands::env(args)?;
+    } else if let Some(args) = app.subcommand_matches("vars") {
+        commands::vars(args)?;
+    } else if let Some(args) = app.subcommand_matches("envs") {
+        commands::envs(args)?;
     }
 
     Ok(())

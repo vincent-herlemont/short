@@ -1,6 +1,6 @@
 pub use dir::env_dir;
 pub use edit::env_edit;
-pub use env::env;
+pub use env::envs;
 pub use generate::generate;
 pub use init::init;
 pub use ls::ls;
@@ -11,7 +11,7 @@ pub use rename::rename;
 pub use run::run;
 pub use show::show;
 pub use sync::env_sync;
-pub use var::var;
+pub use var::vars;
 
 mod dir;
 mod edit;
@@ -27,4 +27,3 @@ mod show;
 mod sync;
 mod r#use;
 mod var;
-
