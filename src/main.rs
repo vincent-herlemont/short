@@ -11,7 +11,7 @@ use short::cli::commands;
 use short::cli::terminal::emoji;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-pub const BIN_NAME: &'static str = "short";
+pub const BIN_NAME: &'static str = "sht";
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -31,9 +31,6 @@ fn run() -> Result<()> {
         .short("e")
         .takes_value(true)
         .help("Environment name");
-    let dryrun_arg = Arg::with_name("dry-run")
-        .long("dry-run")
-        .help("Disable all executions");
 
     let env_vars = vec![
         Arg::with_name("empty")
@@ -71,39 +68,57 @@ fn run() -> Result<()> {
         .setting(AppSettings::VersionlessSubcommands)
         .subcommand(
             SubCommand::with_name("init")
-                .about("Init project, create an empty \"short.yaml\" configuration file"),
+                .about("Init project, create an empty \"short.yaml\" configuration file."),
         )
         .subcommand(
             SubCommand::with_name("generate")
-                .about("Generate setup")
+                .about("Generate empty setup or from template setup repository.")
+                .setting(AppSettings::ArgRequiredElseHelp)
                 .arg(
                     Arg::with_name("setup_name")
                         .index(1)
-                        .help("Setup name"),
+                        .help("Setup name [or <template> name with \"-t\" option]."),
                 )
-                .arg(
-                    Arg::with_name("env_name")
-                        .index(2)
-                        .help("Env Name"),
-                )
+                .arg(Arg::with_name("env_name").index(2).help("Env Name"))
                 .arg(
                     Arg::with_name("file")
                         .long("file")
                         .short("f")
                         .takes_value(true)
-                        .help("Path script"),
+                        .help("Path script [not working with template \"-t\"]."),
                 )
                 .arg(
                     Arg::with_name("shebang")
                         .long("shebang")
                         .short("s")
-                        .help("Interpreter program")
+                        .help("Interpreter program [not working with template \"-t\"]."),
                 )
                 .arg(
                     Arg::with_name("public_env_directory")
                         .long("env-directory")
                         .short("e")
-                        .takes_value(true).help("Public env directory")
+                        .takes_value(true)
+                        .help("Public env directory [not working with template \"-t\"]."),
+                )
+                .arg(
+                    Arg::with_name("private")
+                        .long("private")
+                        .short("p")
+                        .help("Save to private directory [not working with template \"-t\"]."),
+                )
+                .arg(
+                    Arg::with_name("list")
+                        .long("list")
+                        .short("l")
+                        .help("Display template list."),
+                )
+                .arg(
+                    Arg::with_name("template")
+                        .long("template")
+                        .short("t")
+                        .takes_value(true)
+                        .min_values(0)
+                        .help("Template name."),
                 )
                 .arg(
                     Arg::with_name("target_template_directory")
@@ -111,166 +126,198 @@ fn run() -> Result<()> {
                         .short("d")
                         .takes_value(true)
                         .min_values(0)
-                        .help("Target template env directory")
+                        .help("Template env directory [working only with template \"-t\"]."),
                 )
-                .arg(
-                    Arg::with_name("list")
-                        .long("list")
-                        .short("l")
-                        .help("Display template list")
-                ).arg(
-                    Arg::with_name("template")
-                        .long("template")
-                        .short("t")
-                        .takes_value(true)
-                        .min_values(0)
-                        .help("Specified your template name")
-                ).arg(
-                    Arg::with_name("private")
-                        .long("private")
-                        .short("p")
-                        .help("Save to private directory")
-                ).group(
+                .group(
                     ArgGroup::with_name("action_type")
-                        .args(&["setup_name","list"])
-                        .required(true)
-                ).group(
+                        .args(&["setup_name", "list"])
+                        .required(true),
+                )
+                .group(
                     ArgGroup::with_name("generate_type")
                         .args(&["env_name", "template", "list"])
-                        .required(true)
-                ).group(
-                    ArgGroup::with_name("exclude_for_generate_template")
-                    .args(&["file", "shebang", "private"])
-                    .multiple(true)
-                    .required(false)
-                    .conflicts_with("template")
+                        .required(true),
                 )
+                .group(
+                    ArgGroup::with_name("exclude_for_generate_template")
+                        .args(&["file", "shebang", "private"])
+                        .multiple(true)
+                        .required(false)
+                        .conflicts_with("template"),
+                ),
         )
         .subcommand(
             SubCommand::with_name("run")
-                .about("Run setup")
-                .arg(Arg::with_name("args").index(1).multiple(true).takes_value(true))
+                .about("Run setup [ARGS...].")
+                .arg(
+                    Arg::with_name("args")
+                        .index(1)
+                        .multiple(true)
+                        .takes_value(true),
+                )
                 .arg(setup_arg.clone())
-                .arg(environment_arg.clone())
-                .arg(dryrun_arg.clone()),
+                .arg(environment_arg.clone()),
         )
         .subcommand(
             SubCommand::with_name("rename")
-                .about("Rename setup")
+                .about("Rename setup.")
                 .arg(
                     Arg::with_name("last_setup_name")
                         .index(1)
                         .required(true)
-                        .help("Last setup name"),
+                        .help("Last setup name."),
                 )
                 .arg(
                     Arg::with_name("new_setup_name")
                         .index(2)
                         .required(true)
-                        .help("New setup name"),
+                        .help("New setup name."),
                 ),
         )
         .subcommand(
             SubCommand::with_name("new")
-                .about("Add new environment, create env file \".<environment>\", in public directory default.")
-                .arg(Arg::with_name("name")
-                         .help("Environment name")
-                         .index(1)
-                         .required(true),
+                .about("Create env file \".<env>\", in public directory default.")
+                .arg(
+                    Arg::with_name("name")
+                        .help("Environment name.")
+                        .index(1)
+                        .required(true),
                 )
                 .arg(setup_arg.clone())
-                .arg(Arg::with_name("private").long("private").short("p").help("Save to private directory"))
+                .arg(
+                    Arg::with_name("private")
+                        .long("private")
+                        .short("p")
+                        .help("Save to private directory."),
+                )
                 .args(&env_vars)
-                .groups(&env_group_vars)
+                .groups(&env_group_vars),
         )
-        .subcommand(SubCommand::with_name("sync")
-            .about("Sync env files")
-            .arg(setup_arg.clone())
-            .args(&env_vars)
-            .groups(&env_group_vars)
+        .subcommand(
+            SubCommand::with_name("sync")
+                .about("Sync env files.")
+                .arg(setup_arg.clone())
+                .args(&env_vars)
+                .groups(&env_group_vars),
         )
-        .subcommand(SubCommand::with_name("edit")
-            .about("Edit env file")
-            .arg(Arg::with_name("environment")
-                .help("Environment name")
-                .index(1)
-            )
-            .arg(setup_arg.clone())
-            .arg(Arg::with_name("editor")
-                .long("editor")
-                .takes_value(true)
-                .help("Editor"))
-            .args(&env_vars)
-            .groups(&env_group_vars)
+        .subcommand(
+            SubCommand::with_name("edit")
+                .about("Edit env file.")
+                .arg(
+                    Arg::with_name("environment")
+                        .help("Environment name.")
+                        .index(1),
+                )
+                .arg(setup_arg.clone())
+                .arg(
+                    Arg::with_name("editor")
+                        .long("editor")
+                        .takes_value(true)
+                        .help("Editor binary path."),
+                )
+                .args(&env_vars)
+                .groups(&env_group_vars),
         )
         .subcommand(
             SubCommand::with_name("dir")
-                .about("Change env directory, [.] by default.")
+                .about("Public env directory, [.] by default.")
                 .arg(
                     Arg::with_name("env_dir")
-                        .help("Env directory path, must be directory child of your project")
-                        .index(1)
+                        .help("Env directory path, must be inside of your project directory.")
+                        .index(1),
                 )
-                .arg(Arg::with_name("unset").long("unset").help("Unset directory path"))
-                .group(ArgGroup::with_name("action").args(&["env_dir", "unset"]).required(true))
+                .arg(
+                    Arg::with_name("unset")
+                        .long("unset")
+                        .help("Unset directory path, use [.] as default value."),
+                )
+                .group(
+                    ArgGroup::with_name("action")
+                        .args(&["env_dir", "unset"])
+                        .required(true),
+                )
                 .arg(setup_arg.clone()),
         )
         .subcommand(
             SubCommand::with_name("pdir")
-                .about("Add or change private env directory")
+                .about("Private env directory, unset by default.")
                 .arg(
                     Arg::with_name("env_dir")
-                        .help("Private env directory path, must be outside of your project")
+                        .help("Private env directory path, have to be outside of your project directory.")
                         .index(1),
                 )
-                .arg(Arg::with_name("unset").long("unset").help("Unset private directory path"))
-                .group(ArgGroup::with_name("action").args(&["env_dir", "unset"]).required(true))
-                .arg(setup_arg.clone())
+                .arg(
+                    Arg::with_name("unset")
+                        .long("unset")
+                        .help("Unset private directory path."),
+                )
+                .group(
+                    ArgGroup::with_name("action")
+                        .args(&["env_dir", "unset"])
+                        .required(true),
+                )
+                .arg(setup_arg.clone()),
         )
         .subcommand(
             SubCommand::with_name("show")
+                .about("Show your current setup.")
                 .arg(
-                Arg::with_name("display_setup")
-                        .long("setup").short("s").takes_value(false)
-                        .help("Display setup name")
-                ).arg(Arg::with_name("display_env")
-                        .long("env").short("e").takes_value(false)
-                        .help("Display setup env")
-                ).group(ArgGroup::with_name("display")
-                    .args(&["display_setup","display_env"])
-                    .required(false)
-                    .multiple(false)
-            ).about("Show your current set up")
+                    Arg::with_name("display_setup")
+                        .long("setup")
+                        .short("s")
+                        .takes_value(false)
+                        .help("Display setup name."),
+                )
+                .arg(
+                    Arg::with_name("display_env")
+                        .long("env")
+                        .short("e")
+                        .takes_value(false)
+                        .help("Display setup env."),
+                )
+                .group(
+                    ArgGroup::with_name("display")
+                        .args(&["display_setup", "display_env"])
+                        .required(false)
+                        .multiple(false),
+                )
         )
         .subcommand(
             SubCommand::with_name("use")
-                .about("Switch of current setup or/and environment")
+                .about("Switch of current setup or/and environment.")
                 .setting(AppSettings::ArgRequiredElseHelp)
                 .arg(
                     Arg::with_name("setup_or_environment")
-                        .help("The setup name or environment name if it's already specified")
-                        .index(1)
+                        .help("The setup name or environment name if another one is already specified.")
+                        .index(1),
                 )
                 .arg(
                     Arg::with_name("environment")
-                        .help("The environment name")
-                        .index(2)
-                ).arg(
-                Arg::with_name("unset")
-                    .help("Unset current setup and environment")
-                    .long("unset")
-                    .short("u")
-                    .takes_value(false)
-            ),
+                        .help("The environment name.")
+                        .index(2),
+                )
+                .arg(
+                    Arg::with_name("unset")
+                        .help("Unset current setup and environment.")
+                        .long("unset")
+                        .short("u")
+                        .takes_value(false),
+                ),
         )
-        .subcommand(SubCommand::with_name("ls")
+        .subcommand(
+            SubCommand::with_name("ls")
+                .about("Display setups and environments.")
+                .arg(setup_arg.clone())
+                .arg(environment_arg.clone()),
+        )
+        .subcommand(SubCommand::with_name("var")
+            .about("Display mapping environment variables.")
             .arg(setup_arg.clone())
-            .arg(environment_arg.clone())
-            .about("List set up and environments")
         )
-        .subcommand(SubCommand::with_name("var").arg(setup_arg.clone()))
-        .subcommand(SubCommand::with_name("env").arg(setup_arg.clone()))
-        .get_matches();
+        .subcommand(SubCommand::with_name("env")
+            .about("Display env file.")
+            .arg(setup_arg.clone())
+        ).get_matches();
 
     if let Some(_) = app.subcommand_matches("init") {
         commands::init(&app)?;

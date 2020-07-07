@@ -1,8 +1,8 @@
 #!/bin/bash
 
 function blastoff(){
-    setup=$(short show -s)
-    env=$(short show -e)
+    setup=$(sht show -s)
+    env=$(sht show -e)
     if [ "$setup" != "" ]; then
       echo -n "[$setup:$env] "
     fi
