@@ -8,10 +8,11 @@ use anyhow::Result;
 use clap::{App, AppSettings, Arg, ArgGroup, SubCommand};
 
 use short::cli::commands;
+use short::cli::commands::DEFAULT_SHOW_FORMAT;
 use short::cli::terminal::emoji;
+use short::BIN_NAME;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-pub const BIN_NAME: &'static str = "sht";
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -261,6 +262,14 @@ fn run() -> Result<()> {
         .subcommand(
             SubCommand::with_name("show")
                 .about("Show your current setup.")
+                .arg(
+                    Arg::with_name("format")
+                        .long("format")
+                        .short("f")
+                        .takes_value(true)
+                        .min_values(0)
+                        .help(format!("Display format \"{}\" by default.", DEFAULT_SHOW_FORMAT).as_str())
+                )
                 .arg(
                     Arg::with_name("display_setup")
                         .long("setup")

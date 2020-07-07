@@ -5,6 +5,8 @@ use crate::cli::cfg::get_cfg;
 use crate::cli::settings::Settings;
 use crate::cli::terminal::message::{bad_info, good_info};
 
+pub const DEFAULT_SHOW_FORMAT: &'static str = "[{setup}:{env}]";
+
 fn cfg() -> Result<Settings> {
     let mut cfg = get_cfg()?;
     cfg.sync_local_to_global()?;
@@ -19,20 +21,28 @@ pub fn show(args: &ArgMatches) -> Result<()> {
                 print!("{}", env);
             }
         }
-        return Ok(());
-    }
-
-    if args.is_present("display_env") {
+    } else if args.is_present("display_env") {
         if let Ok(settings) = cfg() {
             if let Ok(env) = settings.env() {
                 print!("{}", env);
             }
         }
-        return Ok(());
-    }
+    } else if args.is_present("format") {
+        if let Ok(settings) = cfg() {
+            let format = args
+                .value_of_lossy("format")
+                .map(|c| c.into_owned())
+                .unwrap_or(DEFAULT_SHOW_FORMAT.into());
 
-    let settings = cfg()?;
-    terminal(settings)?;
+            let format = format.replace("{setup}", settings.setup().unwrap_or(&"".into()));
+            let format = format.replace("{env}", settings.env().unwrap_or(&"".into()));
+
+            print!("{}", format);
+        }
+    } else {
+        let settings = cfg()?;
+        terminal(settings)?;
+    }
 
     Ok(())
 }

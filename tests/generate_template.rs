@@ -4,6 +4,7 @@ use predicates::str::contains;
 use test_utils::init;
 
 use crate::test_utils::{HOME_CFG_FILE, PROJECT_CFG_FILE, PROJECT_DIR};
+use short::BIN_NAME;
 
 mod test_utils;
 
@@ -17,7 +18,7 @@ setups: {}
         "#,
     );
     e.setup();
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -63,7 +64,7 @@ setups: {}
         "#,
     );
     e.setup();
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -100,7 +101,7 @@ setups: {}
         "#,
     );
     e.setup();
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -137,7 +138,7 @@ setups: {}
         "#,
     );
     e.setup();
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")

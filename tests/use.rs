@@ -1,6 +1,7 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 
+use short::BIN_NAME;
 use test_utils::init;
 use test_utils::{
     HOME_CFG_FILE, PRIVATE_ENV_DEV_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE,
@@ -25,7 +26,7 @@ setups:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("use")
@@ -38,7 +39,7 @@ setups:
     let content = e.read_file(HOME_CFG_FILE);
     assert!(contains("setup: setup_1").count(1).eval(&content));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("use")
@@ -53,7 +54,7 @@ setups:
     assert!(contains("setup: setup_1").count(1).eval(&content));
     assert!(contains("env: example1").count(1).eval(&content));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("use")
@@ -99,7 +100,7 @@ projects:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("use")
@@ -114,7 +115,7 @@ projects:
     assert!(contains("setup: setup_1").count(1).eval(&content));
     assert!(contains("env: example1").count(1).eval(&content));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("use")
@@ -161,7 +162,7 @@ projects:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let _r = command
         .env("RUST_LOG", "debug")
         .arg("use")
@@ -207,7 +208,7 @@ projects:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let _r = command
         .env("RUST_LOG", "debug")
         .arg("use")

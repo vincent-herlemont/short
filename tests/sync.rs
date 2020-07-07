@@ -4,6 +4,7 @@ use std::time::Duration;
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 
+use short::BIN_NAME;
 use test_utils::init;
 use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE};
 
@@ -35,7 +36,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")
@@ -88,7 +89,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")
@@ -143,7 +144,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")
@@ -186,7 +187,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")
@@ -225,7 +226,7 @@ setups:
     thread::sleep(Duration::from_secs(2));
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_2_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("sync")

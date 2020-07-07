@@ -6,6 +6,7 @@ use test_utils::init;
 use crate::test_utils::{
     HOME_CFG_FILE, PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_RUN_FILE,
 };
+use short::BIN_NAME;
 
 mod test_utils;
 
@@ -21,7 +22,7 @@ setups: {}
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -59,7 +60,7 @@ setups: {}
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -107,7 +108,7 @@ setups: {}
     e.setup();
     e.set_exec_permission(PROJECT_OTHER_RUN_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -132,7 +133,7 @@ setups: {}
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")
@@ -169,7 +170,7 @@ setups: {}
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("generate")

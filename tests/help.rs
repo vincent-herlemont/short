@@ -1,9 +1,10 @@
 #![allow(dead_code)]
 use cli_integration_test::IntegrationTestEnvironment;
+use short::BIN_NAME;
 
 fn cmd_help() {
     let e = IntegrationTestEnvironment::new("cmd_help");
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command.assert();
     r.stderr(
         r#" short 0.0.2
@@ -35,7 +36,7 @@ SUBCOMMANDS:
 
 fn cmd_help_env() {
     let e = IntegrationTestEnvironment::new("cmd_help");
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command.arg("env").assert();
     r.stderr(
         r#"short-env 

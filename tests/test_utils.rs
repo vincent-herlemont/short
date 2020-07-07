@@ -1,5 +1,4 @@
 #![allow(dead_code)]
-
 use cli_integration_test::IntegrationTestEnvironment;
 
 pub const HOME_DIR: &'static str = "home";

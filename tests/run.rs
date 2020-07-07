@@ -1,6 +1,7 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 
+use short::BIN_NAME;
 use test_utils::init;
 use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_RUN_FILE};
 
@@ -33,7 +34,7 @@ echo "SETUP VAR $SHORT_SETUP"
     e.setup();
     e.set_exec_permission(PROJECT_RUN_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let command = command
         .env("RUST_LOG", "debug")
         .arg("run")
@@ -77,7 +78,7 @@ echo "SETUP VAR $SHORT_SETUP"
     e.setup();
     e.set_exec_permission(PROJECT_RUN_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let command = command
         .env("RUST_LOG", "debug")
         .arg("run")

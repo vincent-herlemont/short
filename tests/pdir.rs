@@ -1,6 +1,7 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 
+use short::BIN_NAME;
 use test_utils::init;
 use test_utils::{HOME_CFG_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE};
 
@@ -19,7 +20,7 @@ setups:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("pdir")
@@ -33,7 +34,7 @@ setups:
 
     // SET
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("pdir")
@@ -50,7 +51,7 @@ setups:
 
     // UNSET
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("pdir")
@@ -65,7 +66,7 @@ setups:
     let r = e.read_file(HOME_CFG_FILE);
     assert!(!contains("private_env_dir:").count(1).eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("pdir")

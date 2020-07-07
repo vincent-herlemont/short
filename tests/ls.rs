@@ -5,6 +5,7 @@ use predicates::prelude::Predicate;
 use predicates::str::contains;
 
 use short::cli::terminal::emoji::RIGHT_POINTER;
+use short::BIN_NAME;
 use test_utils::init;
 use test_utils::{
     HOME_CFG_FILE, PRIVATE_ENV_DEV_FILE, PRIVATE_ENV_DIR, PROJECT_CFG_FILE, PROJECT_ENV_DIR,
@@ -16,7 +17,7 @@ mod test_utils;
 fn cmd_ls_settings() {
     let e = IntegrationTestEnvironment::new("cmd_ls_settings");
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("ls")
@@ -69,7 +70,7 @@ projects:
     );
     e.setup();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("ls")
@@ -90,7 +91,7 @@ projects:
     assert!(contains("example1 (env/.example1)").count(1).eval(&r));
     assert!(contains("example2 (env/.example2)").count(1).eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("ls")
@@ -102,7 +103,7 @@ projects:
         .count(1)
         .eval(&r));
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
         .arg("ls")

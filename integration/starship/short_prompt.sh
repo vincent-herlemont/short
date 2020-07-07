@@ -1,10 +1,6 @@
 #!/bin/bash
 
 function blastoff(){
-    setup=$(sht show -s)
-    env=$(sht show -e)
-    if [ "$setup" != "" ]; then
-      echo -n "[$setup:$env] "
-    fi
+    echo $(sht show -f)
 }
-starship_precmd_user_func="blastoff"
+starship_precmd_user_func=blastoff

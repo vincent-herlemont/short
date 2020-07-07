@@ -1,6 +1,7 @@
 use predicates::prelude::Predicate;
 use predicates::str::contains;
 
+use short::BIN_NAME;
 use test_utils::init;
 use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE};
 
@@ -37,10 +38,10 @@ CONFIG=AZE
     e.setup();
     e.set_update_file_time(PROJECT_ENV_EXAMPLE_1_FILE).unwrap();
 
-    let mut command = e.command(env!("CARGO_PKG_NAME")).unwrap();
+    let mut command = e.command(BIN_NAME).unwrap();
     let r = command
         .env("RUST_LOG", "debug")
-        .arg("var")
+        .arg("vars")
         .args(&["-s", "setup_1"])
         .assert()
         .to_string();
