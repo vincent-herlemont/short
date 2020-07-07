@@ -176,7 +176,7 @@ fn run() -> Result<()> {
         )
         .subcommand(
             SubCommand::with_name("new")
-                .about("Create env file \".<env>\", in public directory default.")
+                .about("Create env file \".<env>\", in public directory by default.")
                 .arg(
                     Arg::with_name("name")
                         .help("Environment name.")
