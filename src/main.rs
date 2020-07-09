@@ -324,7 +324,7 @@ fn run() -> Result<()> {
             .arg(setup_arg.clone())
         )
         .subcommand(SubCommand::with_name("envs")
-            .about("Display env file.")
+            .about("Display environment variables.")
             .arg(setup_arg.clone())
         ).get_matches();
 

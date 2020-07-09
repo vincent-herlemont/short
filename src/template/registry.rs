@@ -29,6 +29,11 @@ impl Registry {
             let dir_entry = dir_entry?;
             let path = dir_entry.path();
             if path.is_file() {
+                if let Some(extension) = path.extension() {
+                    if extension != "json" {
+                        continue;
+                    }
+                }
                 let content = read_to_string(&path)?;
                 let mut template: Template = serde_json::from_str(&content)?;
                 let name = path
