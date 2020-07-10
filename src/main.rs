@@ -315,7 +315,7 @@ fn run() -> Result<()> {
         )
         .subcommand(
             SubCommand::with_name("ls")
-                .about("Display setups and environments.")
+                .about("Display setups and environments available.")
                 .arg(setup_arg.clone())
                 .arg(environment_arg.clone()),
         )
