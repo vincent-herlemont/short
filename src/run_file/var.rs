@@ -59,8 +59,8 @@ impl ToString for EnvValue {
 #[derive(Debug)]
 pub struct EnvVar(VarName, EnvValue);
 
-const ENV_ENVIRONMENT_VAR: &'static str = "short_env";
-const ENV_SETUP_VAR: &'static str = "short_setup";
+pub const ENV_ENVIRONMENT_VAR: &'static str = "short_env";
+pub const ENV_SETUP_VAR: &'static str = "short_setup";
 
 impl EnvVar {
     pub fn var(&self) -> &VarName {

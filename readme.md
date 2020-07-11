@@ -1,10 +1,16 @@
 # sht / short / 🩳 
-[![Crate](https://img.shields.io/crates/v/short.svg)](https://crates.io/crates/short) ![linux](https://github.com/vincent-herlemont/short/workflows/linux/badge.svg) ![osx](https://github.com/vincent-herlemont/short/workflows/osx/badge.svg)
-> A concise cli launcher / project manager using env files.
+[![Crate](https://img.shields.io/crates/v/short.svg)](https://crates.io/crates/short) 
+[![linux](https://github.com/vincent-herlemont/short/workflows/linux/badge.svg)](https://github.com/vincent-herlemont/short/actions?query=workflow%3Alinux)
+[![osx](https://github.com/vincent-herlemont/short/workflows/osx/badge.svg)](https://github.com/vincent-herlemont/short/actions?query=workflow%3Aosx)
+[![dicord](https://img.shields.io/static/v1?label=join&message=Discord&color=7289da&&logo=Discord)](https://discord.gg/AnVYgJM)
+[![dicord](https://img.shields.io/static/v1?label=status&&message=WIP&color=orange&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAADuUlEQVRoge1ZS2gUWRQ99/VHNCOCikZGB5yFO4kfoiAoyuBoOm13dbDjb+PCz2ZWImKCuhGTncJsRBFmXESxI3aVnY6jcREFRdEYVPwQFdz5GRT8REnSXddFYlPVdHVev6omiHWgoOq+9+49p+t97q0GfPjw4WMiQU4NLW13+Pt9e2u9Y7+JhphoAm4RrHRANK39wcDfBNSAeG+XZpyvBjFZSE0h9B8s3A7EJmHol8Kwd6/ezprTt/vkSLUIjoeKp5Bplzyjdvabes/YKEBqCrV3/legHd0WPwvGZkvzagA3PeYljcoXsSmuWR+JaY1nbBTg+AaEyTFT0AkAc6x2Bq4VLZwVDd0Nky5FLg05+eLuhrmg0DGA142ZehDg/fRn1zN16mM8nRqOHFiWAQJ1BHRa7dlE+imANxbTFDEcXubkZ5R88D7AGwFMHbuakKdbnIn+6pJ/+SnU3rrk/7bW+mabkcBEuG5nSasdnVDoGIDpJVqmI0hHZYk6QekgY5Ns60CUXQeFaVMK5dqkoCYAsAlg4pVRPZ5w7l49KAnIJtKPALy1mILEdM5BxFVnT9SjEt8KtVyIwMy0z2piIFRShJlvAfCuhJf3ILQoxbdAOZnLNqVPA2i32kqJoMbuAeS4DkAKwMfRi86DaDmtv/hcNX7Bv6vRDGrUtQ4CthQ5HWHiTV2akXblXwKu8/xkKjn5a2ikF4DtLGBiFiZ6mcggpr6hmsH+K+uuDLqNVwxPCpVIKlkrQiO3AfxWplsewBMG7gqm50LQY0O74PoNeVZpRfT4QsF0A6MnrRQYSGU1fTNIfav1rCLr1oyHBGzC6C8tBQKaG3XtLzdxPa91I2mtTaCi7fErMy3NNqWfqMTzvCYWxE8rHDKZiDuSqWRYKZ7KoLJgqlMYtfhLePiQSrhqfJWQE8C4Z30kppaIEVtVabAJE8CCW0H82spFmOLfmBGT3sUAjwXE9fg8ADMluppThsM3GNgOe7Y638wHKqoRPBWQBxZJdn3R2dz5OasZl5nppK2FeEdUj2+UjempAGaSFfCgQCCU2wNgwO6IjkdSyVoZR54KIMn5T0wFAZkNmS8MbCXA+nFsZiA8/A94/HPKawGyb+C+9SGb0PtMYntqzrS+Udd2jufIMwExIzaVgd+lOgdzD4pNg9M+HCbgttVGwNHIhcSCcq48E8D5QB3kUpNPmQ2Zl8XG3jW9uRywDcBni7mGiDuWntgVcnLmOhdau3VHVYv27+g5c6ok1x/+/wFfgA8fPnz83PgG8Ekdaq6qdi0AAAAASUVORK5CYII=
+)](https://discord.gg/AnVYgJM)
+> A concise cli launcher / project manager using env files. 
 
 The main goal it's readability and time saving with commands use in your project.
 Short it's command-line tool that allow to run program (usually sh script) with environment variables mapping from .env files.
-It take care about to synchronize and to check the format of all env files to each others.
+It take care to synchronize and to check the format of all env files to each others.
+Allow to store critical environment files in private paths that not shared in the project source code.
 You can apply a mapping in order to select, group and add custom format / cases on the fly on the variables.
 The result of mapping will be inject as environment variables in the output .sh script that will be executed.
 
@@ -51,13 +57,27 @@ starship_precmd_user_func=blastoff
     
 </details>
 
-# Quick start
+# Quick start with template
 
-That commands allow to generate an simply aws sam project base on this template [aws-sam-short-template](https://github.com/vincent-herlemont/aws-sam-short-template).
+Generate an simply aws sam project base on this template [aws-node-sam](https://github.com/vincent-herlemont/aws-node-sam-short-template).
+
+Requirement : You have installed [SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+and [AWS_CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).
 
 ```
 $> sht init
-$> sht generate aws-sam -d -t
+$> sht generate aws-node-sam -d -t
+$> sht run
+```
+
+# Quick start blank
+
+Generate a simply bash script who display variables. You can use this base
+for do as you want.
+
+```
+$> sht init
+$> sht generate setup_1 test
 $> sht run
 ```
 

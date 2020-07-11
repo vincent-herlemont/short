@@ -167,7 +167,7 @@ fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSetting
     cfg.sync_local_to_global()?;
 
     // Add env
-    let env = match env_new_workflow(&cfg, &setup_name, &env_name, &private) {
+    let env = match env_new_workflow(&cfg, &setup_name, &env_name, &private, &true) {
         Ok(env) => env,
         Err(err) => match err.downcast::<CliError>() {
             Ok(CliError::EnvFileAlreadyExists(_, env)) => Ok(env.clone()),

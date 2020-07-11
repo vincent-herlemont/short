@@ -10,7 +10,10 @@ use std::thread;
 use anyhow::{Context, Result};
 
 pub use file::{set_exec_permision, File};
-pub use var::{generate_array_env_var, generate_env_var, generate_env_vars, EnvValue, EnvVar};
+pub use var::{
+    generate_array_env_var, generate_env_var, generate_env_vars, EnvValue, EnvVar,
+    ENV_ENVIRONMENT_VAR, ENV_SETUP_VAR,
+};
 
 mod file;
 mod var;

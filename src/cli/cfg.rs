@@ -19,7 +19,7 @@ pub fn reach_directories() -> Result<(LocalDir, GlobalDir)> {
 pub fn get_cfg() -> Result<Cfg> {
     let (local_dir, global_dir) = reach_directories()?;
 
-    Cfg::load_local(global_dir, local_dir).context("fail to load cfg")
+    Cfg::load_local(global_dir, local_dir).context("fail to load cfg \"short.yaml\"")
 }
 
 pub fn create_cfg() -> Result<Cfg> {
