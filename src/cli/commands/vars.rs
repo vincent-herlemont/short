@@ -8,7 +8,7 @@ use prettytable::{Cell, Row, Table};
 use crate::cli::cfg::get_cfg;
 use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::settings::get_settings;
-use crate::env_file::{Env, Var};
+use crate::env_file::{Env};
 use crate::run_file::{generate_env_vars, EnvValue, EnvVar, ENV_ENVIRONMENT_VAR, ENV_SETUP_VAR};
 use crate::utils::colorize::is_cli_colorized;
 use prettytable::color::BLUE;
