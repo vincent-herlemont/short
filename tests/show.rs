@@ -92,7 +92,7 @@ projects:
         .assert()
         .to_string();
 
-    assert!(contains("no env is configured for \"setup_1\"").eval(&r));
+    assert!(contains("no env is configured for `setup_1`").eval(&r));
 
     let mut command = e.command(BIN_NAME).unwrap();
     let r = command
@@ -195,7 +195,7 @@ projects:
         .assert()
         .to_string();
 
-    assert!(contains("your current setup is \"setup_1\":\"example\"").eval(&r));
+    assert!(contains("your current setup is `setup_1`:`example`").eval(&r));
 
     let mut command = e.command(BIN_NAME).unwrap();
     let r = command

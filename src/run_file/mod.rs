@@ -1,3 +1,4 @@
+use colored::*;
 use std::fmt::Write as FmtWrite;
 use std::io;
 use std::io::{BufRead, BufReader, BufWriter, Write};
@@ -84,7 +85,7 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>, args: &Vec<String>) -> 
             for line in buf.lines() {
                 let line = line.unwrap();
                 writeln!(&mut buffer, "{}", line).unwrap();
-                println!("#> {}", line);
+                println!("{}", line.normal().clear());
             }
             let mut output = output.lock().unwrap();
             output.stdout = buffer;
@@ -100,7 +101,7 @@ pub fn run_as_stream(file: &PathBuf, vars: &Vec<EnvVar>, args: &Vec<String>) -> 
             for line in buf.lines() {
                 let line = line.unwrap();
                 writeln!(&mut buffer, "{}", line).unwrap();
-                println!("[error]#> {}", line);
+                println!("{}", line.red());
             }
             let mut output = output.lock().unwrap();
             output.stderr = buffer;

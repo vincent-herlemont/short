@@ -1,5 +1,6 @@
 use anyhow::Result;
 use clap::ArgMatches;
+use colored::*;
 use log::*;
 
 use crate::cli::cfg::get_cfg;
@@ -8,13 +9,19 @@ use crate::cli::terminal::emoji;
 use crate::cli::terminal::message::message;
 use crate::env_file::Env;
 
-fn line(msg: &str, r#use: &bool) {
-    let c = if *r#use {
-        emoji::RIGHT_POINTER.to_string()
+fn line(msg: &str, selected: &bool, colored: &bool) {
+    let output = if *selected {
+        let c = emoji::RIGHT_POINTER.to_string();
+        format!("{} {}", c, msg)
     } else {
-        " ".to_string()
+        format!("  {}", msg)
     };
-    message(format!("{} {}", c, msg).as_str());
+    let output = if *colored {
+        output.blue().to_string()
+    } else {
+        output
+    };
+    message(output.as_str());
 }
 
 pub fn ls(app: &ArgMatches) -> Result<()> {
@@ -30,22 +37,26 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
 
     for local_setup in local_setups {
         let setup_name = local_setup.name()?;
-        let check = if let (Ok(setting_setup), Err(_)) = (settings.setup(), settings.env()) {
-            if setting_setup == &setup_name {
-                true
-            } else {
-                false
-            }
-        } else {
-            false
-        };
 
         let local_setup_cfg = local_setup.local_setup().unwrap();
         let local_setup_cfg = local_setup_cfg.borrow();
         let run_file = local_setup_cfg.file();
+
+        let mut selected = false;
+        let mut colored = false;
+        if let Ok(setting_setup) = settings.setup() {
+            if setting_setup == &setup_name {
+                if settings.env().is_err() {
+                    selected = true;
+                }
+                colored = true;
+            }
+        }
+
         line(
-            format!("{} ({})", &setup_name, run_file.to_string_lossy()).as_str(),
-            &check,
+            format!("{} ({})", &setup_name.bold(), run_file.to_string_lossy()).as_str(),
+            &selected,
+            &colored,
         );
 
         let envs: Vec<Env> = local_setup
@@ -71,7 +82,7 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
                     }
                 };
 
-                let check = if let (Ok(setting_env), Ok(setting_setup)) =
+                let selected = if let (Ok(setting_env), Ok(setting_setup)) =
                     (settings.env(), settings.setup())
                 {
                     if setting_env == &env_name && setting_setup == &setup_name {
@@ -89,8 +100,9 @@ pub fn ls(app: &ArgMatches) -> Result<()> {
                     .unwrap_or(env.file());
 
                 line(
-                    format!("   {} ({})", &env_name, env_file.to_string_lossy()).as_str(),
-                    &check,
+                    format!("   {} ({})", &env_name.bold(), env_file.to_string_lossy()).as_str(),
+                    &selected,
+                    &selected,
                 );
             }
         }

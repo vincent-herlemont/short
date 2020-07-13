@@ -1,5 +1,6 @@
 use anyhow::Result;
 use clap::ArgMatches;
+use colored::*;
 use std::path::PathBuf;
 
 use crate::cfg::Cfg;
@@ -39,7 +40,7 @@ pub fn env_new(app: &ArgMatches) -> Result<()> {
     use_workflow(&cfg, &settings)?;
     cfg.save()?;
 
-    success(format!("env `{}` created : `{:?}`", env_name, env.file()).as_str());
+    success(format!("env `{}` created : `{:?}`", env_name.bold(), env.file()).as_str());
     Ok(())
 }
 

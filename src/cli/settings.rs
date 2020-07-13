@@ -1,3 +1,4 @@
+use colored::*;
 use std::fmt::Display;
 
 use anyhow::{Context, Result};
@@ -52,9 +53,9 @@ impl Settings {
 impl Display for Settings {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if let Some(setup) = &self.setup {
-            write!(f, "{}", setup)?;
+            write!(f, "{}", setup.bold())?;
             if let Some(env) = &self.env {
-                write!(f, ":{}", env)?;
+                write!(f, ":{}", env.bold())?;
             }
         } else {
             write!(f, "<unknown_setup>")?;

@@ -42,12 +42,9 @@ VAR_B=VALUE2
         .to_string();
 
     assert!(contains(
-        r#"┌───────┬──────────┬──────────┐
-│       │ example1 │ example2 │
-│ VAR_A │ VALUE1   │ VALUE2   │
-│ VAR_B │ VALUE1   │ VALUE2   │
-└───────┴──────────┴──────────┘
-"#,
+        r#"| example1 | example2 
+ VAR_A | VALUE1   | VALUE2 
+ VAR_B | VALUE1   | VALUE2"#,
     )
     .eval(&r));
 }

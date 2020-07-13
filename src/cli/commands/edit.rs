@@ -1,3 +1,4 @@
+use colored::*;
 use std::env;
 use std::process::Command;
 
@@ -40,9 +41,9 @@ pub fn env_edit(app: &ArgMatches) -> Result<()> {
 
     let env = setup
         .env(env_name)
-        .context(format!("fail to check env file `{}`", env_name))?;
+        .context(format!("fail to check env file `{}`", env_name.bold()))?;
 
-    success(format!("`{}` edited", env_name).as_str());
+    success(format!("`{}` edited", env_name.bold()).as_str());
 
     let envs = setup.envs().into_iter().filter_map(|r| r.ok()).collect();
 

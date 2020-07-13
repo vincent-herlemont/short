@@ -21,6 +21,7 @@ pub fn init<L: AsRef<str>>(label: L) -> IntegrationTestEnvironment {
     e.add_dir(TMP_DIR);
     e.set_cfg_command_callback(|root_path, mut command| {
         command.current_dir(root_path.join(PROJECT_DIR));
+        command.env("NO_COLOR", "1");
         command.env("HOME", root_path.join(HOME_DIR));
 
         #[cfg(unix)]
