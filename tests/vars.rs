@@ -48,11 +48,13 @@ CONFIG=AZE
 
     assert!(contains(
         r#"| example1 | example2 
- all    | ALL (VAR.*)                  
-        | VAR_A  | VALUE1   | VALUE2 
-        | VAR_B  | VALUE1   | VALUE2 
- var_a  | VAR_A  | VALUE1   | VALUE2 
- config | CONFIG | AZE      | AZE"#,
+ all         | ALL (VAR.*)                       
+             | VAR_A       | VALUE1   | VALUE2 
+             | VAR_B       | VALUE1   | VALUE2 
+ var_a       | VAR_A       | VALUE1   | VALUE2 
+ config      | CONFIG      | AZE      | AZE 
+ short_setup | SHORT_SETUP | setup_1  | setup_1 
+ short_env   | SHORT_ENV   | example1 | example2"#,
     )
     .eval(&r));
 }

@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::ArgMatches;
 use colored::*;
 use prettytable::format;
@@ -8,8 +8,8 @@ use prettytable::{Cell, Row, Table};
 use crate::cli::cfg::get_cfg;
 use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::settings::get_settings;
-use crate::env_file::Env;
-use crate::run_file::{generate_env_vars, EnvValue};
+use crate::env_file::{Env, Var};
+use crate::run_file::{generate_env_vars, EnvValue, EnvVar, ENV_ENVIRONMENT_VAR, ENV_SETUP_VAR};
 use crate::utils::colorize::is_cli_colorized;
 use prettytable::color::BLUE;
 
@@ -54,7 +54,12 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
     let array_vars = local_setup.array_vars().unwrap_or_default();
     let vars = local_setup.vars().unwrap_or_default();
     drop(local_setup);
-    let env_vars = generate_env_vars(&env_ref, array_vars.borrow(), vars.borrow())?;
+    let mut env_vars = generate_env_vars(&env_ref, array_vars.borrow(), vars.borrow())?;
+    env_vars.push(
+        EnvVar::from_setup(&setup)
+            .context(format!("fail to generate var from setup `{:?}`", setup))?,
+    );
+    env_vars.push(EnvVar::from_env(&Env::new(".default".into())).unwrap());
 
     let mut render_table = Table::new();
     render_table.set_format(*format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
@@ -85,7 +90,29 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
                     Cell::new(env_var.var().to_env_var().as_str()).with_style(Attr::Bold),
                 ];
                 for (i, env) in envs.iter().enumerate() {
-                    if let Ok(env_var) = env.get(env_var.var().to_string()) {
+                    let default_env_var_env = EnvVar::from_env(&env)?;
+                    let default_env_var_setup = EnvVar::from_setup(&setup)?;
+                    let var_name = env_var.var().to_string();
+
+                    let env_var = if let Ok(var) = env.get(&var_name) {
+                        Some(var)
+                    } else if ENV_ENVIRONMENT_VAR == &var_name {
+                        if let EnvValue::Var(var) = &default_env_var_env.env_value() {
+                            Some(var)
+                        } else {
+                            None
+                        }
+                    } else if ENV_SETUP_VAR == &var_name {
+                        if let EnvValue::Var(var) = &default_env_var_setup.env_value() {
+                            Some(var)
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    };
+
+                    if let Some(env_var) = env_var {
                         let mut cell = Cell::new(env_var.value());
                         if &i == &current_env_column_index {
                             cell = cell.with_style(Attr::ForegroundColor(BLUE));
