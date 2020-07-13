@@ -47,15 +47,12 @@ CONFIG=AZE
         .to_string();
 
     assert!(contains(
-        r#"┌─────────────────┬──────────┬──────────┐
-│                 │ example1 │ example2 │
-│ all    │ ALL (VAR.*)                  │
-│        │ VAR_A  │ VALUE1   │ VALUE2   │
-│        │ VAR_B  │ VALUE1   │ VALUE2   │
-│ var_a  │ VAR_A  │ VALUE1   │ VALUE2   │
-│ config │ CONFIG │ AZE      │ AZE      │
-└────────┴────────┴──────────┴──────────┘
-"#,
+        r#"| example1 | example2 
+ all    | ALL (VAR.*)                  
+        | VAR_A  | VALUE1   | VALUE2 
+        | VAR_B  | VALUE1   | VALUE2 
+ var_a  | VAR_A  | VALUE1   | VALUE2 
+ config | CONFIG | AZE      | AZE"#,
     )
     .eval(&r));
 }

@@ -41,8 +41,9 @@ echo "SETUP VAR $SHORT_SETUP"
         .args(&vec!["-s", "setup_1"])
         .args(&vec!["-e", "example1"]);
     let r = command.assert().success().to_string();
-    assert!(contains("#> TEST VAR1=VALUE1").count(1).eval(&r));
-    assert!(contains("#> declare -x ALL=\"[VAR1]='VALUE1'\"")
+
+    assert!(contains("TEST VAR1=VALUE1").count(1).eval(&r));
+    assert!(contains("declare -x ALL=\"[VAR1]='VALUE1'\"")
         .count(1)
         .eval(&r));
     assert!(contains("ENVIRONMENT VAR example1").count(1).eval(&r));
@@ -86,8 +87,8 @@ echo "SETUP VAR $SHORT_SETUP"
         .args(&vec!["-s", "setup_1"])
         .args(&vec!["-e", "example1"]);
     let r = command.assert().success().to_string();
-    assert!(contains("#> TEST VAR1=VALUE1").count(1).eval(&r));
-    assert!(contains("#> declare -x ALL=\"[VAR1]='VALUE1'\"")
+    assert!(contains("TEST VAR1=VALUE1").count(1).eval(&r));
+    assert!(contains("declare -x ALL=\"[VAR1]='VALUE1'\"")
         .count(1)
         .eval(&r));
     assert!(contains("ENVIRONMENT VAR example1").count(1).eval(&r));

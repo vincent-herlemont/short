@@ -1,13 +1,17 @@
 use anyhow::Result;
 use clap::ArgMatches;
-use term_table::row::Row;
-use term_table::table_cell::TableCell;
+use colored::*;
+use prettytable::format;
+use prettytable::Attr;
+use prettytable::{Cell, Row, Table};
 
 use crate::cli::cfg::get_cfg;
 use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::settings::get_settings;
 use crate::env_file::Env;
 use crate::run_file::{generate_env_vars, EnvValue};
+use crate::utils::colorize::is_cli_colorized;
+use prettytable::color::BLUE;
 
 pub fn vars(app: &ArgMatches) -> Result<()> {
     let mut cfg = get_cfg()?;
@@ -31,6 +35,17 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
         return Ok(());
     }
 
+    let is_current_env = |env: &Env| {
+        if let Ok(current_env) = settings.env() {
+            if let Ok(env_name) = env.name() {
+                if *current_env == env_name {
+                    return true;
+                }
+            }
+        }
+        false
+    };
+
     let env_ref = envs.get(0).map(|env| env.clone()).unwrap();
 
     // Retrieve vars / array_vars
@@ -41,16 +56,22 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
     drop(local_setup);
     let env_vars = generate_env_vars(&env_ref, array_vars.borrow(), vars.borrow())?;
 
-    let mut render_table = term_table::Table::new();
-    render_table.separate_rows = false;
-    render_table.style = term_table::TableStyle::thin();
+    let mut render_table = Table::new();
+    render_table.set_format(*format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
 
-    let mut title: Vec<TableCell> = vec![];
-    for env in &envs {
-        title.push(TableCell::new(env.name()?.clone()));
+    let mut title: Vec<Cell> = vec![];
+    let mut current_env_column_index = 0;
+    for (i, env) in envs.iter().enumerate() {
+        let mut cell = Cell::new(env.name()?.as_str()).with_style(Attr::Bold);
+        if is_current_env(env) {
+            current_env_column_index = i;
+            cell = cell.with_style(Attr::ForegroundColor(BLUE))
+        }
+
+        title.push(cell);
     }
 
-    title.splice(0..0, vec![TableCell::new_with_col_span("", 2)].into_iter());
+    title.splice(0..0, vec![Cell::new("").with_hspan(2)].into_iter());
 
     render_table.add_row(Row::new(title));
 
@@ -60,32 +81,45 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
         match env_value {
             EnvValue::Var(_value) => {
                 let mut line = vec![
-                    TableCell::new(env_var.var().to_var()),
-                    TableCell::new(env_var.var().to_env_var()),
+                    Cell::new(env_var.var().to_var().as_str()),
+                    Cell::new(env_var.var().to_env_var().as_str()).with_style(Attr::Bold),
                 ];
-                for env in &envs {
+                for (i, env) in envs.iter().enumerate() {
                     if let Ok(env_var) = env.get(env_var.var().to_string()) {
-                        line.push(TableCell::new(env_var.value()));
+                        let mut cell = Cell::new(env_var.value());
+                        if &i == &current_env_column_index {
+                            cell = cell.with_style(Attr::ForegroundColor(BLUE));
+                        }
+                        line.push(cell);
                     }
                 }
                 render_table.add_row(Row::new(line));
             }
             EnvValue::ArrayVar((array_var, array_var_values)) => {
                 let line = vec![
-                    TableCell::new(env_var.var().to_var()),
-                    TableCell::new_with_col_span(
-                        format!("{} ({})", env_var.var().to_env_var(), array_var.pattern()),
-                        nb_envs,
-                    ),
+                    Cell::new(env_var.var().to_var().as_str()),
+                    Cell::new(
+                        format!(
+                            "{} ({})",
+                            env_var.var().to_env_var().bold(),
+                            array_var.pattern()
+                        )
+                        .as_str(),
+                    )
+                    .with_hspan(nb_envs),
                 ];
                 render_table.add_row(Row::new(line));
 
                 for var in array_var_values {
-                    let mut line = vec![TableCell::new("".to_string())];
-                    line.push(TableCell::new(var.name().clone()));
-                    for env in &envs {
+                    let mut line = vec![Cell::new("".to_string().as_str())];
+                    line.push(Cell::new(var.name().clone().as_str()));
+                    for (i, env) in envs.iter().enumerate() {
                         if let Ok(env_var) = env.get(var.name()) {
-                            line.push(TableCell::new(env_var.value().clone()));
+                            let mut cell = Cell::new(env_var.value().clone().as_str());
+                            if &i == &current_env_column_index {
+                                cell = cell.with_style(Attr::ForegroundColor(BLUE));
+                            }
+                            line.push(cell);
                         }
                     }
                     render_table.add_row(Row::new(line));
@@ -94,7 +128,11 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
         }
     }
 
-    println!("{}", render_table.render());
+    if is_cli_colorized() {
+        render_table.print_tty(true);
+    } else {
+        render_table.printstd();
+    }
 
     Ok(())
 }
