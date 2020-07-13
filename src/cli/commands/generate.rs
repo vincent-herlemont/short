@@ -1,3 +1,4 @@
+use colored::*;
 use std::env::current_dir;
 use std::fs::create_dir_all;
 use std::path::PathBuf;
@@ -136,7 +137,14 @@ fn generate_template_workflow(
         .as_ref()
         .map(|env| env.name())
         .unwrap_or(Ok("".to_string()));
-    success(format!("generate setup `{}`:`{}`", setup_name, env_str?).as_str());
+    success(
+        format!(
+            "generate setup `{}`:`{}`",
+            setup_name.bold(),
+            env_str?.bold()
+        )
+        .as_str(),
+    );
 
     Ok(())
 }
@@ -184,7 +192,14 @@ fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSetting
 
     cfg.save()?;
 
-    success(format!("generate setup `{}`:`{}`", setup_name, env.name()?).as_str());
+    success(
+        format!(
+            "generate setup `{}`:`{}`",
+            setup_name.bold(),
+            env.name()?.bold()
+        )
+        .as_str(),
+    );
 
     Ok(())
 }

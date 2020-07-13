@@ -1,5 +1,6 @@
 use anyhow::Result;
 use clap::ArgMatches;
+use colored::*;
 
 use crate::cli::cfg::get_cfg;
 use crate::cli::settings::Settings;
@@ -50,19 +51,19 @@ pub fn show(args: &ArgMatches) -> Result<()> {
 fn terminal(settings: Settings) -> Result<()> {
     match (settings.setup(), settings.env()) {
         (Ok(setup), Ok(env)) => {
-            good_info(format!("your current setup is {:?}:{:?}", setup, env).as_str())
+            good_info(format!("your current setup is `{}`:`{}`", setup.bold(), env.bold()).as_str())
         }
         (Err(_), Ok(env)) => bad_info(
             format!(
-                "no setup is configured with {0:?} env . You can use \"short use {0:?} <env>\"",
-                env
+                "no setup is configured with `{}` env . You can use \"short use {0:?} <env>\"",
+                env.bold()
             )
             .as_str(),
         ),
         (Ok(setup), Err(_)) => bad_info(
             format!(
-                "no env is configured for {:?} . You can use \"short use <setup> <env>\"",
-                setup
+                "no env is configured for `{}` . You can use \"short use <setup> <env>\"",
+                setup.bold()
             )
             .as_str(),
         ),
