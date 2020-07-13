@@ -1,4 +1,7 @@
 use colored::*;
+use prettytable::format;
+
+use prettytable::{Cell, Row, Table};
 use std::env::current_dir;
 use std::fs::create_dir_all;
 use std::path::PathBuf;
@@ -6,8 +9,6 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 use tempdir::TempDir;
-use term_table::row::Row;
-use term_table::table_cell::TableCell;
 
 use crate::cfg::{load_local_cfg, LocalSetupCfg, SetupCfg, SetupsCfg};
 use crate::cli::cfg::get_cfg;
@@ -51,9 +52,8 @@ pub fn generate(app: &ArgMatches) -> Result<()> {
 fn display_template_list() -> Result<()> {
     let registry_tmp = TempDir::new("registry")?;
     let registry = Registry::checkout(registry_tmp.path())?;
-    let mut render_table = term_table::Table::new();
-    render_table.separate_rows = false;
-    render_table.style = term_table::TableStyle::blank();
+    let mut render_table = Table::new();
+    render_table.set_format(*format::consts::FORMAT_CLEAN);
 
     for template in registry.index() {
         if template.name().eq("test") {
@@ -61,8 +61,8 @@ fn display_template_list() -> Result<()> {
             continue;
         }
         render_table.add_row(Row::new(vec![
-            TableCell::new(template.name()),
-            TableCell::new(template.url()),
+            Cell::new(template.name()),
+            Cell::new(template.url()),
         ]));
     }
 

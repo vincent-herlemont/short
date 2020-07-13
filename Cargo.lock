@@ -763,7 +763,6 @@ name = "short"
 version = "0.1.2"
 dependencies = [
  "anyhow",
- "atty",
  "clap",
  "cli_integration_test",
  "colored",
@@ -785,7 +784,6 @@ dependencies = [
  "strum",
  "strum_macros",
  "tempdir",
- "term-table",
  "thiserror",
  "walkdir",
 ]
@@ -844,17 +842,6 @@ dependencies = [
  "byteorder",
  "dirs 1.0.5",
  "winapi",
-]
-
-[[package]]
-name = "term-table"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dea05ef801340799f4c96296e9e8cf79cdfa66ef66fe991522591fde77405105"
-dependencies = [
- "lazy_static",
- "regex",
- "unicode-width",
 ]
 
 [[package]]
