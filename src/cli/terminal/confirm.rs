@@ -1,3 +1,4 @@
+use colored::*;
 use std::fmt::Write;
 use std::io;
 use std::string::ToString;
@@ -36,14 +37,14 @@ where
 {
     fn to_string(&self) -> String {
         let mut buf = String::new();
-        write!(&mut buf, "[ ").unwrap();
+        write!(&mut buf, "[").unwrap();
         for (i, e) in self.iter().enumerate() {
             if i > 0 {
                 write!(&mut buf, ",").unwrap();
             }
-            write!(&mut buf, " {} ", e.to_string()).unwrap();
+            write!(&mut buf, "{}", e.to_string().bold()).unwrap();
         }
-        write!(&mut buf, " ]").unwrap();
+        write!(&mut buf, "]").unwrap();
         buf
     }
 }
@@ -77,8 +78,8 @@ macro_rules! enum_confirm {
 
 #[cfg(test)]
 mod tests {
-    use crate::cli::terminal::confirm::{confirm, EnumConfirm};
     use crate::cli::terminal::confirm::ToStringEnumConfirm;
+    use crate::cli::terminal::confirm::{confirm, EnumConfirm};
 
     enum_confirm!(EnumConfirmTest, y, Y, n);
 
@@ -92,7 +93,7 @@ mod tests {
     #[test]
     fn enum_confirm_to_string() {
         let actual = EnumConfirmTest::to_vec();
-        assert_eq!(actual.to_string(), "[  y , Y , n  ]".to_string());
+        assert_eq!(actual.to_string(), "[y,Y,n]".to_string());
     }
 
     #[test]
@@ -110,9 +111,6 @@ mod tests {
         assert!(r.is_ok());
         let r = r.unwrap();
         assert_eq!(EnumConfirmTest::y, r);
-        assert_eq!(
-            output,
-            "What do you want to do ? : [  y , Y , n  ]\n".to_string()
-        )
+        assert_eq!(output, "What do you want to do ? : [y,Y,n]\n".to_string())
     }
 }

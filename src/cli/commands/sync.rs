@@ -1,10 +1,11 @@
+use colored::*;
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
 use anyhow::{Context, Result};
 use clap::ArgMatches;
-use log::*;
+
 
 use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
@@ -85,7 +86,6 @@ pub fn sync_workflow(
 
         let controller = EnvDiffController::new(
             move |var| {
-                info!("{:?}", &sync_settings_update_var);
                 if sync_settings_update_var.empty {
                     var.set_value("");
                     return Cow::Borrowed(var);
@@ -103,9 +103,9 @@ pub fn sync_workflow(
                         output,
                         format!(
                             "Updating var in `{}`, `{}`=`{}`. Change value ?",
-                            env_name_update_var,
-                            var.name(),
-                            var.value()
+                            env_name_update_var.bold(),
+                            var.name().bold(),
+                            var.value().bold()
                         )
                         .as_str(),
                         SyncConfirmEnum::to_vec(),
