@@ -3,12 +3,14 @@ use predicates::str::contains;
 
 use short::BIN_NAME;
 use test_utils::init;
-use test_utils::{PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE};
+use test_utils::{
+    HOME_CFG_FILE, PROJECT_CFG_FILE, PROJECT_ENV_EXAMPLE_1_FILE, PROJECT_ENV_EXAMPLE_2_FILE,
+};
 
 mod test_utils;
 
 #[test]
-fn cmd_var() {
+fn cmd_vars_multiple_envs() {
     let mut e = init("cmd_var");
     e.add_file(
         PROJECT_CFG_FILE,
@@ -43,6 +45,54 @@ CONFIG=AZE
         .env("RUST_LOG", "debug")
         .arg("vars")
         .args(&["-s", "setup_1"])
+        .assert()
+        .to_string();
+
+    assert!(contains(r#"you can set a current env with the command"#,).eval(&r));
+
+    let mut command = e.command(BIN_NAME).unwrap();
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("vars")
+        .args(&["-s", "setup_1"])
+        .args(&["-e", "example1"])
+        .assert()
+        .to_string();
+
+    assert!(contains(
+        r#"| example1 
+ all         | ALL (VAR.*)            
+             | VAR_A       | VALUE1 
+             | VAR_B       | VALUE1 
+ var_a       | VAR_A       | VALUE1 
+ config      | CONFIG      | AZE 
+ short_setup | SHORT_SETUP | setup_1 
+ short_env   | SHORT_ENV   | example1"#,
+    )
+    .eval(&r));
+
+    e.add_file(
+        HOME_CFG_FILE,
+        format!(
+            r#"
+projects:
+  - file: {file}
+    current:
+        setup: setup_1
+        env: example2
+    setups: {{}}
+        "#,
+            file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy()
+        ),
+    );
+    e.setup();
+
+    let mut command = e.command(BIN_NAME).unwrap();
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("vars")
+        .args(&["-s", "setup_1"])
+        .args(&["-e", "example1"])
         .assert()
         .to_string();
 

@@ -34,8 +34,8 @@ impl Settings {
     pub fn setup(&self) -> Result<&String> {
         self.setup.as_ref().context(format!(
             r#"setup not specified: 
-{0} you can set a current setup with the command \"short use <setup> <environment>\".
-{0} you can use the \"-s <setup>\" argument."#,
+{0} you can set a current setup with the command \"short use <setup/environment>\".
+{0} you can use \"-s <setup>\" argument."#,
             emoji::RIGHT_POINTER
         ))
     }
@@ -43,8 +43,8 @@ impl Settings {
     pub fn env(&self) -> Result<&String> {
         self.env.as_ref().context(format!(
             r#"env not specified: 
-{0} you can set a current env with the command \"short use <setup> <environment>\".
-{0} you can use the \"-e <env>\" argument."#,
+{0} you can set a current environment with the command \"short use <setup/environment>\".
+{0} you can use \"-e <env>\" argument."#,
             emoji::RIGHT_POINTER
         ))
     }

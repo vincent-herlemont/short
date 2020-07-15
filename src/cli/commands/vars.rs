@@ -8,7 +8,8 @@ use prettytable::{Cell, Row, Table};
 use crate::cli::cfg::get_cfg;
 use crate::cli::commands::sync::{sync_workflow, SyncSettings};
 use crate::cli::settings::get_settings;
-use crate::env_file::{Env};
+use crate::cli::terminal::emoji;
+use crate::env_file::Env;
 use crate::run_file::{generate_env_vars, EnvValue, EnvVar, ENV_ENVIRONMENT_VAR, ENV_SETUP_VAR};
 use crate::utils::colorize::is_cli_colorized;
 use prettytable::color::BLUE;
@@ -23,15 +24,41 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
     let setup_name = settings.setup()?;
     let setup = cfg.current_setup(setup_name)?;
 
+    let mut selected_env_names = vec![];
+
+    if let Ok(env_name) = settings.env() {
+        selected_env_names.push(env_name.to_owned());
+    }
+    if let Some(mut envs) = app.values_of_lossy("environments") {
+        selected_env_names.append(&mut envs);
+    }
+
     let envs: Vec<_> = setup.envs().into_iter().filter_map(|r| r.ok()).collect();
     let recent_env = Env::recent(&envs)?;
     let sync_settings = SyncSettings::new(app);
     let mut envs = sync_workflow(recent_env, envs, sync_settings)?;
     envs.sort();
-    let envs = envs;
+    let envs: Vec<_> = envs
+        .iter()
+        .filter(|env| {
+            if let Ok(name) = env.name() {
+                selected_env_names
+                    .iter()
+                    .find(|seleted_env_name| &name == *seleted_env_name)
+                    .is_some()
+            } else {
+                false
+            }
+        })
+        .collect();
 
     if envs.is_empty() {
-        println!("there is no env");
+        println!(
+            r#"no env founded or selected
+{0} you can set a current env with the command \"short use <setup> <environment>\".
+{0} you can use \"-e <env> [<env>...] \" argument."#,
+            emoji::RIGHT_POINTER
+        );
         return Ok(());
     }
 
