@@ -6,7 +6,6 @@ use std::rc::Rc;
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 
-
 use crate::cli::cfg::get_cfg;
 use crate::cli::error::CliError;
 use crate::cli::settings::get_settings;
@@ -102,7 +101,7 @@ pub fn sync_workflow(
                         input,
                         output,
                         format!(
-                            "Updating var in `{}`, `{}`=`{}`. Change value ?",
+                            "Set `{}`:`{}`=`{}`. Change value ?",
                             env_name_update_var.bold(),
                             var.name().bold(),
                             var.value().bold()
