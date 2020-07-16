@@ -83,8 +83,8 @@ fn generate_template_workflow(
         .value_of("template")
         .unwrap_or(setup_name.as_str())
         .into();
-    let target_template_directory: PathBuf = app
-        .value_of("target_template_directory")
+    let target_directory: PathBuf = app
+        .value_of("target_directory")
         .unwrap_or(setup_name.as_str())
         .into();
     let registry_tmp = TempDir::new("registry")?;
@@ -100,20 +100,20 @@ fn generate_template_workflow(
     let local_setups = local_setups.borrow();
     let local_setup = local_setups.get(0).context("setup template not found")?;
     let mut local_setup = local_setup.borrow().clone();
-    if app.is_present("target_template_directory") {
-        let public_env_dir = target_template_directory.join(local_setup.public_env_dir());
+    if app.is_present("target_directory") {
+        let public_env_dir = target_directory.join(local_setup.public_env_dir());
         local_setup.set_public_env_dir(public_env_dir);
 
-        let file = target_template_directory.join(local_setup.file());
+        let file = target_directory.join(local_setup.file());
         local_setup.set_file(file);
     }
     local_setup.set_name(setup_name.clone());
     cfg.add_local_setup_cfg(local_setup);
     cfg.sync_local_to_global()?; // After add new setup we need to sync for apply others actions.
 
-    let target_dir = if app.is_present("target_template_directory") {
-        create_dir_all(&target_template_directory)?;
-        target_template_directory
+    let target_dir = if app.is_present("target_directory") {
+        create_dir_all(&target_directory)?;
+        target_directory
     } else {
         current_dir()?
     };
@@ -152,9 +152,19 @@ fn generate_template_workflow(
 fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSettings) -> Result<()> {
     let mut cfg = get_cfg()?;
     let setup_name: String = generate_settings.setup_name.clone();
+    let target_directory: PathBuf = app
+        .value_of("target_directory")
+        .unwrap_or(setup_name.as_str())
+        .into();
     let public_env_directory = app.value_of("public_env_directory");
     let env_name = app.value_of("env_name").unwrap().to_string();
-    let setup_file: PathBuf = app.value_of("file").unwrap_or("run.sh").into();
+    let setup_file = {
+        let mut setup_file: PathBuf = app.value_of("file").unwrap_or("run.sh").into();
+        if app.is_present("target_directory") {
+            setup_file = target_directory.join(setup_file);
+        }
+        setup_file
+    };
     let setup_shebang = app.value_of("shebang").unwrap_or("#!/bin/bash").to_string();
     let private = app.is_present("private");
 
@@ -167,6 +177,8 @@ fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSetting
         let vars = local_setup_cfg.vars().unwrap_or_default();
         if let Some(public_env_directory) = public_env_directory {
             local_setup_cfg.set_public_env_dir(public_env_directory.into());
+        } else if app.is_present("target_directory") {
+            local_setup_cfg.set_public_env_dir(target_directory.into());
         }
         file.generate(array_vars.borrow(), vars.borrow())?;
     }

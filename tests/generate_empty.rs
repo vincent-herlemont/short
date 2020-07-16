@@ -184,3 +184,59 @@ setups: {}
 
     assert!(e.file_exists("project/public_env/.example1"));
 }
+
+#[test]
+fn cmd_generate_with_file_empty_target_directory() {
+    let mut e = init("cmd_generate_with_file_empty_target_directory");
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
+setups: {}
+    "#,
+    );
+    e.setup();
+
+    let mut command = e.command(BIN_NAME).unwrap();
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("generate")
+        .arg("setup_1")
+        .arg("example1")
+        .args(&["-d"])
+        .assert()
+        .to_string();
+
+    assert!(contains("generate setup").eval(&r));
+
+    assert!(e.file_exists("project/short.yaml"));
+    assert!(e.file_exists("project/setup_1/run.sh"));
+    assert!(e.file_exists("project/setup_1/.example1"));
+}
+
+#[test]
+fn cmd_generate_with_file_target_directory() {
+    let mut e = init("cmd_generate_with_file_target_directory");
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
+setups: {}
+    "#,
+    );
+    e.setup();
+
+    let mut command = e.command(BIN_NAME).unwrap();
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("generate")
+        .arg("setup_1")
+        .arg("example1")
+        .args(&["-d", "target_1/test"])
+        .assert()
+        .to_string();
+
+    assert!(contains("generate setup").eval(&r));
+
+    assert!(e.file_exists("project/short.yaml"));
+    assert!(e.file_exists("project/target_1/test/run.sh"));
+    assert!(e.file_exists("project/target_1/test/.example1"));
+}

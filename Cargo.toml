@@ -1,6 +1,6 @@
 [package]
 name = "short"
-version = "0.1.3"
+version = "0.1.4"
 description = "A short cli project manager"
 authors = ["Vincent Herlemont <vincentherl@leszeros.com>"]
 edition = "2018"

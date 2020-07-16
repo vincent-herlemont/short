@@ -69,6 +69,8 @@ $> sht init
 $> sht generate aws-node-sam -d -t
 $> sht run
 ```
+`-t`: generate from template.
+`-d`: create a sub directory.
 
 # Quick start blank
 
@@ -77,9 +79,10 @@ for do as you want.
 
 ```
 $> sht init
-$> sht generate setup_1 test
+$> sht generate setup_1 test -d
 $> sht run
 ```
+`-d`: create a sub directory.
 
 ---
 

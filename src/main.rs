@@ -93,26 +93,26 @@ fn run() -> Result<()> {
                         .long("file")
                         .short("f")
                         .takes_value(true)
-                        .help("Path script [not working with template \"-t\"]."),
+                        .help("Path script [not working with target directory \"-d\"]."),
                 )
                 .arg(
                     Arg::with_name("shebang")
                         .long("shebang")
                         .short("s")
-                        .help("Interpreter program [not working with template \"-t\"]."),
+                        .help("Interpreter program."),
                 )
                 .arg(
                     Arg::with_name("public_env_directory")
                         .long("env-directory")
                         .short("e")
                         .takes_value(true)
-                        .help("Public env directory [not working with template \"-t\"]."),
+                        .help("Public env directory [not working with target directory \"-d\"]."),
                 )
                 .arg(
                     Arg::with_name("private")
                         .long("private")
                         .short("p")
-                        .help("Save to private directory [not working with template \"-t\"]."),
+                        .help("Save to private directory [not working with target directory \"-d\"]."),
                 )
                 .arg(
                     Arg::with_name("list")
@@ -129,12 +129,12 @@ fn run() -> Result<()> {
                         .help("Template name."),
                 )
                 .arg(
-                    Arg::with_name("target_template_directory")
+                    Arg::with_name("target_directory")
                         .long("template-directory")
                         .short("d")
                         .takes_value(true)
                         .min_values(0)
-                        .help("Template env directory [working only with template \"-t\"]."),
+                        .help("Template env directory."),
                 )
                 .group(
                     ArgGroup::with_name("action_type")
@@ -148,10 +148,10 @@ fn run() -> Result<()> {
                 )
                 .group(
                     ArgGroup::with_name("exclude_for_generate_template")
-                        .args(&["file", "shebang", "private"])
+                        .args(&["file","private","public_env_directory"])
                         .multiple(true)
                         .required(false)
-                        .conflicts_with("template"),
+                        .conflicts_with("target_directory"),
                 ),
         )
         .subcommand(
