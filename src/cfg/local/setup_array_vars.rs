@@ -10,6 +10,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 use strum;
 use strum::EnumProperty;
+use strum_macros::AsRefStr;
 use strum_macros::EnumProperty;
 use strum_macros::EnumString;
 
@@ -20,7 +21,7 @@ type VarPattern = String;
 type VarFormat = String;
 type VarDelimiter = String;
 
-#[derive(EnumString, EnumProperty, Debug, Clone, Eq, PartialEq)]
+#[derive(EnumString, EnumProperty, Debug, Clone, Eq, PartialEq, AsRefStr)]
 pub enum VarCase {
     #[strum(
         serialize = "None",

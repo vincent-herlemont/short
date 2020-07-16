@@ -5,7 +5,7 @@ use regex::Regex;
 
 use crate::cfg::{ArrayVar, ArrayVars, Setup, VarCase, VarName, Vars};
 use crate::env_file;
-use crate::env_file::Env;
+use crate::env_file::{Env};
 use heck::*;
 
 const DEFAULT_DELIMITER: &'static str = " ";
@@ -32,20 +32,12 @@ impl ToString for EnvValue {
                         env_value_buf = format!("{}{}", env_value_buf.clone(), delimiter)
                     }
 
-                    let var_name = match array_var.case() {
-                        VarCase::CamelCase => var.name().to_camel_case(),
-                        VarCase::KebabCase => var.name().to_kebab_case(),
-                        VarCase::SnakeCase => var.name().to_snake_case(),
-                        VarCase::ShoutySnakeCase => var.name().to_shouty_snake_case(),
-                        VarCase::MixedCase => var.name().to_mixed_case(),
-                        VarCase::TitleCase => var.name().to_title_case(),
-                        VarCase::None => var.name().to_owned(),
-                    };
+                    let var_name = var_name(array_var, var);
+
                     let mut format = array_var
                         .format()
                         .map(|f| f.clone())
                         .unwrap_or(DEFAULT_FORMAT.into());
-
                     format = format.replace("{key}", var_name.as_str());
                     format = format.replace("{value}", var.value());
                     env_value_buf = format!("{}{}", env_value_buf.clone(), format);
@@ -53,6 +45,18 @@ impl ToString for EnvValue {
                 env_value_buf
             }
         }
+    }
+}
+
+pub fn var_name(array_var: &ArrayVar, var: &env_file::Var) -> String {
+    match array_var.case() {
+        VarCase::CamelCase => var.name().to_camel_case(),
+        VarCase::KebabCase => var.name().to_kebab_case(),
+        VarCase::SnakeCase => var.name().to_snake_case(),
+        VarCase::ShoutySnakeCase => var.name().to_shouty_snake_case(),
+        VarCase::MixedCase => var.name().to_mixed_case(),
+        VarCase::TitleCase => var.name().to_title_case(),
+        VarCase::None => var.name().to_owned(),
     }
 }
 

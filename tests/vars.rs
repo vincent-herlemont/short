@@ -108,3 +108,58 @@ projects:
     )
     .eval(&r));
 }
+
+#[test]
+fn cmd_vars_case() {
+    let mut e = init("cmd_var");
+    e.add_file(
+        PROJECT_CFG_FILE,
+        r#"
+setups:
+  setup_1:
+    file: run.sh
+    array_vars:
+      ALL: 
+        pattern: "VAR.*"
+        case: CamelCase
+    vars: [ VAR_A, CONFIG ]
+    "#,
+    );
+    e.add_file(
+        PROJECT_ENV_EXAMPLE_1_FILE,
+        r#"VAR_A=VALUE1
+VAR_B=VALUE1
+CONFIG=AZE
+"#,
+    );
+    e.add_file(
+        PROJECT_ENV_EXAMPLE_2_FILE,
+        r#"VAR_A=VALUE2
+VAR_B=VALUE2
+CONFIG=AZE
+"#,
+    );
+    e.setup();
+    e.set_update_file_time(PROJECT_ENV_EXAMPLE_1_FILE).unwrap();
+
+    let mut command = e.command(BIN_NAME).unwrap();
+    let r = command
+        .env("RUST_LOG", "debug")
+        .arg("vars")
+        .args(&["-s", "setup_1"])
+        .args(&["-e", "example1"])
+        .assert()
+        .to_string();
+
+    assert!(contains(
+        r#"| example1   
+ all         | ALL (VAR.*) `CamelCase`  
+             | VarA        | VALUE1 
+             | VarB        | VALUE1 
+ var_a       | VAR_A       | VALUE1 
+ config      | CONFIG      | AZE 
+ short_setup | SHORT_SETUP | setup_1 
+ short_env   | SHORT_ENV   | example1"#,
+    )
+    .eval(&r));
+}

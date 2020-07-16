@@ -12,7 +12,7 @@ use anyhow::{Context, Result};
 
 pub use file::{set_exec_permision, File};
 pub use var::{
-    generate_array_env_var, generate_env_var, generate_env_vars, EnvValue, EnvVar,
+    generate_array_env_var, generate_env_var, generate_env_vars, var_name, EnvValue, EnvVar,
     ENV_ENVIRONMENT_VAR, ENV_SETUP_VAR,
 };
 

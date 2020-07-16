@@ -1,3 +1,4 @@
+use crate::cfg::VarCase;
 use anyhow::{Context, Result};
 use clap::ArgMatches;
 use colored::*;
@@ -11,7 +12,9 @@ use crate::cli::selected_envs::selected_envs;
 use crate::cli::settings::get_settings;
 
 use crate::env_file::Env;
-use crate::run_file::{generate_env_vars, EnvValue, EnvVar, ENV_ENVIRONMENT_VAR, ENV_SETUP_VAR};
+use crate::run_file::{
+    generate_env_vars, var_name, EnvValue, EnvVar, ENV_ENVIRONMENT_VAR, ENV_SETUP_VAR,
+};
 use crate::utils::colorize::is_cli_colorized;
 use prettytable::color::BLUE;
 
@@ -115,13 +118,18 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
                 render_table.add_row(Row::new(line));
             }
             EnvValue::ArrayVar((array_var, array_var_values)) => {
+                let format = format!("`{}`", array_var.case().as_ref().magenta());
                 let line = vec![
                     Cell::new(env_var.var().to_var().as_str()),
                     Cell::new(
                         format!(
-                            "{} ({})",
+                            "{} ({}) {}",
                             env_var.var().to_env_var().bold(),
-                            array_var.pattern()
+                            array_var.pattern().magenta(),
+                            match array_var.case() {
+                                VarCase::None => "",
+                                _ => format.as_str(),
+                            },
                         )
                         .as_str(),
                     )
@@ -131,7 +139,8 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
 
                 for var in array_var_values {
                     let mut line = vec![Cell::new("".to_string().as_str())];
-                    line.push(Cell::new(var.name().clone().as_str()));
+                    let var_name = var_name(array_var, var);
+                    line.push(Cell::new(var_name.as_str()));
                     for (i, env) in envs.iter().enumerate() {
                         if let Ok(env_var) = env.get(var.name()) {
                             let mut cell = Cell::new(env_var.value().clone().as_str());
