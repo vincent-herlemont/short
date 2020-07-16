@@ -10,7 +10,7 @@ pub use r#use::r#use;
 pub use rename::rename;
 pub use run::run;
 pub use show::{show, DEFAULT_SHOW_FORMAT};
-pub use sync::env_sync;
+pub use sync::{env_sync, sync_workflow, SyncConfirmEnum, SyncSettings};
 pub use vars::vars;
 
 mod dir;

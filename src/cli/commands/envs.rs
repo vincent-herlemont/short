@@ -6,7 +6,8 @@ use prettytable::Attr;
 use prettytable::{Cell, Row, Table};
 
 use crate::cli::cfg::get_cfg;
-use crate::cli::commands::sync::{sync_workflow, SyncSettings};
+
+use crate::cli::selected_envs::selected_envs;
 use crate::cli::settings::get_settings;
 use crate::env_file::Env;
 use crate::utils::colorize::is_cli_colorized;
@@ -22,17 +23,7 @@ pub fn envs(app: &ArgMatches) -> Result<()> {
     let setup_name = settings.setup()?;
     let setup = cfg.current_setup(setup_name)?;
 
-    let envs: Vec<_> = setup.envs().into_iter().filter_map(|r| r.ok()).collect();
-    let recent_env = Env::recent(&envs)?;
-    let sync_settings = SyncSettings::new(app);
-    let mut envs = sync_workflow(recent_env, envs, sync_settings)?;
-    envs.sort();
-    let envs = envs;
-
-    if envs.is_empty() {
-        println!("there is no env");
-        return Ok(());
-    }
+    let envs = selected_envs(app, &setup, &settings)?;
 
     let is_current_env = |env: &Env| {
         if let Ok(current_env) = settings.env() {

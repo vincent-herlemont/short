@@ -32,6 +32,13 @@ fn run() -> Result<()> {
         .short("e")
         .takes_value(true)
         .help("Environment name");
+    let environments_arg = Arg::with_name("environments")
+        .help("Environments, you can provides several for compare to each other.")
+        .long("envs")
+        .short("e")
+        .min_values(0)
+        .multiple(true)
+        .takes_value(true);
 
     let env_vars = vec![
         Arg::with_name("empty")
@@ -322,18 +329,12 @@ fn run() -> Result<()> {
         .subcommand(SubCommand::with_name("vars")
             .about("Display mapping environment variables.")
             .arg(setup_arg.clone())
-            .arg(Arg::with_name("environments")
-                .help("Environments, you can provides several for compare to each other.")
-                .long("envs")
-                .short("e")
-                .min_values(0)
-                .multiple(true)
-                .takes_value(true)
-            )
+            .arg(environments_arg.clone())
         )
         .subcommand(SubCommand::with_name("envs")
             .about("Display environment variables.")
             .arg(setup_arg.clone())
+            .arg(environments_arg.clone())
         ).get_matches();
 
     if let Some(_) = app.subcommand_matches("init") {
