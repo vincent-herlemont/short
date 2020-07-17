@@ -1,6 +1,6 @@
 [package]
 name = "short"
-version = "0.1.4"
+version = "0.1.5"
 description = "A short cli project manager"
 authors = ["Vincent Herlemont <vincentherl@leszeros.com>"]
 edition = "2018"
@@ -34,6 +34,8 @@ strum = "0.18.0"
 strum_macros = "0.18.0"
 colored = "1.9.3"
 prettytable-rs = "^0.8"
+reqwest = { version = "0.10.6", features = ["blocking"] }
+versions = "1.0.1"
 
 [dev-dependencies]
 predicates = "1.0.4"

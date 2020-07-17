@@ -92,9 +92,13 @@ pub fn new_local_cfg(dir: &PathBuf) -> Result<FileCfg<LocalCfg>> {
     FileCfg::new(&local_cfg_file, LocalCfg::new())
 }
 
-pub fn load_or_new_global_cfg(dir: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
+pub fn global_cfg_directory(dir: &PathBuf) -> PathBuf {
     let global_cfg_dir = var("SHORT_GLOBAL_CFG_DIR").map_or(".short/".to_string(), |v| v);
-    let global_dir = dir.join(global_cfg_dir);
+    dir.join(global_cfg_dir)
+}
+
+pub fn load_or_new_global_cfg(dir: &PathBuf) -> Result<FileCfg<GlobalCfg>> {
+    let global_dir = global_cfg_directory(dir);
     let global_cfg_file = global_dir.join(GLOBAL_FILE_NAME.to_string());
 
     // TODO : Think about return error relative to syntax or log it.

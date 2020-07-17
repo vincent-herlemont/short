@@ -1,20 +1,10 @@
-use std::fs;
-
-use anyhow::{Context, Result};
-use filetime::FileTime;
-
 use crate::env_file::Env;
+use crate::utils::file_time::{modification_time, ModificationTime};
+use anyhow::{Context, Result};
 
-type ModificationTime = FileTime;
-type CreateTime = FileTime;
-
-fn env_file_time(env: &Env) -> (ModificationTime, Option<CreateTime>) {
+fn env_file_time(env: &Env) -> ModificationTime {
     let file = env.file();
-    let metadata = fs::metadata(file).unwrap();
-    (
-        FileTime::from_last_modification_time(&metadata),
-        FileTime::from_creation_time(&metadata),
-    )
+    modification_time(file)
 }
 
 impl Env {
@@ -23,10 +13,8 @@ impl Env {
             .fold(None, |last_env, next_env| match (last_env, next_env) {
                 (None, next_env) => Some(next_env.clone()),
                 (Some(last_env), next_env) => {
-                    let (last_env_modification_time, _last_env_create_time) =
-                        env_file_time(&last_env);
-                    let (next_env_modification_time, _next_env_create_time) =
-                        env_file_time(next_env);
+                    let last_env_modification_time = env_file_time(&last_env);
+                    let next_env_modification_time = env_file_time(next_env);
                     if last_env_modification_time < next_env_modification_time {
                         Some((*next_env).clone())
                     } else {

@@ -5,6 +5,7 @@ use std::rc::Rc;
 use anyhow::{Context, Result};
 
 pub use error::CfgError;
+pub use file::global_cfg_directory;
 pub use file::load_local_cfg;
 pub use file::FileCfg;
 pub use global::GlobalCfg;

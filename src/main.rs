@@ -7,17 +7,34 @@ use std::env;
 use anyhow::Result;
 use clap::{App, AppSettings, Arg, ArgGroup, SubCommand};
 
+use short::cfg::global_cfg_directory;
+use short::cli::cfg::reach_directories;
 use short::cli::commands;
 use short::cli::commands::DEFAULT_SHOW_FORMAT;
 use short::cli::terminal::emoji;
+use short::utils::check_update::{check_update, CrateInfo};
 use short::BIN_NAME;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+const TTL_CHECK_VERSION_SECONDS: &'static i64 = &60;
 
 fn main() -> Result<()> {
     env_logger::init();
     info!("BIN_NAME {}", BIN_NAME);
     info!("VERSION v{}", VERSION);
+
+    if let Ok((_, global_dir)) = reach_directories() {
+        let global_cfg_directory = global_cfg_directory(&global_dir);
+        let current_crate = CrateInfo::current();
+        if let Some(message) = check_update(
+            &global_cfg_directory,
+            &current_crate,
+            TTL_CHECK_VERSION_SECONDS,
+        ) {
+            println!("{}", message);
+        }
+    }
+
     Ok(run()?)
 }
 
