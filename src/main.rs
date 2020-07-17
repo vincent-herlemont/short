@@ -23,18 +23,6 @@ fn main() -> Result<()> {
     info!("BIN_NAME {}", BIN_NAME);
     info!("VERSION v{}", VERSION);
 
-    if let Ok((_, global_dir)) = reach_directories() {
-        let global_cfg_directory = global_cfg_directory(&global_dir);
-        let current_crate = CrateInfo::current();
-        if let Some(message) = check_update(
-            &global_cfg_directory,
-            &current_crate,
-            TTL_CHECK_VERSION_SECONDS,
-        ) {
-            println!("{}", message);
-        }
-    }
-
     Ok(run()?)
 }
 
@@ -353,6 +341,20 @@ fn run() -> Result<()> {
             .arg(setup_arg.clone())
             .arg(environments_arg.clone())
         ).get_matches();
+
+    if let None = app.subcommand_matches("show") {
+        if let Ok((_, global_dir)) = reach_directories() {
+            let global_cfg_directory = global_cfg_directory(&global_dir);
+            let current_crate = CrateInfo::current();
+            if let Some(message) = check_update(
+                &global_cfg_directory,
+                &current_crate,
+                TTL_CHECK_VERSION_SECONDS,
+            ) {
+                println!("{}", message);
+            }
+        }
+    }
 
     if let Some(_) = app.subcommand_matches("init") {
         commands::init(&app)?;
