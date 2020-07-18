@@ -16,7 +16,7 @@ use short::utils::check_update::{check_update, CrateInfo};
 use short::BIN_NAME;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-const TTL_CHECK_VERSION_SECONDS: &'static i64 = &60;
+const TTL_CHECK_VERSION_SECONDS: &'static i64 = &43200;
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -98,7 +98,7 @@ fn run() -> Result<()> {
                         .long("file")
                         .short("f")
                         .takes_value(true)
-                        .help("Path script [not working with target directory \"-d\"]."),
+                        .help(r#"Path script, create directory if they miss. _[conflict with "-d"]_."#),
                 )
                 .arg(
                     Arg::with_name("shebang")
@@ -111,13 +111,13 @@ fn run() -> Result<()> {
                         .long("env-directory")
                         .short("e")
                         .takes_value(true)
-                        .help("Public env directory [not working with target directory \"-d\"]."),
+                        .help(r#"Public env directory _[conflict with "-d"]_."#),
                 )
                 .arg(
                     Arg::with_name("private")
                         .long("private")
                         .short("p")
-                        .help("Save to private directory [not working with target directory \"-d\"]."),
+                        .help(r#"Save to private directory _[conflict with "-d"]_."#),
                 )
                 .arg(
                     Arg::with_name("list")
@@ -135,7 +135,7 @@ fn run() -> Result<()> {
                 )
                 .arg(
                     Arg::with_name("target_directory")
-                        .long("template-directory")
+                        .long("directory")
                         .short("d")
                         .takes_value(true)
                         .min_values(0)
@@ -152,12 +152,19 @@ fn run() -> Result<()> {
                         .required(true),
                 )
                 .group(
-                    ArgGroup::with_name("exclude_for_generate_template")
+                    ArgGroup::with_name("exclude_for_target_directory")
                         .args(&["file","private","public_env_directory"])
                         .multiple(true)
                         .required(false)
                         .conflicts_with("target_directory"),
-                ),
+                ).group(
+                    ArgGroup::with_name("exclude_for_template")
+                        .args(&["file","private","shebang","public_env_directory"])
+                        .multiple(true)
+                        .required(false)
+                        .conflicts_with("template")
+            ),
+
         )
         .subcommand(
             SubCommand::with_name("run")
@@ -190,6 +197,7 @@ fn run() -> Result<()> {
         .subcommand(
             SubCommand::with_name("new")
                 .about("Create env file \".<env>\", in public directory by default.")
+                .setting(AppSettings::ArgRequiredElseHelp)
                 .arg(
                     Arg::with_name("name")
                         .help("Environment name.")
@@ -234,6 +242,7 @@ fn run() -> Result<()> {
         .subcommand(
             SubCommand::with_name("dir")
                 .about("Public env directory, [.] by default.")
+                .setting(AppSettings::ArgRequiredElseHelp)
                 .arg(
                     Arg::with_name("env_dir")
                         .help("Env directory path, must be inside of your project directory.")
@@ -254,6 +263,7 @@ fn run() -> Result<()> {
         .subcommand(
             SubCommand::with_name("pdir")
                 .about("Private env directory, unset by default.")
+                .setting(AppSettings::ArgRequiredElseHelp)
                 .arg(
                     Arg::with_name("env_dir")
                         .help("Private env directory path, have to be outside of your project directory.")
@@ -270,6 +280,28 @@ fn run() -> Result<()> {
                         .required(true),
                 )
                 .arg(setup_arg.clone()),
+        )
+        .subcommand(
+            SubCommand::with_name("use")
+                .about("Switch of current setup or/and environment.")
+                .setting(AppSettings::ArgRequiredElseHelp)
+                .arg(
+                    Arg::with_name("setup_or_environment")
+                        .help("The setup name or environment name if another one is already specified.")
+                        .index(1),
+                )
+                .arg(
+                    Arg::with_name("environment")
+                        .help("The environment name.")
+                        .index(2),
+                )
+                .arg(
+                    Arg::with_name("unset")
+                        .help("Unset current setup and environment.")
+                        .long("unset")
+                        .short("u")
+                        .takes_value(false),
+                ),
         )
         .subcommand(
             SubCommand::with_name("show")
@@ -304,40 +336,18 @@ fn run() -> Result<()> {
                 )
         )
         .subcommand(
-            SubCommand::with_name("use")
-                .about("Switch of current setup or/and environment.")
-                .setting(AppSettings::ArgRequiredElseHelp)
-                .arg(
-                    Arg::with_name("setup_or_environment")
-                        .help("The setup name or environment name if another one is already specified.")
-                        .index(1),
-                )
-                .arg(
-                    Arg::with_name("environment")
-                        .help("The environment name.")
-                        .index(2),
-                )
-                .arg(
-                    Arg::with_name("unset")
-                        .help("Unset current setup and environment.")
-                        .long("unset")
-                        .short("u")
-                        .takes_value(false),
-                ),
-        )
-        .subcommand(
             SubCommand::with_name("ls")
                 .about("Display setups and environments available.")
                 .arg(setup_arg.clone())
                 .arg(environment_arg.clone()),
         )
         .subcommand(SubCommand::with_name("vars")
-            .about("Display mapping environment variables.")
+            .about("Display/Diff mapping environment variables.")
             .arg(setup_arg.clone())
             .arg(environments_arg.clone())
         )
         .subcommand(SubCommand::with_name("envs")
-            .about("Display environment variables.")
+            .about("Display/Diff environment variables.")
             .arg(setup_arg.clone())
             .arg(environments_arg.clone())
         ).get_matches();
