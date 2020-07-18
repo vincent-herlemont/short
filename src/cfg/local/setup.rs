@@ -10,7 +10,7 @@ use crate::cfg::local::setup_vars::Vars;
 use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
 use crate::cfg::{ArrayVar, CfgError};
-use crate::run_file::{ENV_ENVIRONMENT_VAR, ENV_SETUP_VAR};
+
 
 pub type SetupName = String;
 
@@ -80,11 +80,7 @@ impl LocalSetupCfg {
     }
 
     pub fn new_vars(&mut self) -> Rc<RefCell<Vars>> {
-        let mut vars = Vars::new();
-        vars.add(ENV_SETUP_VAR.to_uppercase().into());
-        vars.add(ENV_ENVIRONMENT_VAR.to_uppercase().into());
-
-        let vars = Rc::new(RefCell::new(vars));
+        let vars = Rc::new(RefCell::new(Vars::new()));
         self.vars = Some(Rc::clone(&vars));
         vars
     }
@@ -151,9 +147,7 @@ array_vars:
   all: ".*"
   var2: "*_SUFFIX"
   var1: PREFIX_*
-vars:
-  - SHORT_SETUP
-  - SHORT_ENV"#;
+vars: []"#;
 
         let array_vars = setup_cfg.array_vars().unwrap();
         let mut array_vars = array_vars.borrow_mut();

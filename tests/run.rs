@@ -62,8 +62,7 @@ setups:
   setup_1:
     file: run.sh
     array_vars:
-      ALL: .*
-    vars: [ VAR1 ]"#,
+      ALL: .*"#,
     );
     e.add_file(
         PROJECT_RUN_FILE,

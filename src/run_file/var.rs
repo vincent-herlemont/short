@@ -5,7 +5,7 @@ use regex::Regex;
 
 use crate::cfg::{ArrayVar, ArrayVars, Setup, VarCase, VarName, Vars};
 use crate::env_file;
-use crate::env_file::{Env};
+use crate::env_file::Env;
 use heck::*;
 
 const DEFAULT_DELIMITER: &'static str = " ";
@@ -139,11 +139,20 @@ where
         env_vars.append(&mut vec![env_var]);
     }
 
-    for var in vars.as_ref().iter() {
-        let env_var = generate_env_var(env, var);
-        env_vars.append(&mut vec![env_var]);
+    let vars = vars.as_ref();
+    if vars.is_empty() {
+        for env_var in env.iter() {
+            env_vars.push(EnvVar::from((
+                VarName::from(env_var.name().to_owned()),
+                EnvValue::Var(env_var.clone()),
+            )));
+        }
+    } else {
+        for var in vars.iter() {
+            let env_var = generate_env_var(env, var);
+            env_vars.append(&mut vec![env_var]);
+        }
     }
-
     Ok(env_vars)
 }
 
