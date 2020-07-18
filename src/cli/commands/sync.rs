@@ -93,25 +93,19 @@ pub fn sync_workflow(
                     return Cow::Borrowed(var);
                 }
 
-                let r = loop {
-                    let stdin = std::io::stdin();
-                    let input = stdin.lock();
-                    let output = std::io::stdout();
-                    if let Ok(r) = confirm(
-                        input,
-                        output,
-                        format!(
-                            "Set `{}`:`{}`=`{}`. Change value ?",
-                            env_name_update_var.bold(),
-                            var.name().bold(),
-                            var.value().bold()
-                        )
-                        .as_str(),
-                        SyncConfirmEnum::to_vec(),
-                    ) {
-                        break r;
-                    }
-                };
+                let output = std::io::stdout();
+                let r = confirm(
+                    output,
+                    format!(
+                        "Set `{}`:`{}`=`{}`. Change value ?",
+                        env_name_update_var.bold(),
+                        var.name().bold(),
+                        var.value().bold()
+                    )
+                    .as_str(),
+                    SyncConfirmEnum::to_vec(),
+                )
+                .unwrap();
 
                 let new_value = match &r {
                     SyncConfirmEnum::y => {
@@ -143,25 +137,20 @@ pub fn sync_workflow(
                     .into());
                 }
 
-                let r = loop {
-                    let stdin = std::io::stdin();
-                    let input = stdin.lock();
-                    let output = std::io::stdout();
-                    if let Ok(r) = confirm(
-                        input,
-                        output,
-                        format!(
-                            "Deleting var in `{}`, `{}`=`{}` ?",
-                            env_name_delete_var,
-                            var.name(),
-                            var.value()
-                        )
-                        .as_str(),
-                        SyncConfirmEnum::to_vec(),
-                    ) {
-                        break r;
-                    }
-                };
+                let output = std::io::stdout();
+                let r = confirm(
+                    output,
+                    format!(
+                        "Remove `{}`:`{}`=`{}`",
+                        env_name_delete_var.bold(),
+                        var.name().bold(),
+                        var.value().bold()
+                    )
+                    .as_str(),
+                    SyncConfirmEnum::to_vec(),
+                )
+                .unwrap();
+
                 if let SyncConfirmEnum::y = r {
                     Ok(true)
                 } else {

@@ -13,6 +13,7 @@ pub enum CliError {
     #[error("open editor fail")]
     OpenEditorFail,
     #[error("bad input `{0}` try again")]
+    #[deprecated]
     ConfirmBadInputTryAgain(String),
     #[error("you have not allowed to delete var `{0}`:`{1}` in {2}")]
     DeleteVarNowAllowed(String, String, String),
