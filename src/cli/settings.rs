@@ -80,16 +80,40 @@ pub fn get_settings(app: &ArgMatches, cfg: &Cfg) -> Settings {
 
 impl From<&Cfg> for Settings {
     fn from(cfg: &Cfg) -> Self {
-        if let Ok(current_project) = cfg.current_project() {
+        if let Ok(current_project_ref) = cfg.current_project() {
             let mut settings = Settings::new();
-            let current_project = current_project.borrow();
 
-            if let Some(setup_name) = current_project.current_setup_name() {
-                settings.set_setup(setup_name.clone())
+            // Remove env is not exists.
+            {
+                let current_project = current_project_ref.borrow();
+                let current_setup = if let (Some(setup_name), Some(env_name)) = (
+                    current_project.current_setup_name().cloned(),
+                    current_project.current_env_name().cloned(),
+                ) {
+                    Some((setup_name, env_name))
+                } else {
+                    None
+                };
+                drop(current_project);
+
+                if let Some((setup_name, env_name)) = current_setup {
+                    if let Ok(current_setup) = cfg.current_setup(&setup_name) {
+                        if current_setup.env_file(&env_name).is_err() {
+                            let mut current_project = current_project_ref.borrow_mut();
+                            current_project.unset_current_env_name();
+                        }
+                    }
+                }
             }
 
-            if let Some(env_name) = current_project.current_env_name() {
-                settings.set_env(env_name.clone());
+            let current_project = current_project_ref.borrow();
+
+            if let Some(setup_name) = current_project.current_setup_name() {
+                settings.set_setup(setup_name.clone());
+
+                if let Some(env_name) = current_project.current_env_name().cloned() {
+                    settings.set_env(env_name.clone());
+                }
             }
 
             settings

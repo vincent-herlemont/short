@@ -165,6 +165,10 @@ impl GlobalProjectCfg {
         self.current.get_or_insert(CurrentSetup::new()).env_name = Some(env_name);
     }
 
+    pub fn unset_current_env_name(&mut self) {
+        self.current.get_or_insert(CurrentSetup::new()).env_name = None;
+    }
+
     pub fn current_env_name(&self) -> Option<&EnvName> {
         self.current
             .as_ref()

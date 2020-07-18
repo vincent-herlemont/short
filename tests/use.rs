@@ -200,7 +200,7 @@ projects:
   - file: {file}
     current:
       setup: setup_1
-      env: example_1
+      env: example1
     setups: {{}}
                 "#,
             file = e.path().unwrap().join(PROJECT_CFG_FILE).to_string_lossy()
