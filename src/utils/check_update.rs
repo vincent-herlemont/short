@@ -163,7 +163,7 @@ pub fn check_update(dir: &Path, current_version: &CrateInfo, ttl: &i64) -> Optio
  
 "#,
                     love = emoji::LOVE,
-                    t1 = "New version".green(),
+                    t1 = "New short version".green(),
                     version = latest_version.vers.0.to_string(),
                     t2 = "available !!".green(),
                     hand = emoji::RIGHT_POINTER,

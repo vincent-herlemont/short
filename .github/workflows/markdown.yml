@@ -1,0 +1,17 @@
+name: markdown
+
+on:
+  schedule:
+    - cron:  '0 19 * * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install remark
+        run: npm install --global remark-cli remark-validate-links remark-lint-no-dead-urls
+      - name: Check
+        run: remark -u validate-links -u lint-no-dead-urls . -f

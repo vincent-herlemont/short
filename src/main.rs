@@ -85,7 +85,7 @@ fn run() -> Result<()> {
         )
         .subcommand(
             SubCommand::with_name("generate")
-                .about("Generate empty setup or from template setup repository.")
+                .about("Generate empty setup or from project template repository.")
                 .setting(AppSettings::ArgRequiredElseHelp)
                 .arg(
                     Arg::with_name("setup_name")

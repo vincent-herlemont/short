@@ -9,10 +9,12 @@
 
 The main goal it's readability and time saving with commands use in your project.
 Short it's command-line tool that allow to run program (usually sh script) with environment variables mapping from .env files.
-It take care to synchronize and to check the format of all env files to each others.
-Allow to store critical environment files in private paths that not shared in the project source code.
-You can apply a mapping in order to select, group and add custom format / cases on the fly on the variables.
-The result of mapping will be inject as environment variables in the output .sh script that will be executed.
+- It take care to **synchronize** and to **check** the format of all [**environment files**](#environment-file-environment_name) to each others.
+- Allow multiple [**setups**](#setup) in the same [**project**](#project-shortyaml).
+- Allow to store example of **no critical** environment file in your source code with an [**public env directory**](#public-directory).
+- Allow to store prod/stage/etc.. and **critical** environment file in your source code with an [**private env directory 🔒**](#private-directory-).
+- You can apply a mapping in order to **select**, **group** and add **custom formats / cases** on the fly on the environment variables.
+- The result of mapping will be **inject** as environment variables in the output .sh script that will be executed.
 
 ![short global workflow](./docs/img/short_global_workflow.png)
 
@@ -29,13 +31,20 @@ cargo install short
 ### Configure prompt
 
 <details>
-  <summary>✨ PS1</summary>
+  <summary>✨ PS1 (BASH/ZSH)</summary>
   
 Example with PS1 configure by `.bashrc`
 
 ```shell script
 export PS1="$(sht show -f):\w\$ "
 ```
+
+Example with PS1 configure by `.zshrc`
+
+```shell script
+⚠️ TODO ...
+```
+
 
 </details>
 
@@ -60,7 +69,7 @@ starship_precmd_user_func=blastoff
 # Quick start with template
 
 <details>
-  <summary>🌱 Example with **Node && ExpressJs**</summary>
+  <summary>🌱 Example with <b>Node && ExpressJs</b></summary>
   
   Generate an simply aws sam project base on this template [node-express](https://github.com/vincent-herlemont/node-express-short-template).
   
@@ -77,7 +86,7 @@ starship_precmd_user_func=blastoff
 
 
 <details>
-  <summary>🌱 Example with **AWS SAM**</summary>
+  <summary>🌱 Example with <b>AWS SAM</b></summary>
   
   Generate an simply aws sam project base on this template [aws-node-sam](https://github.com/vincent-herlemont/aws-node-sam-short-template).
   
@@ -95,10 +104,10 @@ starship_precmd_user_func=blastoff
 
 You can list all templates available with `sht generate -l` and add a new one [**here**](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md#add-template-and-share-with-the-community).
 
-# Quick start blank
+# Quick start blank ✍️
 
 Generate a simply bash script who display variables. You can use this base
-for do as you want.
+for do as you want. 
 
 ```
 $> sht init
@@ -125,10 +134,11 @@ _short.yaml (generated)_
 setups: {}
 ```
 ### `generate` setup. 
-Generate an **empty** setup or form a **template setup [repository](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md)**, 
-this command can be also list all available templates.
+Generate an **empty** setup or a setup from the **project templates [repository](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md)**, 
+this command can be also list all available project templates.
 
-#### Generate an **empty setup**
+<details>
+  <summary><b>✍ Generate an empty setup ️</b></summary>
 
 | Arguments | Required  | Description |
 | ---------- | -------- | ----------- |
@@ -170,26 +180,35 @@ declare -p all
 ```
 The seconds line `declare -A all && eval all=($ALL)` allow to use **[bash associative array](https://www.gnu.org/software/bash/manual/html_node/Arrays.html)**.
 
-#### List all **[template setup 🌱](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md)**
+</details>
+
+<details>
+  <summary><b>🌱 List all <a href="https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md">project templates</a></b></summary>
+  
 ```
 $> sht generate -l
 ```
-#### Generate from **template setup 🌱**
+</details>
+
+<details>
+  <summary><b>🌱 Generate setup from projects template</b></summary>
 
 | Arguments | Required  | Description |
 | ---------- | -------- | ----------- |
 | <setup_name/template> | yes | Setup name or \<template> name with "-t" option left empty |
-
+  
 | Options | [Allow empty*](#option-allow-empty) | Default | Description |
 | ---------- | -------- | ------- | ----------- |
 | -t , --template | yes | <setup_name> | Template name, can be founded in list template `-l` |
 | -d , --directory | yes | <setup_name> | Target directory. |
-
-Example : create a template `my_setup` with `test` environment file.
+  
+Example : create a setup `node-express` with its associated envs.
 ```
 $> sht generate node-express -t
 ```
-👉 _short.yaml (generated)_ and _run.sh (generated)_ with generate from the following template [**node-express**](https://github.com/vincent-herlemont/node-express-short-template).
+👉 _short.yaml (generated)_ and _run.sh (generated)_ with generate from the following project template : [**node-express**](https://github.com/vincent-herlemont/node-express-short-template).
+
+</details>
 
 ### `rename` setup
 
@@ -323,11 +342,15 @@ $> sht vars -e prod test
  VAR2 | VALUE2_OF_PROD | VALUE2
 ```
 
-# Configuration file
+# Configuration file `short.yaml`
 
 ### `setups`.`<setup_name>`.`file`: Runnable file
 
 File that will be run with command `sht run`.
+
+| Type | Required | Description |
+| ---------- |-------- | ----------- |
+| Path | yes  | Relative path to the run file |
 
 ### `setups`.`<setup_name>`.`array_vars`: Array Vars
 
@@ -338,6 +361,12 @@ Group and apply case on environment variables.
 ### `setups`.`<setup_name>`.`vars[]`: Vars
 
 List of selected variables. If it's **empty** all variables will be injected.
+
+### `setups`.`<setup_name>`.`public_env_dir`: Public env directory
+
+| Type | Required | Default | Description |
+| ---------- | -------- | -------- | ----------- |
+| Path | no | . | Relative path to the [public env directory](#public-directory) |
 
 # Help 
 ```
@@ -366,6 +395,87 @@ SUBCOMMANDS:
     help        Prints this message or the help of the given subcommand(s)
 ```
 ---
+# Concepts
+
+### Project [`short.yaml`](#configuration-file-shortyaml)
+
+It's a directory with the configuration file `short.yaml` inside it : that defined the **project root**.  
+All `short` command inside of this folder and his child's folders take for references this configuration file.
+
+- For **create/init** an project see [`init`](#init-project) command.
+
+### Setup
+
+Setup it's is main concept of short. It's an configuration of [`short.yaml`](#configuration-file-shortyaml) 
+and take a **name**, a **runnable file**, [**public env directory**](#public-directory) and **mapping options**.
+This is how short gets an easily way to simplify run command.
+
+👉 Each setup one and only one **one runnable file**.
+
+- For **create/generate** an setup see [`generate`](#generate-setup)
+- For **list** all setups see [`ls`](#ls-list-all-setups-and-environments) command.
+- For **display** mapping of the setups see [`vars`](#vars-displaycompare-mapping-environment-variables) command.
+
+### Environment file `.<environment_name>`
+
+Each environment file define one environment in order to the environment name come from the file name like `.<my_env>` _environment file_ => `my_env` _environment name_.
+
+👉 **The prefix `.` is mandatory**. 
+
+### Directory
+
+These directories store `.<env>` files.
+Env files presents in it's directories will be synchronised to each other 
+if these belong to the same [**setup**](#setup).
+
+#### Public directory
+
+This directory must be inside of your project (The default value it's the [root folder of the project](#project-shortyaml)).
+That can be a sub folder like `./env/` see [**setup configuration**](#setupssetup_namepublic_env_dir-public-env-directory) for more details.
+So if you had configured git or another code versioning solution, public directory allow to save with your code
+no critical configuration files like example configuration file.
+
+```
+.
+└── project
+    ├── envs # public env directory
+    │   └── .dev
+    ├── ...
+    └── short.yaml
+```
+
+#### Private directory 🔒
+
+This directory must be outside of your project. The path of the private directory 
+will be not store in **project configuration ✅** ! So if you had configured git or
+another code versioning solution that will be never commit with your code.
+
+```
+.
+├── envs # private env directory
+│   └── .dev
+└── project
+    ├── run.sh
+    └── short.yaml
+```
+
+### Environment file .<environment_name>
+
+The file formatting must be follow the [**RFC 2 – .env file**](https://smartmob-rfc.readthedocs.io/en/latest/2-dotenv.html) guide line.
+```
+# Comment
+
+VAR1=VALUE1
+VAR2=VALUE2
+```
+
+Each environment inside on the same setup (_public environment directory/private environment directory_), are **synchronised** to each other.
+
+- For **create** an new environment file see [`new`](#new-env) command.
+- For **list** all environment files see [`ls`](#ls-list-all-setups-and-environments) command.
+- For **display** the content of environment file see [`envs`](#envs-displaycompare-environment-variables) command.
+- For **edit** en environment file see [`edit`](#edit-env) command.
+
 ### Option allow empty
 
 Option like `-d` who can found in `sht generate my_template my_env -d` can have three state.
