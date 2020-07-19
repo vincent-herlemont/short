@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
+use std::fs::remove_file;
 use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
@@ -200,6 +201,12 @@ impl Env {
     pub fn save(&self) -> Result<()> {
         let content = self.to_string();
         write_all_dir(&self.file, content)?;
+        Ok(())
+    }
+
+    // TODO: test
+    pub fn remove(&self) -> Result<()> {
+        remove_file(&self.file)?;
         Ok(())
     }
 

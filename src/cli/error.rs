@@ -21,6 +21,8 @@ pub enum CliError {
     EnvFileMustBeSync,
     #[error("env file `{0:?}` already exists")]
     EnvFileAlreadyExists(PathBuf, Env),
+    #[error("user stop sync")]
+    UserStopSync,
     #[error("Unknown error")]
     UnknownError(#[from] anyhow::Error),
 }

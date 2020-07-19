@@ -29,18 +29,22 @@ pub fn env_new(app: &ArgMatches) -> Result<()> {
     let mut envs = setup.envs().into_iter().filter_map(|r| r.ok()).collect();
     let recent_env = Env::recent(&envs);
 
-    let env = env_new_workflow(&cfg, &setup_name, &env_name, &private, &false)?;
-    envs.push(env.clone());
+    let new_env = env_new_workflow(&cfg, &setup_name, &env_name, &private, &false)?;
+    envs.push(new_env.clone());
 
     if let Ok(recent_env) = recent_env {
-        sync_workflow(recent_env, envs, sync_settings)?;
+        if let Err(e) = sync_workflow(recent_env.clone(), envs, sync_settings) {
+            // Remove env file when sync is stopped/fail.
+            new_env.remove()?;
+            return Err(e);
+        }
     }
 
-    settings.set_env(env.name()?);
+    settings.set_env(new_env.name()?);
     use_workflow(&cfg, &settings)?;
     cfg.save()?;
 
-    success(format!("env `{}` created : `{:?}`", env_name.bold(), env.file()).as_str());
+    success(format!("env `{}` created : `{:?}`", env_name.bold(), new_env.file()).as_str());
     Ok(())
 }
 

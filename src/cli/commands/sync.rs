@@ -87,14 +87,14 @@ pub fn sync_workflow(
             move |var| {
                 if sync_settings_update_var.empty {
                     var.set_value("");
-                    return Cow::Borrowed(var);
+                    return Ok(Cow::Borrowed(var));
                 }
                 if sync_settings_update_var.copy {
-                    return Cow::Borrowed(var);
+                    return Ok(Cow::Borrowed(var));
                 }
 
                 let output = std::io::stdout();
-                let r = confirm(
+                let r = match confirm(
                     output,
                     format!(
                         "Set `{}`:`{}`=`{}`. Change value ?",
@@ -104,8 +104,10 @@ pub fn sync_workflow(
                     )
                     .as_str(),
                     SyncConfirmEnum::to_vec(),
-                )
-                .unwrap();
+                ) {
+                    Ok(r) => r,
+                    Err(e) => return Err(e),
+                };
 
                 let new_value = match &r {
                     SyncConfirmEnum::y => {
@@ -119,9 +121,9 @@ pub fn sync_workflow(
 
                 if let Some(new_value) = new_value {
                     var.set_value(new_value.as_str());
-                    Cow::Borrowed(var)
+                    Ok(Cow::Borrowed(var))
                 } else {
-                    Cow::Borrowed(var)
+                    Ok(Cow::Borrowed(var))
                 }
             },
             move |var| {

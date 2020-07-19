@@ -1,15 +1,12 @@
+use crate::cli::error::CliError::UserStopSync;
+use anyhow::Result;
 use colored::*;
 use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
+use serde::export::fmt::Debug;
 use std::fmt::Write;
 use std::io;
 use std::string::ToString;
-
-use anyhow::{Result};
-use serde::export::fmt::Debug;
-
-
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
-use std::process::exit;
 
 pub fn confirm<W, E>(mut writer: W, question: &str, e: Vec<E>) -> Result<E>
 where
@@ -26,7 +23,7 @@ where
                 || event == KeyEvent::new(KeyCode::Char('z'), KeyModifiers::CONTROL)
             {
                 disable_raw_mode()?;
-                exit(1);
+                bail!(UserStopSync);
             }
 
             if let Some(e) = e.iter().find_map(|e| {
@@ -104,8 +101,8 @@ macro_rules! enum_confirm {
 
 #[cfg(test)]
 mod tests {
+    use crate::cli::terminal::confirm::EnumConfirm;
     use crate::cli::terminal::confirm::ToStringEnumConfirm;
-    use crate::cli::terminal::confirm::{EnumConfirm};
 
     enum_confirm!(EnumConfirmTest, y, Y, n);
 
