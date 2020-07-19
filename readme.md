@@ -9,7 +9,7 @@
 
 The main goal it's readability and time saving with commands use in your project.
 Short it's command-line tool that allow to run program (usually sh script) with environment variables mapping from .env files.
-- It take care to **synchronize** and to **check** the format of all [**environment files**](#environment-file-environment_name) to each others.
+- It take care to **synchronize** and to **check** the format of all [**environment files**](#environment-file-environment_name) to each other.
 - Allow multiple [**setups**](#setup) in the same [**project**](#project-shortyaml).
 - Allow to store example of **no critical** environment file in your source code with an [**public env directory**](#public-directory).
 - Allow to store prod/stage/etc.. and **critical** environment file in your source code with an [**private env directory 🔒**](#private-directory-).
@@ -444,6 +444,8 @@ no critical configuration files like example configuration file.
     └── short.yaml
 ```
 
+- For **set/unset** public directory see [`dir`](#dir-env-directory) command.  
+
 #### Private directory 🔒
 
 This directory must be outside of your project. The path of the private directory 
@@ -458,6 +460,8 @@ another code versioning solution that will be never commit with your code.
     ├── run.sh
     └── short.yaml
 ```
+
+- For **set/unset** private directory see [`pdir`](#pdir-env-private-directory) command.  
 
 ### Environment file .<environment_name>
 
