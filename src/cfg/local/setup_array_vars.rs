@@ -1,3 +1,4 @@
+use colored::*;
 use std::fmt;
 
 use anyhow::Result;
@@ -10,7 +11,9 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 use strum;
 use strum::EnumProperty;
+use strum::IntoEnumIterator;
 use strum_macros::AsRefStr;
+use strum_macros::EnumIter;
 use strum_macros::EnumProperty;
 use strum_macros::EnumString;
 
@@ -21,7 +24,7 @@ type VarPattern = String;
 type VarFormat = String;
 type VarDelimiter = String;
 
-#[derive(EnumString, EnumProperty, Debug, Clone, Eq, PartialEq, AsRefStr)]
+#[derive(EnumIter, EnumString, EnumProperty, Debug, Clone, Eq, PartialEq, AsRefStr)]
 pub enum VarCase {
     #[strum(
         serialize = "None",
@@ -90,7 +93,22 @@ impl<'de> Deserialize<'de> for VarCase {
             type Value = VarCase;
 
             fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
-                formatter.write_str("incorrect list of var_format")
+                formatter.write_str(
+                    format!(
+                        r#"incorrect list of var_format
+Here the list of available formats : {}
+"#,
+                        VarCase::iter()
+                            .filter(|vc| !matches!(vc, VarCase::None))
+                            .fold(String::new(), |a, b| format!(
+                                "{}\n {}",
+                                a,
+                                b.as_ref().bold().blue()
+                            ))
+                            .as_str(),
+                    )
+                    .as_str(),
+                )
             }
 
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
