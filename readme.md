@@ -13,7 +13,7 @@ Short it's command-line tool that allow to run program (usually sh script) with 
 - Allow multiple [**setups**](#setup) in the same [**project**](#project-shortyaml).
 - Allow to store example of **no critical** environment file in your source code with an [**public env directory**](#public-directory).
 - Allow to store prod/stage/etc.. and **critical** environment file in your source code with an [**private env directory 🔒**](#private-directory-).
-- You can apply a mapping in order to **select**, **group** and add **custom formats / cases** on the fly on the environment variables.
+- You can apply a mapping in order to [**select**, **group** and add **custom formats / cases**](#arrayvar) on the fly on the environment variables.
 - The result of mapping will be **inject** as environment variables in the output .sh script that will be executed.
 
 ![short global workflow](./docs/img/short_global_workflow.png)
@@ -344,29 +344,91 @@ $> sht vars -e prod test
 
 # Configuration file `short.yaml`
 
-### `setups`.`<setup_name>`.`file`: Runnable file
+```yaml
+setups:
+  my_setup: # Setup.name : String
+    file: run.sh # Setup.file : Path - Required
+    public_env_dir: env/ # Setup.public_env_dir : Path - Optional
+    array_vars: # Map<ArrayVar.name,ArrayVar|Regex> : Optional
+      group1: ".*" # String, It's a short way to set only ArrayVar.pattern.
+      group2:      # ArrayVar
+        pattern: PREFIX_.*       # ArrayVar.pattern : Regex - Required
+        case: CamelCase          # ArrayVar.case : Enum<Case> - Optional
+        format: "{key}={value}"  # ArrayVar.format : String - Optional
+        delimiter: ";"          # ArrayVar.delimiter : String - Optional
+    vars:   # Array[EnvVar]
+      - VAR1  # Vars.env_var : String
+```
 
-File that will be run with command `sht run`.
+#### Setup.name
 
-| Type | Required | Description |
-| ---------- |-------- | ----------- |
-| Path | yes  | Relative path to the run file |
+Setup name
 
-### `setups`.`<setup_name>`.`array_vars`: Array Vars
+#### Setup.public_env_dir
 
-Group and apply case on environment variables.
+Path towards to a subdirectory of the project.
 
- ⚠️ TODO: array_vars specification.
+#### ArrayVar
 
-### `setups`.`<setup_name>`.`vars[]`: Vars
+This configuration allow to group and apply custom format and mapping in one environment variables.
 
-List of selected variables. If it's **empty** all variables will be injected.
+- e.g. with the [setup configuration](#configuration-file-shortyaml)
 
-### `setups`.`<setup_name>`.`public_env_dir`: Public env directory
+[Environment file](#environment-file-environment_name)
+```
+VAR1=VALUE1
+VAR2=VALUE2
+PREFIX_VAR1=P_VALUE1
+PREFIX_VAR2=P_VALUE2
+```
+Environment variable will be injected, see [ArrayVar.format](#arrayvarformat) for more details.
+```
+GROUP1 => [VAR1]='VALUE1' [VAR2]='VALUE2' [PREFIX_VAR1]='P_VALUE1' [PREFIX_VAR2]='P_VALUE2'
+GROUP2 => PrefixVar1=P_VALUE1;PrefixVar2=P_VALUE2
+```
 
-| Type | Required | Default | Description |
-| ---------- | -------- | -------- | ----------- |
-| Path | no | . | Relative path to the [public env directory](#public-directory) |
+#### ArrayVar.pattern (Regex)
+
+All variables match with this pattern will be grouped.
+
+For more indications see the [**lib(regex)***](https://docs.rs/regex) that it's used.
+
+#### ArrayVar.case
+
+Apply a case for each variables.
+
+|   Available cases   |
+| ------------------- |
+|  CamelCase          |
+|  snake_case         |
+|  SHOUTY_SNAKE_CASE  |
+|  mixedCase          |
+|  Title Case         |
+
+For more indications see the [**lib(heck)***](https://docs.rs/heck) that it's used.
+
+#### ArrayVar.format
+
+Format that it's apply on each variables.
+There is two data who can used : `{key}` and `{value}`.
+- `key` it's the variables name that is specified in the [environment file](#environment-file-environment_name).
+- `value` it's the variables value that is specified in the [environment file](#environment-file-environment_name).
+
+👉 **By default** it apply an format bash associative array format `[{key}]='{value}'` [**(doc)**](https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_10_02.html). 
+
+#### ArrayVar.delimiter
+
+A string that it's injected between each variables of the array.
+
+👉 **By default** it's one space "` `".
+
+#### Vars[var]
+
+Variables as set here, are selected for injection.
+
+👉 Must **match** with environment variables. 
+
+👉 If it's no specified or empty, **all variables are selected**. 
 
 # Help 
 ```
@@ -406,7 +468,7 @@ All `short` command inside of this folder and his child's folders take for refer
 
 ### Setup
 
-Setup it's is main concept of short. It's an configuration of [`short.yaml`](#configuration-file-shortyaml) 
+Setup it's is main concept of short. The setup configuration is describe in [`short.yaml`](#configuration-file-shortyaml) 
 and take a **name**, a **runnable file**, [**public env directory**](#public-directory) and **mapping options**.
 This is how short gets an easily way to simplify run command.
 
@@ -416,22 +478,16 @@ This is how short gets an easily way to simplify run command.
 - For **list** all setups see [`ls`](#ls-list-all-setups-and-environments) command.
 - For **display** mapping of the setups see [`vars`](#vars-displaycompare-mapping-environment-variables) command.
 
-### Environment file `.<environment_name>`
+### Directories (public/private)
 
-Each environment file define one environment in order to the environment name come from the file name like `.<my_env>` _environment file_ => `my_env` _environment name_.
-
-👉 **The prefix `.` is mandatory**. 
-
-### Directory
-
-These directories store `.<env>` files.
-Env files presents in it's directories will be synchronised to each other 
+These directories store [`.<env>`](#environment-file-environment_name) files.
+Env files presents in this directories will be synchronised to each other.
 if these belong to the same [**setup**](#setup).
 
 #### Public directory
 
 This directory must be inside of your project (The default value it's the [root folder of the project](#project-shortyaml)).
-That can be a sub folder like `./env/` see [**setup configuration**](#setupssetup_namepublic_env_dir-public-env-directory) for more details.
+That can be a sub folder like `./env/` see [**setup configuration**](#configuration-file-shortyaml) for more details.
 So if you had configured git or another code versioning solution, public directory allow to save with your code
 no critical configuration files like example configuration file.
 
@@ -463,7 +519,11 @@ another code versioning solution that will be never commit with your code.
 
 - For **set/unset** private directory see [`pdir`](#pdir-env-private-directory) command.  
 
-### Environment file .<environment_name>
+### Environment file `.<environment_name>`
+
+Each environment file define one environment in order to the environment name come from the file name like `.<my_env>` _environment file_ => `my_env` _environment name_.
+
+👉 **The prefix `.` is mandatory**. 
 
 The file formatting must be follow the [**RFC 2 – .env file**](https://smartmob-rfc.readthedocs.io/en/latest/2-dotenv.html) guide line.
 ```
