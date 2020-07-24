@@ -8,11 +8,12 @@
 > A concise cli launcher / project manager using env files. 
 
 The main goal it's readability and time saving with commands use in your project.
-Short it's command-line tool that allow to run program (usually sh script) with environment variables mapping from .env files.
+Short it's command-line tool that allow to run program (usually sh script) with environment variables mapping from .env files. It like like to run `eval $(.env_file) ./script.sh` with more options. 
 - It take care to **synchronize** and to **check** the format of all [**environment files**](#environment-file-environment_name) to each other.
+- [**Prompt infos**](#configure-prompt) : You always know that is your current **project** and **environment**. 
 - Allow multiple [**setups**](#setup) in the same [**project**](#project-shortyaml).
-- Allow to store example of **no critical** environment file in your source code with an [**public env directory**](#public-directory).
-- Allow to store prod/stage/etc.. and **critical** environment file in your source code with an [**private env directory 🔒**](#private-directory-).
+- Allow to store example of **no critical** environment file in your source code with a [**public env directory**](#public-directory).
+- Allow to store prod/stage/etc.. and **critical** environment file in your source code with a [**private env directory 🔒**](#private-directory-).
 - You can apply a mapping in order to [**select**, **group** and add **custom formats / cases**](#arrayvar) on the fly on the environment variables.
 - The result of mapping will be **inject** as environment variables in the output .sh script that will be executed.
 
@@ -24,6 +25,7 @@ It's include an index/registry that allow to share project templates: **[🌱 te
 
 # Install
 
+Require for compilation : [libgit2](https://libgit2.org/), [openssl](https://www.openssl.org/).
 ```
 cargo install short
 ```
@@ -45,7 +47,6 @@ Example with PS1 configure by `.zshrc`
 ⚠️ TODO ...
 ```
 
-
 </details>
 
 <details>
@@ -63,6 +64,11 @@ function blastoff(){
 }
 starship_precmd_user_func=blastoff
 ```
+
+Preview:
+```
+$> [my_setup:my_env] ~/your_project$
+```
     
 </details>
 
@@ -71,7 +77,7 @@ starship_precmd_user_func=blastoff
 <details>
   <summary>🌱 Example with <b>Node && ExpressJs</b></summary>
   
-  Generate an simply aws sam project base on this template [node-express](https://github.com/vincent-herlemont/node-express-short-template).
+  Generate a simply aws sam project base on this template [node-express](https://github.com/vincent-herlemont/node-express-short-template).
   
   Requirement : You have installed [node](https://nodejs.org/) and [npm](https://www.npmjs.com/).
   
@@ -88,7 +94,7 @@ starship_precmd_user_func=blastoff
 <details>
   <summary>🌱 Example with <b>AWS SAM</b></summary>
   
-  Generate an simply aws sam project base on this template [aws-node-sam](https://github.com/vincent-herlemont/aws-node-sam-short-template).
+  Generate a simply aws sam project base on this template [aws-node-sam](https://github.com/vincent-herlemont/aws-node-sam-short-template).
   
   Requirement : You have installed [SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
   and [AWS_CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).
@@ -107,7 +113,7 @@ You can list all templates available with `sht generate -l` and add a new one [*
 # Quick start blank ✍️
 
 Generate a simply bash script who display variables. You can use this base
-for do as you want. 
+for what as you want. 
 
 ```
 $> sht init
@@ -119,22 +125,22 @@ $> sht run
 ---
 WIP README
 - ⚠️ tutorials step by step.
-- ⚠️ command documentations.
+- ⚠️ commands documentation.
 ---
 
 # Commands
 ### `init` project.
-Create an empty `short.yaml` configuration file. This one define the your project directory.
-All `short` command inside of this folder and his child's folders take for references this configuration file.
+Create an empty [`short.yaml`](#configuration-file-shortyaml) configuration file. This one define the your project directory.
+All `short` command inside of this folder and child's folders take for references this configuration file.
 ```
 $> sht init
 ```
-_short.yaml (generated)_
+_[short.yaml](#configuration-file-shortyaml) (generated)_
 ```yaml 
 setups: {}
 ```
 ### `generate` setup. 
-Generate an **empty** setup or a setup from the **project templates [repository](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md)**, 
+Generate an **empty** setup or a setup from a **project templates [repository](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md)**, 
 this command can be also list all available project templates.
 
 <details>
@@ -145,7 +151,7 @@ this command can be also list all available project templates.
 | <setup_name> | yes | Setup name |
 | <env_name> | yes  | Env name |
 
-| Options | [Allow empty*]() | Default | Description |
+| Options | [Allow empty*](#option-allow-empty) | Default | Description |
 | ---------- | -------- | ------- | ----------- |
 | -d , --directory | yes | <setup_name> | Target directory. |
 | -p , --private| no | false | 🔒 Save to private directory. _[conflict with "-d"]_ |
@@ -238,7 +244,7 @@ $> sht sync
 
 ### `edit` env
 
-Edit an environment file with your default text editor.You can choose different editor with `--editor <editor>` or `EDITOR` env vars.
+Edit an environment file with your default text editor. You can choose different editor with `--editor <editor>` or `EDITOR` env vars.
 ```
 $> sht edit
 ```
@@ -259,7 +265,7 @@ $> sht pdir ../private_envs/
 $> sht pdir --unset
 ```
 
-### `use` select/switch your setup / environment
+### `use` select/switch your setup/environment
 
 e.g. Select `my_setup` with `dev` environment.
 ```
@@ -269,7 +275,7 @@ e.g. Switch from `dev` to `prod` environment.
 ```
 $> sht use prod
 ```
-👉 If an setup and environment if already selected,you can avoid to provide the setup and just indicate the environment that you want.
+👉 If a setup and environment if already selected, you can avoid to provide the setup and just indicate the environment that you want.
 
 ### `show` your current setup / environment
 
@@ -366,7 +372,7 @@ Setup name
 
 #### Setup.public_env_dir
 
-Path towards to a subdirectory of the project.
+Path towards the project subdirectory.
 
 #### ArrayVar
 
@@ -414,7 +420,7 @@ There is two data who can used : `{key}` and `{value}`.
 - `key` it's the variables name that is specified in the [environment file](#environment-file-environment_name).
 - `value` it's the variables value that is specified in the [environment file](#environment-file-environment_name).
 
-👉 **By default** it apply an format bash associative array format `[{key}]='{value}'` [**(doc)**](https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_10_02.html). 
+👉 **By default** it apply a format bash associative array format `[{key}]='{value}'` [**(doc)**](https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_10_02.html). 
 
 #### ArrayVar.delimiter
 
@@ -441,7 +447,7 @@ FLAGS:
 
 SUBCOMMANDS:
     init        Init project, create an empty "short.yaml" configuration file.
-    generate    Generate empty setup or from template setup repository.
+    generate    Generate empty setup or from project template repository.
     run         Run setup [ARGS...].
     rename      Rename setup.
     new         Create env file ".<env>", in public directory by default.
@@ -462,9 +468,9 @@ SUBCOMMANDS:
 ### Project [`short.yaml`](#configuration-file-shortyaml)
 
 It's a directory with the configuration file `short.yaml` inside it : that defined the **project root**.  
-All `short` command inside of this folder and his child's folders take for references this configuration file.
+All `short` commands inside of this folder and his child's folders take for references this configuration file.
 
-- For **create/init** an project see [`init`](#init-project) command.
+- For **create/init** a project see [`init`](#init-project) command.
 
 ### Setup
 
@@ -472,9 +478,9 @@ Setup it's is main concept of short. The setup configuration is describe in [`sh
 and take a **name**, a **runnable file**, [**public env directory**](#public-directory) and **mapping options**.
 This is how short gets an easily way to simplify run command.
 
-👉 Each setup one and only one **one runnable file**.
+👉 Each setup one and only **one runnable file**.
 
-- For **create/generate** an setup see [`generate`](#generate-setup)
+- For **create/generate** a setup see [`generate`](#generate-setup)
 - For **list** all setups see [`ls`](#ls-list-all-setups-and-environments) command.
 - For **display** mapping of the setups see [`vars`](#vars-displaycompare-mapping-environment-variables) command.
 
@@ -482,7 +488,7 @@ This is how short gets an easily way to simplify run command.
 
 These directories store [`.<env>`](#environment-file-environment_name) files.
 Env files presents in this directories will be synchronised to each other.
-if these belong to the same [**setup**](#setup).
+if these set to the same [**setup**](#setup).
 
 #### Public directory
 
@@ -535,7 +541,7 @@ VAR2=VALUE2
 
 Each environment inside on the same setup (_public environment directory/private environment directory_), are **synchronised** to each other.
 
-- For **create** an new environment file see [`new`](#new-env) command.
+- For **create** a new environment file see [`new`](#new-env) command.
 - For **list** all environment files see [`ls`](#ls-list-all-setups-and-environments) command.
 - For **display** the content of environment file see [`envs`](#envs-displaycompare-environment-variables) command.
 - For **edit** en environment file see [`edit`](#edit-env) command.
@@ -547,4 +553,4 @@ Option like `-d` who can found in `sht generate my_template my_env -d` can have 
 2) **Activate**; take the value by default : e.g. `sht generate my_template my_env -d` 
 The value of `-d` is `my_template`.
 3) **Activate with value** : e.g.  `sht generate my_template my_env -d foo`.
-The value of `-d` is `foo`.  
+The value of `-d` is `foo`.
