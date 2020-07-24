@@ -101,12 +101,6 @@ fn run() -> Result<()> {
                         .help(r#"Path script, create directory if they miss. _[conflict with "-d"]_."#),
                 )
                 .arg(
-                    Arg::with_name("shebang")
-                        .long("shebang")
-                        .short("s")
-                        .help("Interpreter program."),
-                )
-                .arg(
                     Arg::with_name("public_env_directory")
                         .long("env-directory")
                         .short("e")
@@ -159,7 +153,7 @@ fn run() -> Result<()> {
                         .conflicts_with("target_directory"),
                 ).group(
                     ArgGroup::with_name("exclude_for_template")
-                        .args(&["file","private","shebang","public_env_directory"])
+                        .args(&["file","private","public_env_directory"])
                         .multiple(true)
                         .required(false)
                         .conflicts_with("template")

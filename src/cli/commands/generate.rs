@@ -165,13 +165,13 @@ fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSetting
         }
         setup_file
     };
-    let setup_shebang = app.value_of("shebang").unwrap_or("#!/bin/bash").to_string();
     let private = app.is_present("private");
 
     let mut local_setup_cfg = LocalSetupCfg::new(setup_name.clone(), setup_file.clone());
 
     // New script file
-    let mut file = File::new(setup_file.clone(), setup_shebang.to_string());
+    // TODO: add kind as parameter
+    let mut file = File::new(setup_file.clone(), "bash")?;
     {
         let array_vars = local_setup_cfg.array_vars().unwrap_or_default();
         let vars = local_setup_cfg.vars().unwrap_or_default();
