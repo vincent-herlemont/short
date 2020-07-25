@@ -17,6 +17,7 @@ pub use var::{
 };
 
 mod file;
+mod kind;
 mod var;
 
 #[derive(Debug)]

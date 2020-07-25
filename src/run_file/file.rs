@@ -1,13 +1,12 @@
+use super::kind::{Generate, Kind};
+use anyhow::Result;
+use fs_extra::file::write_all;
 use std::fmt::Write as FmtWrite;
 use std::fs::{create_dir_all, set_permissions, Permissions};
 use std::ops::Deref;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::str::FromStr;
-use strum_macros::EnumString;
-
-use anyhow::Result;
-use fs_extra::file::write_all;
 
 use crate::cfg::{ArrayVars, Vars};
 
@@ -15,106 +14,6 @@ pub struct File {
     path: PathBuf,
     kind: Kind,
     content: String,
-}
-
-pub trait Generate {
-    fn generate<AV, V>(&self, array_vars: AV, vars: V) -> Result<String>
-    where
-        AV: Deref<Target = ArrayVars>,
-        V: Deref<Target = Vars>;
-}
-
-#[derive(EnumString, Debug)]
-#[strum(serialize_all = "snake_case")]
-pub enum Kind {
-    #[strum(serialize = "sh", props(deserialize = "sh"))]
-    Sh(ShScript),
-    #[strum(serialize = "bash", props(deserialize = "bash"))]
-    Bash(BashScript),
-}
-impl Generate for Kind {
-    fn generate<AV, V>(&self, array_vars: AV, vars: V) -> Result<String>
-    where
-        AV: Deref<Target = ArrayVars>,
-        V: Deref<Target = Vars>,
-    {
-        match self {
-            Kind::Bash(bash) => bash.generate(array_vars, vars),
-            Kind::Sh(sh) => sh.generate(array_vars, vars),
-        }
-    }
-}
-
-pub type SheBang = String;
-
-pub const SHEBANG_SH: &'static str = "#!/bin/sh";
-#[derive(Debug)]
-pub struct ShScript(SheBang);
-impl Default for ShScript {
-    fn default() -> Self {
-        Self {
-            0: SHEBANG_SH.into(),
-        }
-    }
-}
-impl Generate for ShScript {
-    fn generate<AV, V>(&self, _array_vars: AV, _vars: V) -> Result<String>
-    where
-        AV: Deref<Target = ArrayVars>,
-        V: Deref<Target = Vars>,
-    {
-        Ok(String::from("#generated_sh_script"))
-    }
-}
-
-pub const SHEBANG_BASH: &'static str = "#!/bin/bash";
-#[derive(Debug)]
-pub struct BashScript(SheBang);
-impl Default for BashScript {
-    fn default() -> Self {
-        Self {
-            0: SHEBANG_BASH.into(),
-        }
-    }
-}
-impl Generate for BashScript {
-    fn generate<AV, V>(&self, array_vars: AV, vars: V) -> Result<String>
-    where
-        AV: Deref<Target = ArrayVars>,
-        V: Deref<Target = Vars>,
-    {
-        let mut content = String::new();
-        writeln!(content, "{}", self.0)?;
-
-        let mut defined_vars = vec![];
-
-        for array_var in array_vars.as_ref() {
-            let var = array_var.var();
-            writeln!(
-                content,
-                "declare -A {var} && eval {var}=(${env_var})",
-                var = var.to_var(),
-                env_var = var.to_env_var()
-            )?;
-            defined_vars.append(&mut vec![var])
-        }
-
-        for var in vars.as_ref() {
-            writeln!(
-                content,
-                "declare -r {var}=${env_var}",
-                var = var.to_var(),
-                env_var = var.to_env_var(),
-            )?;
-            defined_vars.append(&mut vec![var])
-        }
-
-        writeln!(content, "")?;
-        for var in defined_vars.iter() {
-            writeln!(content, "declare -p {}", var.to_var())?;
-        }
-        Ok(content)
-    }
 }
 
 impl File {
@@ -171,7 +70,8 @@ mod tests {
     use cli_integration_test::IntegrationTestEnvironment;
 
     use crate::cfg::{ArrayVar, ArrayVars, Vars};
-    use crate::run_file::file::{File, Kind, ShScript};
+    use crate::run_file::file::{File, Kind};
+    use crate::run_file::kind::ShScript;
 
     #[test]
     fn file_append() {
