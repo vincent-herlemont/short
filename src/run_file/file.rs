@@ -8,7 +8,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::str::FromStr;
 
-use crate::cfg::{ArrayVars, Vars};
+use crate::cfg::{ArrayVars, LocalSetupCfg, Vars};
 
 pub struct File {
     path: PathBuf,
@@ -26,6 +26,10 @@ impl File {
         })
     }
 
+    pub fn kind(&self) -> &Kind {
+        &self.kind
+    }
+
     pub fn path(&self) -> &PathBuf {
         &self.path
     }
@@ -37,6 +41,10 @@ impl File {
     {
         self.content = self.kind.generate(array_vars, vars)?;
         Ok(())
+    }
+
+    pub fn update_local_setup_cfg(&self, local_setup_cfg: &mut LocalSetupCfg) -> Result<()> {
+        self.kind.update_local_setup_cfg(local_setup_cfg)
     }
 
     pub fn append(&mut self, code: &str) -> Result<()> {

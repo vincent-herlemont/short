@@ -9,8 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::cfg::local::setup_vars::Vars;
 use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
-use crate::cfg::{ArrayVar, CfgError};
-
+use crate::cfg::{CfgError};
 
 pub type SetupName = String;
 
@@ -86,9 +85,7 @@ impl LocalSetupCfg {
     }
 
     pub fn new_array_vars(&mut self) -> Rc<RefCell<ArrayVars>> {
-        let mut array_vars = ArrayVars::new();
-        array_vars.add(ArrayVar::new("all".into(), ".*".into()));
-
+        let array_vars = ArrayVars::new();
         let array_vars = Rc::new(RefCell::new(array_vars));
         self.array_vars = Some(Rc::clone(&array_vars));
         array_vars

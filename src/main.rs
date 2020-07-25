@@ -12,8 +12,11 @@ use short::cli::cfg::reach_directories;
 use short::cli::commands;
 use short::cli::commands::DEFAULT_SHOW_FORMAT;
 use short::cli::terminal::emoji;
+use short::run_file::kind::Kind;
+
 use short::utils::check_update::{check_update, CrateInfo};
 use short::BIN_NAME;
+use strum::IntoEnumIterator;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 const TTL_CHECK_VERSION_SECONDS: &'static i64 = &43200;
@@ -27,6 +30,12 @@ fn main() -> Result<()> {
 }
 
 fn run() -> Result<()> {
+    let files_kind = Kind::iter()
+        .map(|e| e.as_ref().to_string())
+        .collect::<Vec<_>>();
+    let files_kind = files_kind.iter().map(|e| e.as_str()).collect::<Vec<_>>();
+    let files_kind = files_kind.as_slice();
+
     let setup_arg = Arg::with_name("setup")
         .long("setup")
         .short("s")
@@ -92,7 +101,8 @@ fn run() -> Result<()> {
                         .index(1)
                         .help("Setup name [or <template> name with \"-t\" option]."),
                 )
-                .arg(Arg::with_name("env_name").index(2).help("Env Name"))
+                .arg(Arg::with_name("env_name").requires("kind").index(2).help("Env Name"))
+                .arg(Arg::with_name("kind").index(3).help("Kind of file").possible_values(files_kind))
                 .arg(
                     Arg::with_name("file")
                         .long("file")

@@ -1,12 +1,13 @@
 use super::Generate;
-use crate::cfg::{ArrayVars, Vars};
-use anyhow::{Result};
+use crate::cfg::{ArrayVar, ArrayVars, LocalSetupCfg, VarCase, Vars};
+use anyhow::Result;
 use std::fmt::Write as FmtWrite;
 use std::ops::Deref;
 
 type SheBang = String;
 
 pub const SHEBANG_BASH: &'static str = "#!/bin/bash";
+
 #[derive(Debug)]
 pub struct BashScript(SheBang);
 impl Default for BashScript {
@@ -53,5 +54,46 @@ impl Generate for BashScript {
             writeln!(content, "declare -p {}", var.to_var())?;
         }
         Ok(content)
+    }
+
+    fn update_local_setup_cfg(&self, local_setup_cfg: &mut LocalSetupCfg) -> Result<()> {
+        let array_vars = local_setup_cfg.new_array_vars();
+        let mut array_vars = array_vars.borrow_mut();
+        let mut all = ArrayVar::new("all".into(), ".*".into());
+        all.set_delimiter(" ".into());
+        all.set_format("[{key}]='{value}'".into());
+        all.set_case(VarCase::CamelCase);
+        array_vars.add(all);
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::cfg::{ArrayVar, ArrayVars, Vars};
+    use crate::run_file::kind::{BashScript, Generate};
+
+    #[test]
+    fn generate() {
+        let script = BashScript::default();
+
+        let mut array_vars = ArrayVars::new();
+        array_vars.add(ArrayVar::new("all".into(), ".*".into()));
+
+        let mut vars = Vars::new();
+        vars.add("SETUP_NAME".into());
+
+        let content = script.generate(&array_vars, &vars).unwrap();
+
+        assert_eq!(
+            r#"#!/bin/bash
+declare -A all && eval all=($ALL)
+declare -r setup_name=$SETUP_NAME
+
+declare -p all
+declare -p setup_name
+"#,
+            content
+        )
     }
 }

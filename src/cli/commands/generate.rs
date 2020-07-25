@@ -156,6 +156,7 @@ fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSetting
         .value_of("target_directory")
         .unwrap_or(setup_name.as_str())
         .into();
+    let kind_file = app.value_of("kind").context("kind of file is required")?;
     let public_env_directory = app.value_of("public_env_directory");
     let env_name = app.value_of("env_name").unwrap().to_string();
     let setup_file = {
@@ -171,7 +172,8 @@ fn generate_empty_workflow(app: &ArgMatches, generate_settings: &GenerateSetting
 
     // New script file
     // TODO: add kind as parameter
-    let mut file = File::new(setup_file.clone(), "bash")?;
+    let mut file = File::new(setup_file.clone(), kind_file)?;
+    file.update_local_setup_cfg(&mut local_setup_cfg)?;
     {
         let array_vars = local_setup_cfg.array_vars().unwrap_or_default();
         let vars = local_setup_cfg.vars().unwrap_or_default();
