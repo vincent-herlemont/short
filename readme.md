@@ -112,12 +112,12 @@ You can list all templates available with `sht generate -l` and add a new one [*
 
 # Quick start blank ✍️
 
-Generate a simply bash script who display variables. You can use this base
+Generate a simply **sh** script who display variables. You can use this base
 for what as you want. 
 
 ```
 $> sht init
-$> sht generate setup_1 test -d
+$> sht generate setup_1 test sh -d
 $> sht run
 ```
 `-d`: create a sub directory (optional).
@@ -150,18 +150,18 @@ this command can be also list all available project templates.
 | ---------- | -------- | ----------- |
 | <setup_name> | yes | Setup name |
 | <env_name> | yes  | Env name |
+| \<kind> | yes  | File kind [sh,bash ...] |
 
 | Options | [Allow empty*](#option-allow-empty) | Default | Description |
 | ---------- | -------- | ------- | ----------- |
 | -d , --directory | yes | <setup_name> | Target directory. |
 | -p , --private| no | false | 🔒 Save to private directory. _[conflict with "-d"]_ |
-| -s , --shebang| no | #!/bin/bash | Interpreter program when `run.sh` generation. |
 | -f , --file| no | run.sh | Path script, create directory if they miss. _[conflict with "-d"]_ |
 | -e , --env-directory| no | . | Public env directory. _[conflict with "-d"]_ | 
 
-Example : create a setup named `my_setup` with `.test` environment file.
+Example : create a setup named `my_setup` with `.test` environment file and `bash` script.
 ```
-$> sht generate my_setup test
+$> sht generate my_setup test bash 
 ```
 _short.yaml (generated)_ : Configuration file.
 ```
@@ -169,7 +169,11 @@ setups:
   my_setup:
     file: run.sh
     array_vars:
-      all: ".*"
+      all:
+        pattern: ".*"
+        case: CamelCase
+        format: "[{key}]='{value}'"
+        delimiter: " "
     vars: []
 ```
 _.test (generated)_ : Environment file.
@@ -420,7 +424,8 @@ There is two data who can used : `{key}` and `{value}`.
 - `key` it's the variables name that is specified in the [environment file](#environment-file-environment_name).
 - `value` it's the variables value that is specified in the [environment file](#environment-file-environment_name).
 
-👉 **By default** it apply a format bash associative array format `[{key}]='{value}'` [**(doc)**](https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_10_02.html). 
+👉 **By default (sh)** the format `{key}:{value}` it's applied.
+👉 **By default (bash)** it apply a format bash associative array format `[{key}]='{value}'` [**(doc)**](https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_10_02.html). 
 
 #### ArrayVar.delimiter
 

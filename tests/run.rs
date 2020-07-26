@@ -19,7 +19,10 @@ setups:
   setup_1:
     file: run.sh
     array_vars:
-      ALL: .*
+      ALL:
+        pattern: ".*"
+        format: "[{key}]='{value}'"
+        delimiter: " "
     vars: [ VAR1 ]"#,
     );
     e.add_file(
@@ -62,7 +65,10 @@ setups:
   setup_1:
     file: run.sh
     array_vars:
-      ALL: .*"#,
+      ALL:
+        pattern: ".*"
+        format: "[{key}]='{value}'"
+        delimiter: " ""#,
     );
     e.add_file(
         PROJECT_RUN_FILE,

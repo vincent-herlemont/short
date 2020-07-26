@@ -8,8 +8,8 @@ use crate::env_file;
 use crate::env_file::Env;
 use heck::*;
 
-const DEFAULT_DELIMITER: &'static str = " ";
-const DEFAULT_FORMAT: &'static str = "[{key}]='{value}'";
+const DEFAULT_DELIMITER: &'static str = ",";
+const DEFAULT_FORMAT: &'static str = "{key}:{value}";
 
 #[derive(Debug)]
 pub enum EnvValue {
@@ -171,10 +171,7 @@ mod tests {
 
         let env_var = generate_array_env_var(&env_file, &array_var).unwrap();
         assert_eq!(env_var.var().to_string(), "all");
-        assert_eq!(
-            env_var.env_value().to_string(),
-            "[VAR1]='VALUE1' [VAR2]='VALUE2'"
-        );
+        assert_eq!(env_var.env_value().to_string(), "VAR1:VALUE1,VAR2:VALUE2");
     }
     #[test]
     fn generate_array_var_with_case_test() {
@@ -186,10 +183,7 @@ mod tests {
 
         let env_var = generate_array_env_var(&env_file, &array_var).unwrap();
         assert_eq!(env_var.var().to_string(), "all");
-        assert_eq!(
-            env_var.env_value().to_string(),
-            "[Var1]='VALUE1' [Var2]='VALUE2'"
-        );
+        assert_eq!(env_var.env_value().to_string(), "Var1:VALUE1,Var2:VALUE2");
     }
 
     #[test]
