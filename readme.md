@@ -1,16 +1,17 @@
 # sht / short / 🩳 
 [![Crate](https://img.shields.io/crates/v/short.svg)](https://crates.io/crates/short) 
+![status](https://img.shields.io/static/v1?label=status&&message=not%20stable&color=orange&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAADuUlEQVRoge1ZS2gUWRQ99/VHNCOCikZGB5yFO4kfoiAoyuBoOm13dbDjb+PCz2ZWImKCuhGTncJsRBFmXESxI3aVnY6jcREFRdEYVPwQFdz5GRT8REnSXddFYlPVdHVev6omiHWgoOq+9+49p+t97q0GfPjw4WMiQU4NLW13+Pt9e2u9Y7+JhphoAm4RrHRANK39wcDfBNSAeG+XZpyvBjFZSE0h9B8s3A7EJmHol8Kwd6/ezprTt/vkSLUIjoeKp5Bplzyjdvabes/YKEBqCrV3/legHd0WPwvGZkvzagA3PeYljcoXsSmuWR+JaY1nbBTg+AaEyTFT0AkAc6x2Bq4VLZwVDd0Nky5FLg05+eLuhrmg0DGA142ZehDg/fRn1zN16mM8nRqOHFiWAQJ1BHRa7dlE+imANxbTFDEcXubkZ5R88D7AGwFMHbuakKdbnIn+6pJ/+SnU3rrk/7bW+mabkcBEuG5nSasdnVDoGIDpJVqmI0hHZYk6QekgY5Ns60CUXQeFaVMK5dqkoCYAsAlg4pVRPZ5w7l49KAnIJtKPALy1mILEdM5BxFVnT9SjEt8KtVyIwMy0z2piIFRShJlvAfCuhJf3ILQoxbdAOZnLNqVPA2i32kqJoMbuAeS4DkAKwMfRi86DaDmtv/hcNX7Bv6vRDGrUtQ4CthQ5HWHiTV2akXblXwKu8/xkKjn5a2ikF4DtLGBiFiZ6mcggpr6hmsH+K+uuDLqNVwxPCpVIKlkrQiO3AfxWplsewBMG7gqm50LQY0O74PoNeVZpRfT4QsF0A6MnrRQYSGU1fTNIfav1rCLr1oyHBGzC6C8tBQKaG3XtLzdxPa91I2mtTaCi7fErMy3NNqWfqMTzvCYWxE8rHDKZiDuSqWRYKZ7KoLJgqlMYtfhLePiQSrhqfJWQE8C4Z30kppaIEVtVabAJE8CCW0H82spFmOLfmBGT3sUAjwXE9fg8ADMluppThsM3GNgOe7Y638wHKqoRPBWQBxZJdn3R2dz5OasZl5nppK2FeEdUj2+UjempAGaSFfCgQCCU2wNgwO6IjkdSyVoZR54KIMn5T0wFAZkNmS8MbCXA+nFsZiA8/A94/HPKawGyb+C+9SGb0PtMYntqzrS+Udd2jufIMwExIzaVgd+lOgdzD4pNg9M+HCbgttVGwNHIhcSCcq48E8D5QB3kUpNPmQ2Zl8XG3jW9uRywDcBni7mGiDuWntgVcnLmOhdau3VHVYv27+g5c6ok1x/+/wFfgA8fPnz83PgG8Ekdaq6qdi0AAAAASUVORK5CYII=
+)
 [![linux](https://github.com/vincent-herlemont/short/workflows/linux/badge.svg)](https://github.com/vincent-herlemont/short/actions?query=workflow%3Alinux)
 [![osx](https://github.com/vincent-herlemont/short/workflows/osx/badge.svg)](https://github.com/vincent-herlemont/short/actions?query=workflow%3Aosx)
 [![dicord](https://img.shields.io/static/v1?label=join&message=Discord&color=7289da&&logo=Discord)](https://discord.gg/AnVYgJM)
-[![dicord](https://img.shields.io/static/v1?label=status&&message=WIP&color=orange&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABmJLR0QA/wD/AP+gvaeTAAADuUlEQVRoge1ZS2gUWRQ99/VHNCOCikZGB5yFO4kfoiAoyuBoOm13dbDjb+PCz2ZWImKCuhGTncJsRBFmXESxI3aVnY6jcREFRdEYVPwQFdz5GRT8REnSXddFYlPVdHVev6omiHWgoOq+9+49p+t97q0GfPjw4WMiQU4NLW13+Pt9e2u9Y7+JhphoAm4RrHRANK39wcDfBNSAeG+XZpyvBjFZSE0h9B8s3A7EJmHol8Kwd6/ezprTt/vkSLUIjoeKp5Bplzyjdvabes/YKEBqCrV3/legHd0WPwvGZkvzagA3PeYljcoXsSmuWR+JaY1nbBTg+AaEyTFT0AkAc6x2Bq4VLZwVDd0Nky5FLg05+eLuhrmg0DGA142ZehDg/fRn1zN16mM8nRqOHFiWAQJ1BHRa7dlE+imANxbTFDEcXubkZ5R88D7AGwFMHbuakKdbnIn+6pJ/+SnU3rrk/7bW+mabkcBEuG5nSasdnVDoGIDpJVqmI0hHZYk6QekgY5Ns60CUXQeFaVMK5dqkoCYAsAlg4pVRPZ5w7l49KAnIJtKPALy1mILEdM5BxFVnT9SjEt8KtVyIwMy0z2piIFRShJlvAfCuhJf3ILQoxbdAOZnLNqVPA2i32kqJoMbuAeS4DkAKwMfRi86DaDmtv/hcNX7Bv6vRDGrUtQ4CthQ5HWHiTV2akXblXwKu8/xkKjn5a2ikF4DtLGBiFiZ6mcggpr6hmsH+K+uuDLqNVwxPCpVIKlkrQiO3AfxWplsewBMG7gqm50LQY0O74PoNeVZpRfT4QsF0A6MnrRQYSGU1fTNIfav1rCLr1oyHBGzC6C8tBQKaG3XtLzdxPa91I2mtTaCi7fErMy3NNqWfqMTzvCYWxE8rHDKZiDuSqWRYKZ7KoLJgqlMYtfhLePiQSrhqfJWQE8C4Z30kppaIEVtVabAJE8CCW0H82spFmOLfmBGT3sUAjwXE9fg8ADMluppThsM3GNgOe7Y638wHKqoRPBWQBxZJdn3R2dz5OasZl5nppK2FeEdUj2+UjempAGaSFfCgQCCU2wNgwO6IjkdSyVoZR54KIMn5T0wFAZkNmS8MbCXA+nFsZiA8/A94/HPKawGyb+C+9SGb0PtMYntqzrS+Udd2jufIMwExIzaVgd+lOgdzD4pNg9M+HCbgttVGwNHIhcSCcq48E8D5QB3kUpNPmQ2Zl8XG3jW9uRywDcBni7mGiDuWntgVcnLmOhdau3VHVYv27+g5c6ok1x/+/wFfgA8fPnz83PgG8Ekdaq6qdi0AAAAASUVORK5CYII=
-)](https://discord.gg/AnVYgJM)
 > A concise cli launcher / project manager using env files. 
 
 The main goal it's readability and time saving with commands use in your project.
-Short it's command-line tool that allow to run program (usually sh script) with environment variables mapping from .env files. It like like to run `eval $(.env_file) ./script.sh` with more options. 
+Short it's command-line tool that allow to run program (usually sh script) with environment variables mapping from .env files.
+It is like to run `eval $(.env_file) ./script.sh` with more options. 
 - It take care to **synchronize** and to **check** the format of all [**environment files**](#environment-file-environment_name) to each other.
-- [**Prompt infos**](#configure-prompt) : You always know that is your current **project** and **environment**. 
+- [**Prompt infos**](#configure-prompt) : You always known which is your current [**setup**](#setup) and  [**environment**](#environment-file-environment_name). 
 - Allow multiple [**setups**](#setup) in the same [**project**](#project-shortyaml).
 - Allow to store example of **no critical** environment file in your source code with a [**public env directory**](#public-directory).
 - Allow to store prod/stage/etc.. and **critical** environment file in your source code with a [**private env directory 🔒**](#private-directory-).
@@ -31,6 +32,10 @@ cargo install short
 ```
 
 ### Configure prompt
+
+It's really recommended to configure the prompt.
+That allow to known every time which [**setup**](#setup) and  
+[**environment**](#environment-file-environment_name) are selected. 
 
 <details>
   <summary>✨ PS1 (BASH/ZSH)</summary>
@@ -78,6 +83,7 @@ $> [my_setup:my_env] ~/your_project$
   <summary>🌱 Example with <b>Node && ExpressJs</b></summary>
   
   Generate a simply aws sam project base on this template [node-express](https://github.com/vincent-herlemont/node-express-short-template).
+  See [`generate`](#generate-setup) for more details. 
   
   Requirement : You have installed [node](https://nodejs.org/) and [npm](https://www.npmjs.com/).
   
@@ -95,6 +101,7 @@ $> [my_setup:my_env] ~/your_project$
   <summary>🌱 Example with <b>AWS SAM</b></summary>
   
   Generate a simply aws sam project base on this template [aws-node-sam](https://github.com/vincent-herlemont/aws-node-sam-short-template).
+  See [`generate`](#generate-setup) for more details. 
   
   Requirement : You have installed [SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
   and [AWS_CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).
@@ -113,7 +120,11 @@ You can list all templates available with `sht generate -l` and add a new one [*
 # Quick start blank ✍️
 
 Generate a simply **sh** script who display variables. You can use this base
-for what as you want. 
+for what as you want. See [`generate`](#generate-setup) for more details. 
+
+```
+sht generate <setup_name> <environment_name> <file_kind:sh|bash>
+```
 
 ```
 $> sht init
@@ -121,12 +132,6 @@ $> sht generate setup_1 test sh -d
 $> sht run
 ```
 `-d`: create a sub directory (optional).
-
----
-WIP README
-- ⚠️ tutorials step by step.
-- ⚠️ commands documentation.
----
 
 # Commands
 ### `init` project.
@@ -362,12 +367,12 @@ setups:
     array_vars: # Map<ArrayVar.name,ArrayVar|Regex> : Optional
       group1: ".*" # String, It's a short way to set only ArrayVar.pattern.
       group2:      # ArrayVar
-        pattern: PREFIX_.*       # ArrayVar.pattern : Regex - Required
-        case: CamelCase          # ArrayVar.case : Enum<Case> - Optional
-        format: "{key}={value}"  # ArrayVar.format : String - Optional
-        delimiter: ";"          # ArrayVar.delimiter : String - Optional
-    vars:   # Array[EnvVar]
-      - VAR1  # Vars.env_var : String
+        pattern: PREFIX_.*           # ArrayVar.pattern : Regex - Required
+        case: CamelCase              # ArrayVar.case : Enum<Case> - Optional
+        format: "[{key}]='{value}'"  # ArrayVar.format : String - Optional
+        delimiter: " "               # ArrayVar.delimiter : String - Optional
+    vars: []
+
 ```
 
 #### Setup.name
@@ -393,8 +398,8 @@ PREFIX_VAR2=P_VALUE2
 ```
 Environment variable will be injected, see [ArrayVar.format](#arrayvarformat) for more details.
 ```
-GROUP1 => [VAR1]='VALUE1' [VAR2]='VALUE2' [PREFIX_VAR1]='P_VALUE1' [PREFIX_VAR2]='P_VALUE2'
-GROUP2 => PrefixVar1=P_VALUE1;PrefixVar2=P_VALUE2
+GROUP1 => VAR1:VALUE1,VAR2:VALUE2,PREFIX_VAR1:P_VALUE1,PREFIX_VAR2:P_VALUE2
+GROUP2 => [PrefixVar1]='P_VALUE1' [PrefixVar2]='P_VALUE2'
 ```
 
 #### ArrayVar.pattern (Regex)
@@ -419,12 +424,13 @@ For more indications see the [**lib(heck)***](https://docs.rs/heck) that it's us
 
 #### ArrayVar.format
 
-Format that it's apply on each variables.
+Format that it's apply on each variables and that will be concatenated in a string.
 There is two data who can used : `{key}` and `{value}`.
 - `key` it's the variables name that is specified in the [environment file](#environment-file-environment_name).
 - `value` it's the variables value that is specified in the [environment file](#environment-file-environment_name).
 
 👉 **By default (sh)** the format `{key}:{value}` it's applied.
+
 👉 **By default (bash)** it apply a format bash associative array format `[{key}]='{value}'` [**(doc)**](https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_10_02.html). 
 
 #### ArrayVar.delimiter
@@ -480,7 +486,7 @@ All `short` commands inside of this folder and his child's folders take for refe
 ### Setup
 
 Setup it's is main concept of short. The setup configuration is describe in [`short.yaml`](#configuration-file-shortyaml) 
-and take a **name**, a **runnable file**, [**public env directory**](#public-directory) and **mapping options**.
+and you can add more than once. It take a **name**, a **runnable file**, [**public env directory**](#public-directory) and **mapping options**.
 This is how short gets an easily way to simplify run command.
 
 👉 Each setup one and only **one runnable file**.
@@ -500,7 +506,7 @@ if these set to the same [**setup**](#setup).
 This directory must be inside of your project (The default value it's the [root folder of the project](#project-shortyaml)).
 That can be a sub folder like `./env/` see [**setup configuration**](#configuration-file-shortyaml) for more details.
 So if you had configured git or another code versioning solution, public directory allow to save with your code
-no critical configuration files like example configuration file.
+no critical configuration files like an example configuration file.
 
 ```
 .
@@ -517,7 +523,8 @@ no critical configuration files like example configuration file.
 
 This directory must be outside of your project. The path of the private directory 
 will be not store in **project configuration ✅** ! So if you had configured git or
-another code versioning solution that will be never commit with your code.
+another code versioning solution that will be never commit with your code and any 
+clues of your private directory will be appear to the short configuration `short.yaml`.
 
 ```
 .
@@ -545,6 +552,7 @@ VAR2=VALUE2
 ```
 
 Each environment inside on the same setup (_public environment directory/private environment directory_), are **synchronised** to each other.
+So value can be changed but, **variables,variables order,spaces, comments** will be the sames.
 
 - For **create** a new environment file see [`new`](#new-env) command.
 - For **list** all environment files see [`ls`](#ls-list-all-setups-and-environments) command.
