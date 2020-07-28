@@ -15,11 +15,11 @@ It is like to run `eval $(.env_file) ./script.sh` with more options.
 - Allow multiple [**setups**](#setup) in the same [**project**](#project-shortyaml).
 - Allow to store example of **no critical** environment file in your source code with a [**public env directory**](#public-directory).
 - Allow to store prod/stage/etc.. and **critical** environment file in your source code with a [**private env directory 🔒**](#private-directory-).
-- You can apply a mapping in order to [**select**, **group** and add **custom formats / cases**](#arrayvar) on the fly on the environment variables.
-- The result of mapping will be **inject** as environment variables in the output .sh script that will be executed.
+- You can apply a mapping in order to [**select**, **group** and add **custom formats / cases**](#arrayvar) on the fly on the [environment variables](#variables).
+- The result of mapping will be **inject** as [environment variables](#variables) in the output .sh script that will be executed.
 
 ![short global workflow](./docs/img/short_global_workflow.png)
-
+variables
 ---
 
 It's include an index/registry that allow to share project templates: **[🌱 template-index](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md)**.
@@ -313,6 +313,20 @@ $> sht ls
 
 ### `vars` display/compare mapping environment variables
 
+As you can see with the variables **[explanation](#variables)**. 
+There is two displays environment variables (UPPER_CASE) and variables (lower_case).
+```
+<variable> | <ENVIRONMENT_VARIABLE> | <value>
+    ..     |           ..           |   ..
+```
+
+When variable are an array this will be displayed like this.
+```
+<variable> | <ENVIRONMENT_VARIABLE> (<pattern>) `case`
+           | <IN_ARRAY_ENVIRONMENT_VARIABLE> | <value>
+           |           ..                    |    ..
+```
+
 e.g. Display variables mapping of `test` current environment
 ```
 $> sht vars
@@ -558,6 +572,16 @@ So value can be changed but, **variables,variables order,spaces, comments** will
 - For **list** all environment files see [`ls`](#ls-list-all-setups-and-environments) command.
 - For **display** the content of environment file see [`envs`](#envs-displaycompare-environment-variables) command.
 - For **edit** en environment file see [`edit`](#edit-env) command.
+
+### Variables
+
+Variables can be come from the [environment file](#environment-file-environment_name)
+or specified in the [configuration file](#configuration-file-shortyaml) : [array_vars](#arrayvar) and [vars](#varsvar).
+
+👉 Injected to script as an **environment variables**, variables name will be converted to **UPPER_CASE**. (See also [`vars`](#vars-displaycompare-mapping-environment-variables) command). 
+
+👉 Represented as an variables, they always be converted to **lower_case**. (See also [`vars`](#vars-displaycompare-mapping-environment-variables) command).
+This display is used only for the cli output readability, like commands as [`vars`](#vars-displaycompare-mapping-environment-variables)
 
 ### Option allow empty
 
