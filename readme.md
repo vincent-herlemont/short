@@ -15,7 +15,7 @@ It is like to run `eval $(.env_file) ./script.sh` with more options.
 - Allow multiple [**setups**](#setup) in the same [**project**](#project-shortyaml).
 - Allow to store example of **no critical** environment file in your source code with a [**public env directory**](#public-directory).
 - Allow to store prod/stage/etc.. and **critical** environment file in your source code with a [**private env directory 🔒**](#private-directory-).
-- You can apply a mapping in order to [**select**, **group** and add **custom formats / cases**](#arrayvar) on the fly on the [environment variables](#variables).
+- You can apply a mapping in order to [**select**, **group** and add **custom formats / cases**](#arrayvars) on the fly on the [environment variables](#variables).
 - The result of mapping will be **inject** as [environment variables](#variables) in the output .sh script that will be executed.
 
 ![short global workflow](./docs/img/short_global_workflow.png)
@@ -385,7 +385,7 @@ setups:
         case: CamelCase              # ArrayVar.case : Enum<Case> - Optional
         format: "[{key}]='{value}'"  # ArrayVar.format : String - Optional
         delimiter: " "               # ArrayVar.delimiter : String - Optional
-    vars: []
+    vars: []       # Vars
 
 ```
 
@@ -397,7 +397,7 @@ Setup name
 
 Path towards the project subdirectory.
 
-#### ArrayVar
+#### ArrayVars
 
 This configuration allow to group and apply custom format and mapping in one environment variables.
 
@@ -459,7 +459,10 @@ Variables as set here, are selected for injection.
 
 👉 Must **match** with environment variables. 
 
-👉 If it's no specified or empty, **all variables are selected**. 
+👉 If it's no specified, **all variables are selected**. 
+
+👉 If it's empty like `vars: []`, **any variables are selected**. 
+
 
 # Help 
 ```
@@ -576,7 +579,7 @@ So value can be changed but, **variables,variables order,spaces, comments** will
 ### Variables
 
 Variables can be come from the [environment file](#environment-file-environment_name)
-or specified in the [configuration file](#configuration-file-shortyaml) : [array_vars](#arrayvar) and [vars](#varsvar).
+or specified in the [configuration file](#configuration-file-shortyaml) : [array_vars](#arrayvars) and [vars](#varsvar).
 
 👉 Injected to script as an **environment variables**, variables name will be converted to **UPPER_CASE**. (See also [`vars`](#vars-displaycompare-mapping-environment-variables) command). 
 

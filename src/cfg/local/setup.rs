@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::cfg::local::setup_vars::Vars;
 use crate::cfg::local::ArrayVars;
 use crate::cfg::setup::SetupCfg;
-use crate::cfg::{CfgError};
+use crate::cfg::CfgError;
 
 pub type SetupName = String;
 
@@ -65,7 +65,6 @@ impl LocalSetupCfg {
         };
 
         local_setup.new_array_vars();
-        local_setup.new_vars();
 
         local_setup
     }
@@ -76,12 +75,6 @@ impl LocalSetupCfg {
 
     pub fn set_file(&mut self, file: PathBuf) {
         self.file = file;
-    }
-
-    pub fn new_vars(&mut self) -> Rc<RefCell<Vars>> {
-        let vars = Rc::new(RefCell::new(Vars::new()));
-        self.vars = Some(Rc::clone(&vars));
-        vars
     }
 
     pub fn new_array_vars(&mut self) -> Rc<RefCell<ArrayVars>> {
@@ -143,8 +136,7 @@ file: run.sh
 array_vars:
   all: ".*"
   var2: "*_SUFFIX"
-  var1: PREFIX_*
-vars: []"#;
+  var1: PREFIX_*"#;
 
         let array_vars = setup_cfg.array_vars().unwrap();
         let mut array_vars = array_vars.borrow_mut();

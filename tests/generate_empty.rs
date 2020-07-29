@@ -293,8 +293,7 @@ setups:
         pattern: ".*"
         case: CamelCase
         format: "[{key}]='{value}'"
-        delimiter: " "
-    vars: []"#,
+        delimiter: " ""#,
         &r
     );
 }
@@ -341,8 +340,7 @@ setups:
   setup_1:
     file: run.sh
     array_vars:
-      all: ".*"
-    vars: []"#,
+      all: ".*""#,
         &r
     );
 }

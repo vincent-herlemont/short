@@ -7,6 +7,8 @@ use crate::cfg::{ArrayVar, ArrayVars, Setup, VarCase, VarName, Vars};
 use crate::env_file;
 use crate::env_file::Env;
 use heck::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 const DEFAULT_DELIMITER: &'static str = ",";
 const DEFAULT_FORMAT: &'static str = "{key}:{value}";
@@ -127,10 +129,13 @@ pub fn generate_env_var(env: &Env, var: &VarName) -> EnvVar {
         )
 }
 
-pub fn generate_env_vars<AV, V>(env: &Env, array_vars: AV, vars: V) -> Result<Vec<EnvVar>>
+pub fn generate_env_vars<AV>(
+    env: &Env,
+    array_vars: AV,
+    vars: Option<Rc<RefCell<Vars>>>,
+) -> Result<Vec<EnvVar>>
 where
     AV: Deref<Target = ArrayVars>,
-    V: Deref<Target = Vars>,
 {
     let mut env_vars: Vec<EnvVar> = vec![];
 
@@ -139,18 +144,18 @@ where
         env_vars.append(&mut vec![env_var]);
     }
 
-    let vars = vars.as_ref();
-    if vars.is_empty() {
+    if let Some(vars) = vars {
+        let vars = vars.borrow();
+        for var in vars.as_ref().iter() {
+            let env_var = generate_env_var(env, var);
+            env_vars.append(&mut vec![env_var]);
+        }
+    } else {
         for env_var in env.iter() {
             env_vars.push(EnvVar::from((
                 VarName::from(env_var.name().to_owned()),
                 EnvValue::Var(env_var.clone()),
             )));
-        }
-    } else {
-        for var in vars.iter() {
-            let env_var = generate_env_var(env, var);
-            env_vars.append(&mut vec![env_var]);
         }
     }
     Ok(env_vars)

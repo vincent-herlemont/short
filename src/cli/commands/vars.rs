@@ -47,9 +47,9 @@ pub fn vars(app: &ArgMatches) -> Result<()> {
     let local_setup = setup.local_setup().unwrap();
     let local_setup = local_setup.borrow();
     let array_vars = local_setup.array_vars().unwrap_or_default();
-    let vars = local_setup.vars().unwrap_or_default();
+    let vars = local_setup.vars();
     drop(local_setup);
-    let mut env_vars = generate_env_vars(&env_ref, array_vars.borrow(), vars.borrow())?;
+    let mut env_vars = generate_env_vars(&env_ref, array_vars.borrow(), vars)?;
     env_vars.push(
         EnvVar::from_setup(&setup)
             .context(format!("fail to generate var from setup `{:?}`", setup))?,
