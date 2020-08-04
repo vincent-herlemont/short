@@ -19,11 +19,6 @@ It is like to run `eval $(.env_file) ./script.sh` with more options.
 - The result of mapping will be **inject** as [environment variables](#variables) in the output .sh script that will be executed.
 
 ![short global workflow](./docs/img/short_global_workflow.png)
-variables
----
-
-It's include an index/registry that allow to share project templates: **[🌱 template-index](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md)**.
-
 # Install
 
 Require for compilation : [libgit2](https://libgit2.org/), [openssl](https://www.openssl.org/).
@@ -77,6 +72,23 @@ $> [my_setup:my_env] ~/your_project$
     
 </details>
 
+# Quick start blank ✍️
+
+Generate a simply **sh** script who display variables. You can use this base
+for what as you want. See [`generate`](#generate-setup) for more details. 
+
+```
+sht generate <setup_name> <environment_name> <file_kind:sh|bash>
+```
+
+```
+$> sht init
+$> sht generate setup_1 test sh -d
+$> sht run
+```
+`-d`: create a sub directory (optional).
+
+
 # Quick start with template
 
 <details>
@@ -116,22 +128,6 @@ $> [my_setup:my_env] ~/your_project$
 </details>
 
 You can list all templates available with `sht generate -l` and add a new one [**here**](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md#add-template-and-share-with-the-community).
-
-# Quick start blank ✍️
-
-Generate a simply **sh** script who display variables. You can use this base
-for what as you want. See [`generate`](#generate-setup) for more details. 
-
-```
-sht generate <setup_name> <environment_name> <file_kind:sh|bash>
-```
-
-```
-$> sht init
-$> sht generate setup_1 test sh -d
-$> sht run
-```
-`-d`: create a sub directory (optional).
 
 # Commands
 ### `init` project.
