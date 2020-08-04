@@ -72,7 +72,7 @@ $> [my_setup:my_env] ~/your_project$
     
 </details>
 
-# Quick start blank ✍️
+### Quick start blank ✍️
 
 Generate a simply **sh** script who display variables. You can use this base
 for what as you want. See [`generate`](#generate-setup) for more details. 
@@ -89,7 +89,7 @@ $> sht run
 `-d`: create a sub directory (optional).
 
 
-# Quick start with template
+### Quick start with template 🚀
 
 <details>
   <summary>🌱 Example with <b>Node && ExpressJs</b></summary>
@@ -128,6 +128,29 @@ $> sht run
 </details>
 
 You can list all templates available with `sht generate -l` and add a new one [**here**](https://github.com/vincent-herlemont/short-template-index/blob/master/readme.md#add-template-and-share-with-the-community).
+
+----
+
+- [Commands](#commands)
+  - [`init` project](#init-project) - create an empty project
+  - [`generate` setup](#generate-setup) - generate a setup inside a project 
+  - [`rename` setup](#rename-setup) - rename a setup
+  - [`new` env](#new-env) - create new env file
+  - [`sync` env](#sync-env) - sync env files
+  - [`edit` env](#edit-env) - edit an env file
+  - [`dir` env directory](#dir-env-directory) - set/unset a public env directory
+  - [`pdir` env private directory](#pdir-env-private-directory) - set/unset a private env directory
+  - [`use` select/switch your setup/environment](#use-selectswitch-your-setupenvironment)
+  - [`show` your current setup / environment](#show-your-current-setup--environment)
+  - [`ls` list all setups and environments](#ls-list-all-setups-and-environments)
+  - [`vars` display/compare mapping environment variables](#vars-displaycompare-mapping-environment-variables)
+  - [`envs` display/compare environment variables](#envs-displaycompare-environment-variables)
+- [Configuration file `short.yaml`](#configuration-file-shortyaml)
+- [Concepts](#concepts)
+  - [Setup](#setup)
+  - [Directories (public/private)](#directories-publicprivate)
+  - [Environment file `.<environment_name>`](#environment-file-environment_name)
+  - [Variables](#variables)
 
 # Commands
 ### `init` project.
@@ -371,12 +394,12 @@ $> sht vars -e prod test
 
 ```yaml
 setups:
-  my_setup: # Setup.name : String
+  <setup_name>: # Setup.name : String
     file: run.sh # Setup.file : Path - Required
     public_env_dir: env/ # Setup.public_env_dir : Path - Optional
     array_vars: # Map<ArrayVar.name,ArrayVar|Regex> : Optional
-      group1: ".*" # String, It's a short way to set only ArrayVar.pattern.
-      group2:      # ArrayVar
+      <group1>: ".*" # String, It's a short way to set only ArrayVar.pattern.
+      <group2>:      # ArrayVar
         pattern: PREFIX_.*           # ArrayVar.pattern : Regex - Required
         case: CamelCase              # ArrayVar.case : Enum<Case> - Optional
         format: "[{key}]='{value}'"  # ArrayVar.format : String - Optional
@@ -384,6 +407,8 @@ setups:
     vars: []       # Vars
 
 ```
+
+`<...>` means that you can put any attribute name as you want.
 
 #### Setup.name
 
