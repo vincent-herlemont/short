@@ -31,6 +31,7 @@ cargo install short
 It's really recommended to configure the prompt.
 That allow to known every time which [**setup**](#setup) and  
 [**environment**](#environment-file-environment_name) are selected. 
+You can see the command [`show`](#show-your-current-setup--environment) for more details.
 
 <details>
   <summary>✨ PS1 (BASH/ZSH)</summary>
@@ -134,6 +135,7 @@ You can list all templates available with `sht generate -l` and add a new one [*
 - [Commands](#commands)
   - [`init` project](#init-project) - create an empty project
   - [`generate` setup](#generate-setup) - generate a setup inside a project 
+  - [`run` setup](#run-setup) - 🚀
   - [`rename` setup](#rename-setup) - rename a setup
   - [`new` env](#new-env) - create new env file
   - [`sync` env](#sync-env) - sync env files
@@ -244,6 +246,23 @@ $> sht generate node-express -t
 
 </details>
 
+### `run` setup
+
+Run the [runnable script](#setupfile).
+
+<details>
+  <summary>📜 Details</summary>
+
+| Arguments | Required  | Description |
+| ---------- | -------- | ----------- |
+| \<args>... | no | All arguments will be pass to the runnable script as argument. |
+  
+</details>
+
+```
+$> sht run
+```
+
 ### `rename` setup
 
 Rename setup. e.g `my_setup` -> `another_setup`.
@@ -295,22 +314,81 @@ $> sht pdir --unset
 
 ### `use` select/switch your setup/environment
 
-e.g. Select `my_setup` with `dev` environment.
+<details>
+  <summary>📜 Details</summary>
+
+| Arguments | Required  | Description |
+| ---------- | -------- | ----------- |
+| <setup/environment> | yes |The setup name or environment name if another one is already specified. |
+| \<environment> | no | The environment name. |
+  
+</details>
+
+> In this example we have two setups named `my_setup_1`, 
+`my_setup_2` and two environment files named `dev`, `prod`.
+We have to select the setup and the environment `dev` 
+and we switch of to `prod` environment.
+
+e.g. Select `my_setup_1` with `dev` environment.
 ```
-$> sht use my_setup dev
+$> sht use my_setup_1 dev
 ```
 e.g. Switch from `dev` to `prod` environment.
 ```
 $> sht use prod
 ```
+
 👉 If a setup and environment if already selected, you can avoid to provide the setup and just indicate the environment that you want.
 
+> Now we switch to the second setup `my_setup_2`.
+For that we must to specified the setup **and** the environment.
+
+e.g. Switch from `my_setup_1` to `my_setup_2` keeping `prod` environment.
+```
+$> sht use my_setup_2 prod
+```
+
 ### `show` your current setup / environment
+
+
+<details>
+  <summary>📜 Details</summary>
+
+| Options | Default | Description |
+| ---------- | ------- | ----------- |
+| -f, --format | `[{setup}:{env}]` | Display format | 
+
+</details>
 
 ```
 $> sht show
 💁 your current setup is `my_setup`:`dev`
 ```
+
+👉 This command can be use for display the current setup / env in prompt part of the shell.
+So you can use the option `-f` (format). This option remove the return line, and you can 
+format the format as you wanted. By default the value it's `[{setup}:{env}]`. 
+- `{setup}` will be replace by the current setup name.
+- `{env}` will be replace by the current environment name.
+
+<details>
+  <summary>Full example</summary>
+  
+> In this example we have one setup named `my_setup`
+and two environment files named `dev` and `prod`.
+We have to select the setup and the environment `dev` 
+and we switch of to `prod` environment.
+
+```
+$> sht use my_setup dev
+$> sht show
+💁 your current setup is `my_setup`:`dev`
+$> sht use prod
+$> sht show
+💁 your current setup is `my_setup`:`prod`
+```
+
+</details>
 
 ### `ls` list all setups and environments
 
@@ -413,6 +491,10 @@ setups:
 #### Setup.name
 
 Setup name
+
+#### Setup.file
+
+Path to the a runnable script.
 
 #### Setup.public_env_dir
 

@@ -175,6 +175,7 @@ fn run() -> Result<()> {
                 .about("Run setup [ARGS...].")
                 .arg(
                     Arg::with_name("args")
+                        .help("All arguments will be pass to the runnable script as argument.")
                         .index(1)
                         .multiple(true)
                         .takes_value(true),
