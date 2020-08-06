@@ -7,18 +7,24 @@ use std::env;
 use anyhow::Result;
 use clap::{App, AppSettings, Arg, ArgGroup, SubCommand};
 
-use short::cfg::global_cfg_directory;
-use short::cli::cfg::reach_directories;
+#[cfg(not(feature = "disabled_check_new_version"))]
+use short::{
+    cfg::global_cfg_directory,
+    cli::cfg::reach_directories,
+    utils::check_update::{check_update, CrateInfo},
+};
+
 use short::cli::commands;
 use short::cli::commands::DEFAULT_SHOW_FORMAT;
 use short::cli::terminal::emoji;
 use short::run_file::kind::Kind;
 
-use short::utils::check_update::{check_update, CrateInfo};
 use short::BIN_NAME;
 use strum::IntoEnumIterator;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+
+#[cfg(not(feature = "disabled_check_new_version"))]
 const TTL_CHECK_VERSION_SECONDS: &'static i64 = &43200;
 
 fn main() -> Result<()> {
@@ -357,6 +363,7 @@ fn run() -> Result<()> {
             .arg(environments_arg.clone())
         ).get_matches();
 
+    #[cfg(not(feature = "disabled_check_new_version"))]
     if let None = app.subcommand_matches("show") {
         if let Ok((_, global_dir)) = reach_directories() {
             let global_cfg_directory = global_cfg_directory(&global_dir);
