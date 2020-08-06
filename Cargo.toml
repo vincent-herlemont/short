@@ -1,6 +1,6 @@
 [package]
 name = "short"
-version = "0.3.1"
+version = "0.3.2"
 description = "A short cli project manager"
 authors = ["Vincent Herlemont <vincentherl@leszeros.com>"]
 edition = "2018"
@@ -51,3 +51,9 @@ doc = true
 name = "sht"
 path = "src/main.rs"
 doc = false
+
+[features]
+default = []
+
+# Disabled the check that display messages to download the new versions.
+disabled_check_new_version = []
