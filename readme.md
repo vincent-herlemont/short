@@ -21,10 +21,14 @@ It is like to run `eval $(.env_file) ./script.sh` with more options.
 ![short global workflow](./docs/img/short_global_workflow.png)
 # Install
 
+- From sources
+
 Require for compilation : [libgit2](https://libgit2.org/), [openssl](https://www.openssl.org/).
 ```
 cargo install short
 ```
+
+- Arch Linux with AUR : [short-git](https://aur.archlinux.org/packages/short-git/)
 
 ### Configure prompt
 
