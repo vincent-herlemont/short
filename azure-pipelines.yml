@@ -32,5 +32,14 @@ jobs:
        echo "OK"
        echo cargo_version : {$(cargo_version)}
        echo $(ls)
-       echo $(git rev-parse --verify HEAD)
+       object=$(git rev-parse --verify HEAD)
+       data=$(printf '{"tag":"%s","message":"test tag","object":"%s","type":"commit"}' $(cargo_version) $object )
+
+       echo $data
+
+       curl \
+        -X POST \
+        -H "Accept: application/vnd.github.v3+json" \
+        https://api.github.com/repos/vincent-herlemont/short/git/tags \
+        -d $data
 
