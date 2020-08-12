@@ -11,11 +11,13 @@ variables:
 jobs:
   - job: detect_release
     steps:
-    - bash: echo "##vso[task.setvariable variable=github_version]toto"
+    - bash: echo "##vso[task.setvariable variable=github_version;isOutput=true]toto"
+      name: setvarStep
     - bash: |
-       echo github_version1 : {$github_version}
-       echo github_version2 : {$(github_version)}
-       
+       echo github_version : {$(github_version)}
+       echo GITHUB_VERSION : {$GITHUB_VERSION}
+
+      
        github_version=tata
 
        echo 'Get Last release tag (Github) : '
@@ -31,8 +33,12 @@ jobs:
 
 
   - job: github_release
+    variables:
+      github_version: $[ dependencies.detect_release.outputs['setvarStep.github_version'] ]
     dependsOn: detect_release
     condition: and(succeeded('detect_release'), ne(variables['new_version'], '0.0.0'))
     steps:
-    - bash: echo "OK"
+    - bash: | 
+       echo "OK"
+       echo github_version : {$(github_version)}
 
