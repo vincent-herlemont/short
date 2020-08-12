@@ -12,6 +12,6 @@ steps:
       echo 'Get tag'
       curl -s -H "Accept: application/vnd.github.v3+json" \
        "https://api.github.com/repos/vincent-herlemont/short/releases/latest" > lastest-release.json
-- publish: $(System.DefaultWorkingDirectory)/last-release.json
+- publish: $(System.DefaultWorkingDirectory)/lastest-release.json
   artifact: last-release
     
