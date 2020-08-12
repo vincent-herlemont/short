@@ -14,7 +14,7 @@ jobs:
         echo "##vso[task.setvariable variable=version;isOutput=true]$version"
       name: github
     - bash: |
-       version=$(cargo metadata --format-version 1 --manifest-path Cargo.toml \
+       version=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml \
          | jq -r '.packages[] | select(.name | test("short")) | .version')
         echo "##vso[task.setvariable variable=version;isOutput=true]$version"
       name: cargo
