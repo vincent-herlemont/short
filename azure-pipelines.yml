@@ -4,14 +4,10 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-- name: new_version
-  value: '0.0.0'
-
 jobs:
   - job: detect_release
     steps:
-    - bash: echo "##vso[task.setvariable variable=github_version;isOutput=true]toto"
+    - bash: echo "##vso[task.setvariable variable=github_version;isOutput=true]0.0.1"
       name: setvarStep
     - bash: |
        echo github_version : {$(setvarStep.github_version)}
@@ -32,7 +28,7 @@ jobs:
     variables:
       github_version: $[ dependencies.detect_release.outputs['setvarStep.github_version'] ]
     dependsOn: detect_release
-    condition: and(succeeded('detect_release'), ne(variables['new_version'], '0.0.1'))
+    condition: and(succeeded('detect_release'), ne(variables['github_version'], '0.0.1'))
     steps:
     - bash: | 
        echo "OK"
