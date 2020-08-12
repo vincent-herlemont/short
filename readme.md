@@ -4,7 +4,9 @@
 )
 [![linux](https://github.com/vincent-herlemont/short/workflows/linux/badge.svg)](https://github.com/vincent-herlemont/short/actions?query=workflow%3Alinux)
 [![osx](https://github.com/vincent-herlemont/short/workflows/osx/badge.svg)](https://github.com/vincent-herlemont/short/actions?query=workflow%3Aosx)
+[![azure releases](https://img.shields.io/azure-devops/build/vincentherlemont/short_deploy/1/master?label=releases&logo=azure-pipelines)](https://dev.azure.com/vincentherlemont/short_deploy/_build?definitionId=1)
 [![dicord](https://img.shields.io/static/v1?label=join&message=Discord&color=7289da&&logo=Discord)](https://discord.gg/AnVYgJM)
+
 > A concise cli launcher / project manager using env files. 
 
 The main goal it's readability and time saving with commands use in your project.
