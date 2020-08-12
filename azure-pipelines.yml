@@ -31,4 +31,6 @@ jobs:
     - bash: | 
        echo "OK"
        echo cargo_version : {$(cargo_version)}
+       echo $(ls)
+       echo $(git rev-parse --verify HEAD)
 
