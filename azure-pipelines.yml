@@ -4,6 +4,10 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+- name: new_version
+  value: '0.0.0'
+
 jobs:
   - job: detect_release
     steps:
@@ -11,16 +15,20 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          echo 'Get tag'
+          echo 'Get Last release tag (Github) : '
           curl -s -H "Accept: application/vnd.github.v3+json" \
           "https://api.github.com/repos/vincent-herlemont/short/releases/latest" > lastest-release.json
-    - publish: $(System.DefaultWorkingDirectory)/lastest-release.json
-      artifact: last-release
+          
+          echo 'Get current release tag (Cargo.toml) : '
+          cargo metadata --format-version 1 --manifest-path Cargo.toml \
+           | jq -r '.packages[] | select(.name | test("short")) | .version'
+
   - job: github_release
+    dependsOn: detect_release
+    condition: and(succeeded('detect_release'), ne(variables['new_version'], '0.0.0'))
     steps:
     - task: Bash@3
       inputs:
         targetType: 'inline'
         script: |
-          cargo metadata --format-version 1 --manifest-path Cargo.toml \
-           | jq -r '.packages[] | select(.name | test("short")) | .version'
+
