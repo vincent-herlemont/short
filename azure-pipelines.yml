@@ -7,30 +7,28 @@ pool:
 jobs:
   - job: detect_release
     steps:
-    - bash: 
-      name: setvarStep
     - bash: |
-       echo github_version : {$(setvarStep.github_version)}
-
-       echo 'Get Last release tag (Github) : '
-       curl -s -H "Accept: application/vnd.github.v3+json" \
-         "https://api.github.com/repos/vincent-herlemont/short/releases/latest"
-          
-       echo 'Get current release tag (Cargo.toml) :'
-       cargo metadata --format-version 1 --manifest-path Cargo.toml \
-         | jq -r '.packages[] | select(.name | test("short")) | .version'
-      displayName: 'Reatrieve version github / Cargo.toml'
+        version=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+         "https://api.github.com/repos/vincent-herlemont/short/releases/latest" | \
+          jq -r .tag_name | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g')
+        echo "##vso[task.setvariable variable=version;isOutput=true]$version"
+      name: github
     - bash: |
-        echo github_version : {$(setvarStep.github_version)}
-
+       version=$(cargo metadata --format-version 1 --manifest-path Cargo.toml \
+         | jq -r '.packages[] | select(.name | test("short")) | .version')
+        echo "##vso[task.setvariable variable=version;isOutput=true]$version"
+      name: cargo
+    - bash: |
+        echo github_version : {$(github.version)}
+        echo cargo_version : {$(cargo.version)}
 
   - job: github_release
     variables:
-      github_version: $[ dependencies.detect_release.outputs['setvarStep.github_version'] ]
+      cargo_version: $[ dependencies.detect_release.outputs['cargo.version'] ]
     dependsOn: detect_release
-    condition: and(succeeded('detect_release'), ne(dependencies.detect_release.outputs['setvarStep.github_version'], '0.0.1'))
+    condition: and(succeeded('detect_release'), ne(dependencies.detect_release.outputs['github.version'], dependencies.detect_release.outputs['cargo.version']))
     steps:
     - bash: | 
        echo "OK"
-       echo github_version : {$(github_version)}
+       echo cargo_version : {$(cargo_version)}
 
