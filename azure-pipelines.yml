@@ -28,7 +28,7 @@ jobs:
     variables:
       github_version: $[ dependencies.detect_release.outputs['setvarStep.github_version'] ]
     dependsOn: detect_release
-    condition: and(succeeded('detect_release'), ne(variables['github_version'], '0.0.1'))
+    condition: and(succeeded('detect_release'), ne(dependencies.detect_release.outputs['setvarStep.github_version'], '0.0.1'))
     steps:
     - bash: | 
        echo "OK"
