@@ -12,9 +12,14 @@ jobs:
   - job: detect_release
     steps:
     - task: Bash@3
+      displayName: "retrieve versions (github, Cargo.toml)"
       inputs:
         targetType: 'inline'
         script: |
+          echo "##vso[task.setvariable variable=github_version]toto"
+
+          echo github_version : $(github_version)
+
           echo 'Get Last release tag (Github) : '
           curl -s -H "Accept: application/vnd.github.v3+json" \
           "https://api.github.com/repos/vincent-herlemont/short/releases/latest" > lastest-release.json
@@ -22,6 +27,12 @@ jobs:
           echo 'Get current release tag (Cargo.toml) : '
           cargo metadata --format-version 1 --manifest-path Cargo.toml \
            | jq -r '.packages[] | select(.name | test("short")) | .version'
+    - task: Bash@3
+      displayName: "display github version"
+      inputs:
+        script: 
+          echo github_verion $github_verion
+          echo GITHUB_VERSION $GITHUB_VERSION
 
   - job: github_release
     dependsOn: detect_release
