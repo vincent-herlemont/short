@@ -21,6 +21,7 @@ jobs:
     - bash: |
         echo github_version : {$(github.version)}
         echo cargo_version : {$(cargo.version)}
+
   - job: github_release
     variables:
       cargo_version: $[ dependencies.detect_release.outputs['cargo.version'] ]
@@ -44,7 +45,7 @@ jobs:
     condition: succeeded('github_release')
     steps:
      - bash: | 
-        cargo publish --locked --dry-run
+        cargo publish --locked
 
   - job: arch_linux_release
     variables:
@@ -97,4 +98,4 @@ jobs:
         git add .SRCINFO
         git commit -m "release v$(cargo_version)"
         git log -p -1
-        git push origin --dry-run
+        git push origin
