@@ -44,8 +44,10 @@ jobs:
     dependsOn: [ github_release ]
     condition: succeeded('github_release')
     steps:
-     - bash: | 
-        cargo publish --locked
+     - bash: |
+        cargo publish --locked --token $(cargo_token)
+       env: 
+        CARGO_TOKEN: $(cargo_token)
 
   - job: arch_linux_release
     variables:
