@@ -31,7 +31,7 @@ git2 = "0.13"
 serde_json = "1.0.57"
 heck = "0.3.1"
 strum = "0.19.2"
-strum_macros = "0.19.1"
+strum_macros = "0.19.2"
 colored = "2.0.0"
 prettytable-rs = "^0.8"
 reqwest = { version = "0.10.7", features = ["blocking"] }
