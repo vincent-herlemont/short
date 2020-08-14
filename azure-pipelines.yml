@@ -4,100 +4,144 @@ pr: none
 pool:
   vmImage: 'ubuntu-latest'
 
-jobs:
-  - job: detect_release
-    steps:
-    - bash: |
-        version=$(curl -s -H "Accept: application/vnd.github.v3+json" \
-        "https://api.github.com/repos/vincent-herlemont/short/releases/latest" | \
-          jq -r .tag_name | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g')
-        echo "##vso[task.setvariable variable=version;isOutput=true]$version"
-      name: github
-    - bash: |
-        version=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml \
-          | jq -r '.packages[] | select(.name | test("short")) | .version')
-        echo "##vso[task.setvariable variable=version;isOutput=true]$version"
-      name: cargo
-    - bash: |
-        echo github_version : {$(github.version)}
-        echo cargo_version : {$(cargo.version)}
+stages:
+- stage: check_new_version
+  displayName: Check new version
+  jobs:
+    - job: detect_release
+      steps:
+      - bash: |
+          version=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/vincent-herlemont/short/releases/latest" | \
+            jq -r .tag_name | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g')
+          echo "##vso[task.setvariable variable=github_version]$version"
+      - bash: |
+          version=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml \
+            | jq -r '.packages[] | select(.name | test("short")) | .version')
+          echo "##vso[task.setvariable variable=cargo_version]$version"
+      - bash: |
+          echo github_version : {$(github_version)}
+          echo cargo_version : {$(cargo_version)}
+          if [ "$(github_version)" == "$(cargo_version)" ]; then exit 1; fi;
 
-  - job: github_release
-    variables:
-      cargo_version: $[ dependencies.detect_release.outputs['cargo.version'] ]
-    dependsOn: detect_release
-    condition: and(succeeded('detect_release'), ne(dependencies.detect_release.outputs['github.version'], dependencies.detect_release.outputs['cargo.version']))
-    steps:
-    - task: GitHubRelease@1
-      inputs:
-        gitHubConnection: 'github.com_vincent-herlemont'
-        repositoryName: 'vincent-herlemont/short'
-        action: 'create'
-        target: '$(Build.SourceVersion)'
-        tagSource: 'userSpecifiedTag'
-        tag: 'v$(cargo_version)'
-        title: 'v$(cargo_version)'
-        changeLogCompareToRelease: 'lastFullRelease'
-        changeLogType: 'commitBased'
-  
-  - job: cargo_release
-    dependsOn: [ github_release ]
-    condition: succeeded('github_release')
-    steps:
-     - bash: |
-        cargo publish --locked --token $(cargo_token)
-       env: 
-        CARGO_TOKEN: $(cargo_token)
+- stage: github_release
+  displayName: Github
+  dependsOn: check_new_version
+  jobs:
+    - job: github_release
+      steps:
+      - bash: |
+          version=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml \
+            | jq -r '.packages[] | select(.name | test("short")) | .version')
+          echo "##vso[task.setvariable variable=version]$version"
+      - task: GitHubRelease@1
+        inputs:
+          gitHubConnection: 'github.com_vincent-herlemont'
+          repositoryName: 'vincent-herlemont/short'
+          action: 'create'
+          target: '$(Build.SourceVersion)'
+          tagSource: 'userSpecifiedTag'
+          tag: 'v$(version)'
+          title: 'v$(version)'
+          changeLogCompareToRelease: 'lastFullRelease'
+          changeLogType: 'commitBased'
 
-  - job: arch_linux_release
-    variables:
-      cargo_version: $[ dependencies.detect_release.outputs['cargo.version'] ]
-    dependsOn: [ detect_release, cargo_release ]
-    condition: succeeded('cargo_release')
-    container: vincentherl/archlinux_azure_pipelines:latest
-    steps:
-    - task: DownloadSecureFile@1
-      name: aurCertificate
-      inputs:
-        secureFile: aur
-      
-    - bash: |
-        set -e
-        cd ~
-        mkdir .ssh
-        sudo cp $(aurCertificate.secureFilePath) .ssh/
-        sudo chown vsts_azpcontainer:vsts_azpcontainer .ssh/aur
-        sudo chmod 600 .ssh/aur
+- stage: crateio_release
+  dependsOn: github_release
+  displayName: Crates.io
+  jobs:
+    - job: cargo_publish
+      steps:
+      - bash: |
+          cargo publish --locked --token $(cargo_token)
+        env: 
+          CARGO_TOKEN: $(cargo_token)
 
-        cat <<DOC >> .ssh/config
-        Host aur.archlinux.org
-        HostName aur.archlinux.org
-        User git
-        AddKeysToAgent yes
-        IdentityFile ~/.ssh/aur
-        DOC
+- stage: archlinux_release
+  displayName: AUR (archlinux)
+  dependsOn: crateio_release
+  jobs:
+    - job: arch_linux_release
+      container: vincentherl/archlinux_azure_pipelines:latest
+      steps:
+      - task: DownloadSecureFile@1
+        name: aurCertificate
+        inputs:
+          secureFile: aur
         
-        echo $(aur_known_hosts_entry) >> .ssh/known_hosts
+      - bash: |
+          set -e
+          sudo pacman -S --noconfirm rust jq
+          version=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml \
+            | jq -r '.packages[] | select(.name | test("short")) | .version')
+          cd ~
+          mkdir .ssh
+          sudo cp $(aurCertificate.secureFilePath) .ssh/
+          sudo chown vsts_azpcontainer:vsts_azpcontainer .ssh/aur
+          sudo chmod 600 .ssh/aur
 
-        echo .ssh/known_hosts
-        cat .ssh/known_hosts
-        echo .ssh/config
-        cat .ssh/config
+          cat <<DOC >> .ssh/config
+          Host aur.archlinux.org
+          HostName aur.archlinux.org
+          User git
+          AddKeysToAgent yes
+          IdentityFile ~/.ssh/aur
+          DOC
+          
+          echo $(aur_known_hosts_entry) >> .ssh/known_hosts
 
-        tree -a
-        ls -al .ssh/
+          echo .ssh/known_hosts
+          cat .ssh/known_hosts
+          echo .ssh/config
+          cat .ssh/config
+
+          tree -a
+          ls -al .ssh/
 
 
-        echo Arch linux release
-        git clone ssh://aur@aur.archlinux.org/short-git.git
-        cd short-git
-        makepkg -do
-        makepkg --printsrcinfo > .SRCINFO
-        
-        git config --global user.email "$(git_user_email)"
-        git config --global user.name "$(git_user_name)"
-        git add PKGBUILD
-        git add .SRCINFO
-        git commit -m "release v$(cargo_version)"
-        git log -p -1
-        git push origin
+          echo Arch linux release
+          git clone ssh://aur@aur.archlinux.org/short-git.git
+          cd short-git
+          makepkg -do
+          makepkg --printsrcinfo > .SRCINFO
+          
+          git config --global user.email "$(git_user_email)"
+          git config --global user.name "$(git_user_name)"
+          git add PKGBUILD
+          git add .SRCINFO
+          git commit -m "release v$version"
+          git log -p -1
+          git push origin
+
+- stage: homebrew_release
+  displayName: Homebrew (vincent-herlemont/tap/short)
+  dependsOn: crateio_release
+  jobs:
+  - job: homebrew_release
+    steps:
+      - bash: |
+         set -e
+         version=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml \
+            | jq -r '.packages[] | select(.name | test("short")) | .version')
+         echo "Homebrew release ! (short:$version)"
+         cd ~
+         tarball_url=https://github.com/vincent-herlemont/short/archive/v$version.tar.gz
+         echo tarball_url $tarball_url
+         tarball_file=short-v$version.tar.gz
+         echo tarball_file $tarball_file
+         curl -L -o "$tarball_file" "$tarball_url"
+         tarball_sha256=$(shasum -a 256 $tarball_file | awk '{print $1}')
+         echo tarball_sha256 $tarball_sha256
+         git clone "https://vincent-herlemont:$(github_token)@github.com/vincent-herlemont/homebrew-tap.git"
+         cd homebrew-tap/Formula
+         ls -al
+         sed -i.bak -E "s/^([ ]+url \").*(\")$/\1$(echo $tarball_url | sed -E 's/[]\/$*.^[]/\\&/g')\2/" short.rb
+         sed -i.bak -E "s/^([ ]+sha256 \").*(\")$/\1$tarball_sha256\2/" short.rb
+         git add short.rb
+         git config --global user.email "$(git_user_email)"
+         git config --global user.name "$(git_user_name)"
+         git commit -m "release v$version"
+         git log -p -1
+         git push origin
+        env: 
+          GITHUB_TOKEN: $(github_token)
