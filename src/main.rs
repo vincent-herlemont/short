@@ -7,7 +7,7 @@ use std::env;
 use anyhow::Result;
 use clap::{App, AppSettings, Arg, ArgGroup, SubCommand};
 
-#[cfg(not(feature = "disabled_check_new_version"))]
+#[cfg(feature = "reqwest")]
 use short::{
     cfg::global_cfg_directory,
     cli::cfg::reach_directories,
@@ -24,7 +24,7 @@ use strum::IntoEnumIterator;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-#[cfg(not(feature = "disabled_check_new_version"))]
+#[cfg(feature = "reqwest")]
 const TTL_CHECK_VERSION_SECONDS: &'static i64 = &43200;
 
 fn main() -> Result<()> {
@@ -363,7 +363,7 @@ fn run() -> Result<()> {
             .arg(environments_arg.clone())
         ).get_matches();
 
-    #[cfg(not(feature = "disabled_check_new_version"))]
+    #[cfg(feature = "reqwest")]
     if let None = app.subcommand_matches("show") {
         if let Ok((_, global_dir)) = reach_directories() {
             let global_cfg_directory = global_cfg_directory(&global_dir);

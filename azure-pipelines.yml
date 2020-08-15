@@ -102,6 +102,7 @@ stages:
           echo Arch linux release
           git clone ssh://aur@aur.archlinux.org/short-git.git
           cd short-git
+          cat $(Build.SourcesDirectory)/.releases_tpl/aur_short-git/PKGBUILD | tee PKGBUILD
           makepkg -do
           makepkg --printsrcinfo > .SRCINFO
           
@@ -135,6 +136,7 @@ stages:
          git clone "https://vincent-herlemont:$(github_token)@github.com/vincent-herlemont/homebrew-tap.git"
          cd homebrew-tap/Formula
          ls -al
+         cat $(Build.SourcesDirectory)/.releases_tpl/homebrew/short.rb | tee short.rb
          sed -i.bak -E "s/^([ ]+url \").*(\")$/\1$(echo $tarball_url | sed -E 's/[]\/$*.^[]/\\&/g')\2/" short.rb
          sed -i.bak -E "s/^([ ]+sha256 \").*(\")$/\1$tarball_sha256\2/" short.rb
          git add short.rb
