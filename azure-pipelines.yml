@@ -131,6 +131,7 @@ stages:
          tarball_file=short-v$version.tar.gz
          echo tarball_file $tarball_file
          curl -L -o "$tarball_file" "$tarball_url"
+         ls -al
          tarball_sha256=$(shasum -a 256 $tarball_file | awk '{print $1}')
          echo tarball_sha256 $tarball_sha256
          git clone "https://vincent-herlemont:$(github_token)@github.com/vincent-herlemont/homebrew-tap.git"
