@@ -34,7 +34,7 @@ strum = "0.19.2"
 strum_macros = "0.19.2"
 colored = "2.0.0"
 prettytable-rs = "^0.8"
-reqwest = { version = "0.10.7", features = ["blocking"] }
+reqwest = { version = "0.10.7", features = ["blocking"], optional = true }
 versions = "1.0.1"
 crossterm = "0.17.7"
 
@@ -53,7 +53,4 @@ path = "src/main.rs"
 doc = false
 
 [features]
-default = []
-
-# Disabled the check that display messages to download the new versions.
-disabled_check_new_version = []
+default = [ "reqwest" ]
