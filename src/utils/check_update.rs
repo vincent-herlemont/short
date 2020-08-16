@@ -1,4 +1,4 @@
-#![cfg(feature = "reqwest")]
+#![cfg(all(feature = "reqwest", feature = "versions"))]
 use crate::cli::terminal::emoji;
 use crate::utils::file_time::create_time;
 use anyhow::{Context, Result};
