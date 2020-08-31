@@ -18,7 +18,7 @@ log = "0.4.8"
 env_logger = "0.7.1"
 open = "1.4.0"
 tempdir = "0.3.7"
-fs_extra = "1.1.0"
+fs_extra = "1.2.0"
 walkdir = "2.3.1"
 serde_yaml ="0.8.13"
 serde = { version = "1.0.112", features = ["derive","rc"] }
