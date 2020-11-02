@@ -20,7 +20,7 @@ open = "1.4.0"
 tempdir = "0.3.7"
 fs_extra = "1.2.0"
 walkdir = "2.3.1"
-serde_yaml ="0.8.13"
+serde_yaml ="0.8.14"
 serde = { version = "1.0.116", features = ["derive","rc"] }
 regex = "1.4.1"
 clap = "2.33.2"
