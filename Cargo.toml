@@ -39,7 +39,7 @@ versions = { version = "2.0.1", optional = true }
 crossterm = "0.18.2"
 
 [dev-dependencies]
-predicates = "1.0.4"
+predicates = "1.0.6"
 cli_integration_test = "0.2.3"
 
 [lib]
