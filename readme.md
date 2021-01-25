@@ -9,6 +9,8 @@
 
 > A concise cli launcher / project manager using env files. 
 
+# :warning: Deprecated branch, this project will be entirely rewritten.
+
 The main goal it's readability and time saving with commands use in your project.
 Short it's command-line tool that allow to run program (usually sh script) with environment variables mapping from .env files.
 It is like to run `eval $(.env_file) ./script.sh` with more options. 
