@@ -14,7 +14,7 @@ categories = ["command-line-utilities","development-tools::build-utils"]
 [dependencies]
 anyhow = "1.0.38"
 thiserror = "1.0.23"
-log = "0.4.8"
+log = "0.4.14"
 env_logger = "0.8.2"
 open = "1.4.0"
 tempdir = "0.3.7"
