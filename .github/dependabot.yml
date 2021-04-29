@@ -1,0 +1,31 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: versions
+    versions:
+    - 2.0.2
+    - 2.1.0
+  - dependency-name: open
+    versions:
+    - 1.5.0
+    - 1.5.1
+    - 1.6.0
+  - dependency-name: regex
+    versions:
+    - 1.4.5
+  - dependency-name: serde
+    versions:
+    - 1.0.123
+    - 1.0.124
+  - dependency-name: serde_json
+    versions:
+    - 1.0.62
+  - dependency-name: serde_yaml
+    versions:
+    - 0.8.15
+    - 0.8.16
